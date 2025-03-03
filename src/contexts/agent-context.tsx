@@ -1,6 +1,5 @@
 "use client";
-
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect, useMemo } from "react";
 import { clientService, accountService, ClientDTO, AccountDTO } from "@/lib/api";
 import { handleApiError } from "@/lib/api/error-handler";
 
@@ -154,8 +153,13 @@ const mockActivities = [
   }
 ];
 
+// Generate a unique ID
+const generateUniqueId = (prefix: string): string => {
+  return `${prefix}-${crypto.randomUUID().substring(0, 8)}`;
+};
+
 // Create a provider component
-export function AgentProvider({ children }: { children: ReactNode }) {
+export function AgentProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [agentId] = useState("agent001");
   const [clients, setClients] = useState<Client[]>(mockClients);
   const [transactions] = useState<Transaction[]>(mockTransactions);
@@ -180,7 +184,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       
       // Map API clients to our internal format
       const mappedClients: Client[] = apiClients.map(client => ({
-        id: client.clientId || `client-${Math.random().toString(36).substr(2, 9)}`,
+        id: client.clientId ?? generateUniqueId("client"),
         firstName: client.firstName,
         lastName: client.lastName,
         email: client.emailAddress,
@@ -207,7 +211,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       
       // Map API accounts to our internal format
       const mappedAccounts: Account[] = apiAccounts.map(account => ({
-        id: account.accountId || `account-${Math.random().toString(36).substr(2, 9)}`,
+        id: account.accountId ?? generateUniqueId("account"),
         clientId: account.clientId,
         accountType: account.accountType,
         accountStatus: account.accountStatus,
@@ -252,7 +256,6 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   const addClient = async (clientData: Omit<ClientDTO, "clientId">) => {
     setLoading(true);
     setError(null);
-    
     console.log('Adding client with data:', clientData);
     
     try {
@@ -266,7 +269,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
         console.log('Using mock data for client creation');
         // Mock implementation
         const newClient: Client = {
-          id: `client${clients.length + 1}`,
+          id: generateUniqueId("client"),
           firstName: clientDataWithAgent.firstName,
           lastName: clientDataWithAgent.lastName,
           email: clientDataWithAgent.emailAddress,
@@ -294,7 +297,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
           
           // Add the new client to the state
           const newClient: Client = {
-            id: createdClient.clientId || `client-${Math.random().toString(36).substr(2, 9)}`,
+            id: createdClient.clientId ?? generateUniqueId("client"),
             firstName: createdClient.firstName,
             lastName: createdClient.lastName,
             email: createdClient.emailAddress,
@@ -343,24 +346,24 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       if (useMockData) {
         // Mock implementation
         setClients(
-          clients.map(client => 
-            client.id === clientId 
-              ? { 
-                  ...client, 
-                  firstName: updates.firstName || client.firstName,
-                  lastName: updates.lastName || client.lastName,
-                  email: updates.emailAddress || client.email,
-                  dateOfBirth: updates.dateOfBirth || client.dateOfBirth,
-                  gender: updates.gender || client.gender,
-                  phoneNumber: updates.phoneNumber || client.phoneNumber,
-                  address: updates.address || client.address,
-                  city: updates.city || client.city,
-                  state: updates.state || client.state,
-                  country: updates.country || client.country,
-                  postalCode: updates.postalCode || client.postalCode,
-                  nric: updates.nric || client.nric,
-                  lastUpdated: new Date().toISOString().split('T')[0] 
-                } 
+          clients.map(client =>
+            client.id === clientId
+              ? {
+                  ...client,
+                  firstName: updates.firstName ?? client.firstName,
+                  lastName: updates.lastName ?? client.lastName,
+                  email: updates.emailAddress ?? client.email,
+                  dateOfBirth: updates.dateOfBirth ?? client.dateOfBirth,
+                  gender: updates.gender ?? client.gender,
+                  phoneNumber: updates.phoneNumber ?? client.phoneNumber,
+                  address: updates.address ?? client.address,
+                  city: updates.city ?? client.city,
+                  state: updates.state ?? client.state,
+                  country: updates.country ?? client.country,
+                  postalCode: updates.postalCode ?? client.postalCode,
+                  nric: updates.nric ?? client.nric,
+                  lastUpdated: new Date().toISOString().split('T')[0]
+                }
               : client
           )
         );
@@ -375,18 +378,18 @@ export function AgentProvider({ children }: { children: ReactNode }) {
         // Prepare the update data
         const updateData: ClientDTO = {
           clientId,
-          firstName: updates.firstName || client.firstName,
-          lastName: updates.lastName || client.lastName,
-          emailAddress: updates.emailAddress || client.email,
-          dateOfBirth: updates.dateOfBirth || client.dateOfBirth || '',
-          gender: updates.gender || client.gender || '',
-          phoneNumber: updates.phoneNumber || client.phoneNumber || '',
-          address: updates.address || client.address || '',
-          city: updates.city || client.city || '',
-          state: updates.state || client.state || '',
-          country: updates.country || client.country || '',
-          postalCode: updates.postalCode || client.postalCode || '',
-          nric: updates.nric || client.nric || '',
+          firstName: updates.firstName ?? client.firstName,
+          lastName: updates.lastName ?? client.lastName,
+          emailAddress: updates.emailAddress ?? client.email,
+          dateOfBirth: updates.dateOfBirth ?? client.dateOfBirth ?? '',
+          gender: updates.gender ?? client.gender ?? '',
+          phoneNumber: updates.phoneNumber ?? client.phoneNumber ?? '',
+          address: updates.address ?? client.address ?? '',
+          city: updates.city ?? client.city ?? '',
+          state: updates.state ?? client.state ?? '',
+          country: updates.country ?? client.country ?? '',
+          postalCode: updates.postalCode ?? client.postalCode ?? '',
+          nric: updates.nric ?? client.nric ?? '',
           agentId: agentId // Preserve the agent ID
         };
         
@@ -395,24 +398,24 @@ export function AgentProvider({ children }: { children: ReactNode }) {
         
         // Update the client in the state
         setClients(
-          clients.map(c => 
-            c.id === clientId 
-              ? { 
-                  ...c, 
-                  firstName: updates.firstName || c.firstName,
-                  lastName: updates.lastName || c.lastName,
-                  email: updates.emailAddress || c.email,
-                  dateOfBirth: updates.dateOfBirth || c.dateOfBirth,
-                  gender: updates.gender || c.gender,
-                  phoneNumber: updates.phoneNumber || c.phoneNumber,
-                  address: updates.address || c.address,
-                  city: updates.city || c.city,
-                  state: updates.state || c.state,
-                  country: updates.country || c.country,
-                  postalCode: updates.postalCode || c.postalCode,
-                  nric: updates.nric || c.nric,
-                  lastUpdated: new Date().toISOString().split('T')[0] 
-                } 
+          clients.map(c =>
+            c.id === clientId
+              ? {
+                  ...c,
+                  firstName: updates.firstName ?? c.firstName,
+                  lastName: updates.lastName ?? c.lastName,
+                  email: updates.emailAddress ?? c.email,
+                  dateOfBirth: updates.dateOfBirth ?? c.dateOfBirth,
+                  gender: updates.gender ?? c.gender,
+                  phoneNumber: updates.phoneNumber ?? c.phoneNumber,
+                  address: updates.address ?? c.address,
+                  city: updates.city ?? c.city,
+                  state: updates.state ?? c.state,
+                  country: updates.country ?? c.country,
+                  postalCode: updates.postalCode ?? c.postalCode,
+                  nric: updates.nric ?? c.nric,
+                  lastUpdated: new Date().toISOString().split('T')[0]
+                }
               : c
           )
         );
@@ -436,7 +439,6 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       } else {
         // API implementation
         await clientService.deleteClient(clientId);
-        
         // Remove the client from the state
         setClients(clients.filter(client => client.id !== clientId));
       }
@@ -464,7 +466,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       if (useMockData) {
         // Mock implementation
         const newAccount: Account = {
-          id: `account${accounts.length + 1}`,
+          id: generateUniqueId("account"),
           clientId: accountData.clientId,
           accountType: accountData.accountType,
           accountStatus: accountData.accountStatus,
@@ -481,7 +483,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
         
         // Add the new account to the state
         const newAccount: Account = {
-          id: createdAccount.accountId || `account-${Math.random().toString(36).substr(2, 9)}`,
+          id: createdAccount.accountId ?? generateUniqueId("account"),
           clientId: createdAccount.clientId,
           accountType: createdAccount.accountType,
           accountStatus: createdAccount.accountStatus,
@@ -509,9 +511,9 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       if (useMockData) {
         // Mock implementation
         setAccounts(
-          accounts.map(account => 
-            account.id === accountId 
-              ? { ...account, ...updates } 
+          accounts.map(account =>
+            account.id === accountId
+              ? { ...account, ...updates }
               : account
           )
         );
@@ -526,13 +528,13 @@ export function AgentProvider({ children }: { children: ReactNode }) {
         // Prepare the update data
         const updateData: AccountDTO = {
           accountId,
-          clientId: updates.clientId || account.clientId,
-          accountType: updates.accountType || account.accountType,
-          accountStatus: updates.accountStatus || account.accountStatus,
-          openingDate: updates.openingDate || account.openingDate,
-          initialDeposit: updates.initialDeposit !== undefined ? updates.initialDeposit : account.initialDeposit,
-          currency: updates.currency || account.currency,
-          branchId: updates.branchId || account.branchId
+          clientId: updates.clientId ?? account.clientId,
+          accountType: updates.accountType ?? account.accountType,
+          accountStatus: updates.accountStatus ?? account.accountStatus,
+          openingDate: updates.openingDate ?? account.openingDate,
+          initialDeposit: updates.initialDeposit ?? account.initialDeposit,
+          currency: updates.currency ?? account.currency,
+          branchId: updates.branchId ?? account.branchId
         };
         
         // Update the account in the API
@@ -540,9 +542,9 @@ export function AgentProvider({ children }: { children: ReactNode }) {
         
         // Update the account in the state
         setAccounts(
-          accounts.map(a => 
-            a.id === accountId 
-              ? { ...a, ...updates } 
+          accounts.map(a =>
+            a.id === accountId
+              ? { ...a, ...updates }
               : a
           )
         );
@@ -566,7 +568,6 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       } else {
         // API implementation
         await accountService.deleteAccount(accountId);
-        
         // Remove the account from the state
         setAccounts(accounts.filter(account => account.id !== accountId));
       }
@@ -600,7 +601,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       
       // Map API accounts to our internal format
       const clientAccounts: Account[] = apiAccounts.map(account => ({
-        id: account.accountId || `account-${Math.random().toString(36).substr(2, 9)}`,
+        id: account.accountId ?? generateUniqueId("account"),
         clientId: account.clientId,
         accountType: account.accountType,
         accountStatus: account.accountStatus,
@@ -629,31 +630,41 @@ export function AgentProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Use useMemo to optimize the context value
+  const contextValue = useMemo(() => ({
+    agentId,
+    clients,
+    transactions,
+    accounts,
+    loading,
+    error,
+    recentActivities,
+    isClientOwner,
+    addClient,
+    updateClient,
+    deleteClient,
+    getClientTransactions,
+    getClientAccounts,
+    fetchClientAccounts,
+    addAccount,
+    updateAccount,
+    deleteAccount,
+    useMockData,
+    setUseMockData,
+    refreshData
+  }), [
+    agentId,
+    clients,
+    transactions,
+    accounts,
+    loading,
+    error,
+    recentActivities,
+    useMockData
+  ]);
+
   return (
-    <AgentContext.Provider 
-      value={{ 
-        agentId, 
-        clients, 
-        transactions, 
-        accounts,
-        loading,
-        error,
-        recentActivities,
-        isClientOwner, 
-        addClient, 
-        updateClient,
-        deleteClient,
-        getClientTransactions,
-        getClientAccounts,
-        fetchClientAccounts,
-        addAccount,
-        updateAccount,
-        deleteAccount,
-        useMockData,
-        setUseMockData,
-        refreshData
-      }}
-    >
+    <AgentContext.Provider value={contextValue}>
       {children}
     </AgentContext.Provider>
   );

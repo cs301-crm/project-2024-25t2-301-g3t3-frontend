@@ -7,10 +7,7 @@ import { useAgent } from "@/contexts/agent-context";
 import { 
   Users, 
   Search, 
-  Edit, 
   Trash2,
-  UserPlus,
-  CreditCard,
   RefreshCw,
   Database,
   Server,
@@ -19,7 +16,6 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { CreateClientDialog } from "@/components/client/create-client-dialog";
 import { CreateAccountDialog } from "@/components/client/create-account-dialog";
 import { EditAccountDialog } from "@/components/client/edit-account-dialog";
@@ -28,7 +24,6 @@ import { EditClientDialog } from "@/components/client/edit-client-dialog";
 export default function ClientsPage() {
   const { 
     clients, 
-    accounts,
     loading, 
     error, 
     useMockData, 

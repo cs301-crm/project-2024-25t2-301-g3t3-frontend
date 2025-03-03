@@ -6,7 +6,7 @@ interface TransactionSummaryProps {
   transactions: Transaction[];
 }
 
-export function TransactionSummary({ transactions }: TransactionSummaryProps) {
+export function TransactionSummary({ transactions }: Readonly<TransactionSummaryProps>) {
   // Count transactions by status
   const completedCount = transactions.filter(t => t.status === TRANSACTION_STATUS.COMPLETED).length;
   const pendingCount = transactions.filter(t => t.status === TRANSACTION_STATUS.PENDING).length;

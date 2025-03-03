@@ -4,9 +4,8 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useAgent } from "@/contexts/agent-context";
-import { ClientDTO, Gender } from "@/lib/api";
-import { Client } from "@/contexts/agent-context";
+import { Gender } from "@/lib/api";
+import { useAgent, Client } from "@/contexts/agent-context";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -66,7 +65,7 @@ interface EditClientDialogProps {
   trigger?: React.ReactNode;
 }
 
-export function EditClientDialog({ client, trigger }: EditClientDialogProps) {
+export function EditClientDialog({ client, trigger }: Readonly<EditClientDialogProps>) {
   const [open, setOpen] = useState(false);
   const { updateClient, loading } = useAgent();
   const { toast } = useToast();
@@ -77,16 +76,16 @@ export function EditClientDialog({ client, trigger }: EditClientDialogProps) {
     defaultValues: {
       firstName: client.firstName,
       lastName: client.lastName,
-      dateOfBirth: client.dateOfBirth || "",
-      gender: client.gender || "",
+      dateOfBirth: client.dateOfBirth ?? "",
+      gender: client.gender ?? "",
       emailAddress: client.email,
-      phoneNumber: client.phoneNumber || "",
-      address: client.address || "",
-      city: client.city || "",
-      state: client.state || "",
-      country: client.country || "",
-      postalCode: client.postalCode || "",
-      nric: client.nric || "",
+      phoneNumber: client.phoneNumber ?? "",
+      address: client.address ?? "",
+      city: client.city ?? "",
+      state: client.state ?? "",
+      country: client.country ?? "",
+      postalCode: client.postalCode ?? "",
+      nric: client.nric ?? "",
     },
   });
 
@@ -94,41 +93,58 @@ export function EditClientDialog({ client, trigger }: EditClientDialogProps) {
   useEffect(() => {
     const phoneNumber = form.getValues("phoneNumber");
     const codeMatch = phoneNumber.match(/^\+\d+/);
-    if (codeMatch && codeMatch[0] && codeToCountry[codeMatch[0]]) {
+    
+    if (codeMatch?.[0] && codeToCountry[codeMatch[0]]) {
       setCountryCode(codeMatch[0]);
-    } else if (form.getValues("country") && countryToCode[form.getValues("country")]) {
-      setCountryCode(countryToCode[form.getValues("country")]);
+    } else {
+      const country = form.getValues("country");
+      if (country && countryToCode[country]) {
+        setCountryCode(countryToCode[country]);
+      }
     }
   }, []);
 
   // Update country code when country changes
   useEffect(() => {
-    const country = form.watch("country");
-    if (country && countryToCode[country]) {
-      setCountryCode(countryToCode[country]);
-      
-      // Update phone number with new country code
-      const phoneNumber = form.getValues("phoneNumber");
-      const phoneWithoutCode = phoneNumber.replace(/^\+\d+\s*/, "");
-      form.setValue("phoneNumber", countryToCode[country] + " " + phoneWithoutCode);
-    }
-  }, [form.watch("country")]);
+    const subscription = form.watch((value, { name }) => {
+      if (name === "country") {
+        const country = value.country;
+        if (country && countryToCode[country]) {
+          setCountryCode(countryToCode[country]);
+          
+          // Update phone number with new country code
+          const phoneNumber = form.getValues("phoneNumber") ?? "";
+          const phoneWithoutCode = phoneNumber.replace(/^\+\d+\s*/, "");
+          form.setValue("phoneNumber", countryToCode[country] + " " + phoneWithoutCode);
+        }
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   // Extract country code from phone number
   useEffect(() => {
-    const phoneNumber = form.watch("phoneNumber");
-    const codeMatch = phoneNumber.match(/^\+\d+/);
-    if (codeMatch && codeMatch[0] && codeToCountry[codeMatch[0]]) {
-      setCountryCode(codeMatch[0]);
-      
-      // Update country if it doesn't match the phone code
-      const currentCountry = form.getValues("country");
-      const matchingCountry = codeToCountry[codeMatch[0]];
-      if (currentCountry !== matchingCountry) {
-        form.setValue("country", matchingCountry);
+    const subscription = form.watch((value, { name }) => {
+      if (name === "phoneNumber") {
+        const phoneNumber = value.phoneNumber ?? "";
+        const codeMatch = phoneNumber.match(/^\+\d+/);
+        
+        if (codeMatch?.[0] && codeToCountry[codeMatch[0]]) {
+          setCountryCode(codeMatch[0]);
+          
+          // Update country if it doesn't match the phone code
+          const currentCountry = form.getValues("country");
+          const matchingCountry = codeToCountry[codeMatch[0]];
+          if (currentCountry !== matchingCountry) {
+            form.setValue("country", matchingCountry);
+          }
+        }
       }
-    }
-  }, [form.watch("phoneNumber")]);
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   async function onSubmit(data: ClientFormValues) {
     try {
@@ -150,7 +166,7 @@ export function EditClientDialog({ client, trigger }: EditClientDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || (
+        {trigger ?? (
           <Button variant="outline" size="sm">
             <Edit className="mr-1 h-3 w-3" />
             Edit

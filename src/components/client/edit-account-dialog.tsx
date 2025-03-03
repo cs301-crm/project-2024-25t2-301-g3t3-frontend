@@ -4,9 +4,8 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useAgent } from "@/contexts/agent-context";
-import { AccountDTO, AccountStatus, AccountType } from "@/lib/api";
-import { Account } from "@/contexts/agent-context";
+import { AccountStatus, AccountType } from "@/lib/api";
+import { useAgent, Account } from "@/contexts/agent-context";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -47,7 +46,7 @@ interface EditAccountDialogProps {
   clientName: string;
 }
 
-export function EditAccountDialog({ account, clientName }: EditAccountDialogProps) {
+export function EditAccountDialog({ account, clientName }: Readonly<EditAccountDialogProps>) {
   const [open, setOpen] = useState(false);
   const { updateAccount, loading } = useAgent();
 

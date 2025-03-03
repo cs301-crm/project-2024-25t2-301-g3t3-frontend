@@ -9,7 +9,7 @@ interface TransactionSearchProps {
   onClear: () => void;
 }
 
-export function TransactionSearch({ searchQuery, onSearchChange, onClear }: TransactionSearchProps) {
+export function TransactionSearch({ searchQuery, onSearchChange, onClear }: Readonly<TransactionSearchProps>) {
   return (
     <div className="flex items-center space-x-2">
       <div className="relative flex-1">

@@ -12,8 +12,6 @@ import {
   TrendingUp,
   BellRing,
   HelpCircle,
-  UserPlus,
-  FileText,
   CreditCard
 } from "lucide-react";
 import { useRole } from "@/contexts/role-context";

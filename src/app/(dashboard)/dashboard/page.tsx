@@ -4,9 +4,7 @@ import { useEffect } from "react";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { 
   Users, 
-  UserPlus, 
   CreditCard, 
-  FileText,
   Link as LinkIcon
 } from "lucide-react";
 import { useRole } from "@/contexts/role-context";
@@ -16,7 +14,7 @@ import { Button } from "@/components/ui/button";
 
 // Agent Dashboard Component
 function AgentDashboard() {
-  const { agentId, recentActivities, clients } = useAgent();
+  const { recentActivities, clients } = useAgent();
 
   return (
     <div className="flex flex-col space-y-6">

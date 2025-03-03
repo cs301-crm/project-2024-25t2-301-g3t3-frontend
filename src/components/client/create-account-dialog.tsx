@@ -1,12 +1,10 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useAgent } from "@/contexts/agent-context";
-import { AccountDTO, AccountStatus, AccountType } from "@/lib/api";
-
+import { AccountStatus, AccountType } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -50,12 +48,12 @@ interface CreateAccountDialogProps {
 export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialogProps = {}) {
   const [open, setOpen] = useState(false);
   const { addAccount, loading, clients } = useAgent();
-  const [selectedClientName, setSelectedClientName] = useState<string>(clientName || "");
+  const [selectedClientName, setSelectedClientName] = useState<string>(clientName ?? "");
 
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
-      clientId: clientId || "",
+      clientId: clientId ?? "",
       accountType: AccountType.SAVINGS,
       accountStatus: AccountStatus.ACTIVE,
       openingDate: new Date().toISOString().split('T')[0],
@@ -79,7 +77,7 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
   async function onSubmit(data: AccountFormValues) {
     await addAccount(data);
     form.reset({
-      clientId: clientId || "",
+      clientId: clientId ?? "",
       accountType: AccountType.SAVINGS,
       accountStatus: AccountStatus.ACTIVE,
       openingDate: new Date().toISOString().split('T')[0],
@@ -136,8 +134,8 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
         <DialogHeader>
           <DialogTitle className="text-center text-xl">Create New Account</DialogTitle>
           <DialogDescription className="text-center">
-            {selectedClientName 
-              ? `Create a new account for ${selectedClientName}` 
+            {selectedClientName
+              ? `Create a new account for ${selectedClientName}`
               : "Select a client and create a new account"}
           </DialogDescription>
         </DialogHeader>
@@ -176,7 +174,6 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
                   />
                 </div>
               )}
-
               <div className="rounded-md border p-4">
                 <h3 className="mb-3 text-sm font-medium">Account Information</h3>
                 <div className="grid gap-4">
@@ -292,7 +289,6 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
                 </div>
               </div>
             </div>
-
             <DialogFooter className="gap-2 sm:gap-0">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel

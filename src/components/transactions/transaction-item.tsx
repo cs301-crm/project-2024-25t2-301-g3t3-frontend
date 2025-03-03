@@ -10,7 +10,7 @@ interface TransactionItemProps {
   onViewDetails: () => void;
 }
 
-export function TransactionItem({ transaction, clientName, onViewDetails }: TransactionItemProps) {
+export function TransactionItem({ transaction, clientName, onViewDetails }: Readonly<TransactionItemProps>) {
   return (
     <div className="rounded-md border p-3 hover:bg-slate-50">
       <div className="flex items-center justify-between">

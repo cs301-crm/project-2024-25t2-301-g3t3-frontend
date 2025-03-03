@@ -6,13 +6,11 @@ import { useAgent } from "@/contexts/agent-context";
 import { 
   CreditCard, 
   Search, 
-  Edit, 
   Trash2,
   RefreshCw,
   Database,
   Server,
-  Filter,
-  UserPlus
+  Filter
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

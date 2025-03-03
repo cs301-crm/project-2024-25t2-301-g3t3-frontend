@@ -9,7 +9,7 @@ interface TransactionListProps {
   onViewDetails: (transaction: Transaction) => void;
 }
 
-export function TransactionList({ transactions, clients, onViewDetails }: TransactionListProps) {
+export function TransactionList({ transactions, clients, onViewDetails }: Readonly<TransactionListProps>) {
   return (
     <div className="max-h-[400px] overflow-y-auto pr-2">
       {transactions.length > 0 ? (

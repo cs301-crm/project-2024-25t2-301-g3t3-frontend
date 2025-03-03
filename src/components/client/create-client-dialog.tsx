@@ -95,11 +95,11 @@ export function CreateClientDialog({ compact = false }) {
     }
   }, [form.watch("country")]);
 
-  // Extract country code from phone number
   useEffect(() => {
     const phoneNumber = form.watch("phoneNumber");
     const codeMatch = phoneNumber.match(/^\+\d+/);
-    if (codeMatch && codeMatch[0] && codeToCountry[codeMatch[0]]) {
+    
+    if (codeMatch?.[0] && codeToCountry[codeMatch[0]]) {
       setCountryCode(codeMatch[0]);
       
       // Update country if it doesn't match the phone code

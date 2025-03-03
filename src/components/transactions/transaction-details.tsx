@@ -11,7 +11,7 @@ interface TransactionDetailsProps {
   onClose: () => void;
 }
 
-export function TransactionDetails({ transaction, clientName, onClose }: TransactionDetailsProps) {
+export function TransactionDetails({ transaction, clientName, onClose }: Readonly<TransactionDetailsProps>) {
   return (
     <div className="space-y-4">
       <div className="rounded-md border p-4">

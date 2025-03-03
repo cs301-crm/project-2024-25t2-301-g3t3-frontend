@@ -4,6 +4,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Remove any template literals in CSS as they're not valid */
+/* If you need dynamic values, consider using CSS variables or a CSS-in-JS solution */
+
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

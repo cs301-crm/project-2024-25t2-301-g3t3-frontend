@@ -37,7 +37,7 @@ export function Branding({
           alt="CRM Logo"
           width={width}
           height={height}
-          className={`h-${width / 4} w-${height / 4}`}
+          style={{ height: `${width / 4}px`, width: `${height / 4}px` }}
         />
       </div>
       

@@ -77,25 +77,7 @@ interface AgentContextType {
 // Create the context with a default value
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
 
-// Mock data for demonstration - using the same client IDs as in clientService for agent001
-const mockClients: Client[] = [
-  {
-    id: "c1000000-0000-0000-0000-000000000001",
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    dateCreated: "2023-01-15",
-    lastUpdated: "2023-03-20",
-  },
-  {
-    id: "c2000000-0000-0000-0000-000000000002",
-    firstName: "Jane",
-    lastName: "Smith",
-    email: "jane.smith@example.com",
-    dateCreated: "2023-02-10",
-    lastUpdated: "2023-03-15",
-  }
-];
+// No mock clients - we'll always fetch from the API
 
 const mockTransactions: Transaction[] = [
   {
@@ -161,7 +143,7 @@ const generateUniqueId = (prefix: string): string => {
 // Create a provider component
 export function AgentProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [agentId] = useState("agent001");
-  const [clients, setClients] = useState<Client[]>(mockClients);
+  const [clients, setClients] = useState<Client[]>([]);
   const [transactions] = useState<Transaction[]>(mockTransactions);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [recentActivities] = useState(mockActivities);
@@ -169,9 +151,24 @@ export function AgentProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [error, setError] = useState<string | null>(null);
   const [useMockData, setUseMockData] = useState(false); // Default to real API data
 
+  // Track if we've already fetched data to avoid duplicate calls
+  const [dataFetched, setDataFetched] = useState(false);
+  
   // Function to fetch data from API
   const fetchData = async () => {
     if (useMockData) return;
+    
+    // If we're already loading, don't start another fetch
+    if (loading) {
+      console.log("Skipping fetchData because we're already loading");
+      return;
+    }
+    
+    // If we've already fetched the data and we're not explicitly refreshing, skip
+    if (dataFetched) {
+      console.log("Skipping fetchData because we've already fetched the data");
+      return;
+    }
     
     setLoading(true);
     setError(null);
@@ -204,30 +201,17 @@ export function AgentProvider({ children }: Readonly<{ children: ReactNode }>) {
       
       setClients(mappedClients);
       
-      // Fetch accounts for known clients
-      console.log("Fetching accounts for known clients...");
-      const apiAccounts = await accountService.getAccountsForKnownClients();
-      console.log("Fetched accounts:", apiAccounts);
+      // Mark that we've fetched the data
+      setDataFetched(true);
       
-      // Map API accounts to our internal format
-      const mappedAccounts: Account[] = apiAccounts.map(account => ({
-        id: account.accountId ?? generateUniqueId("account"),
-        clientId: account.clientId,
-        accountType: account.accountType,
-        accountStatus: account.accountStatus,
-        openingDate: account.openingDate,
-        initialDeposit: account.initialDeposit,
-        currency: account.currency,
-        branchId: account.branchId
-      }));
-      
-      setAccounts(mappedAccounts);
+      // We'll fetch accounts on demand when a client is expanded
+      // rather than fetching all accounts upfront
     } catch (err) {
       console.error("Error fetching data:", err);
       handleApiError(err, 'Failed to fetch data from API');
       setError('Failed to fetch data from API');
-      // Fallback to mock data
-      setClients(mockClients);
+      // Fallback to empty array
+      setClients([]);
     } finally {
       setLoading(false);
     }
@@ -238,13 +222,16 @@ export function AgentProvider({ children }: Readonly<{ children: ReactNode }>) {
     if (!useMockData) {
       fetchData();
     } else {
-      setClients(mockClients);
+      // Use empty arrays for mock data since we're not using mock clients anymore
+      setClients([]);
       setAccounts([]);
     }
-  }, [useMockData]);
+  }, [useMockData]); // fetchData is defined inside the component, so it doesn't need to be in the dependency array
 
   const refreshData = async () => {
     if (!useMockData) {
+      // Reset the dataFetched flag to force a refresh
+      setDataFetched(false);
       await fetchData();
     }
   };
@@ -589,6 +576,13 @@ export function AgentProvider({ children }: Readonly<{ children: ReactNode }>) {
     if (clientId.startsWith("client")) {
       console.log(`Skipping API fetch for mock client ID: ${clientId}`);
       return [];
+    }
+    
+    // Check if we already have accounts for this client to avoid unnecessary API calls
+    const existingAccounts = accounts.filter(account => account.clientId === clientId);
+    if (existingAccounts.length > 0) {
+      console.log(`Using ${existingAccounts.length} cached accounts for client ${clientId}`);
+      return existingAccounts;
     }
     
     setLoading(true);

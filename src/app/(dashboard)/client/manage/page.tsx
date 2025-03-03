@@ -38,10 +38,16 @@ export default function ClientsPage() {
   const [expandedClient, setExpandedClient] = useState<string | null>(null);
   const searchParams = useSearchParams();
   
-  // Refresh data when the component mounts
+  // Refresh data when the component mounts - only once
   useEffect(() => {
-    refreshData();
-  }, [refreshData]);
+    // Only refresh data on initial mount
+    const handleInitialLoad = async () => {
+      await refreshData();
+    };
+    
+    handleInitialLoad();
+    // Empty dependency array ensures this only runs once on mount
+  }, []);
   
   // Check if we're coming from the Account Management tab
   useEffect(() => {
@@ -79,7 +85,7 @@ export default function ClientsPage() {
     return () => {
       isMounted = false;
     };
-  }, [searchParams, clients, useMockData, fetchClientAccounts]);
+  }, [searchParams, useMockData, fetchClientAccounts]);
 
   // Filter clients based on search query
   const filteredClients = clients.filter((client) => {
@@ -197,24 +203,6 @@ export default function ClientsPage() {
               >
                 <RefreshCw className={`mr-1 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh Data
-              </Button>
-              <Button 
-                size="sm" 
-                variant={useMockData ? "outline" : "default"} 
-                onClick={() => setUseMockData(false)}
-                disabled={!useMockData || loading}
-              >
-                <Server className="mr-1 h-4 w-4" />
-                Use API Data
-              </Button>
-              <Button 
-                size="sm" 
-                variant={useMockData ? "default" : "outline"} 
-                onClick={() => setUseMockData(true)}
-                disabled={useMockData || loading}
-              >
-                <Database className="mr-1 h-4 w-4" />
-                Use Mock Data
               </Button>
             </div>
             

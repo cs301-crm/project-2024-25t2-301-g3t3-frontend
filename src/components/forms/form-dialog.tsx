@@ -51,7 +51,10 @@ export function FormDialog<T extends FieldValues>({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className={`max-h-[90vh] overflow-y-auto sm:max-w-[${maxWidth}]`}>
+      <DialogContent 
+        className="max-h-[90vh] overflow-y-auto" 
+        style={{ maxWidth: maxWidth }}
+      >
         <DialogHeader>
           <DialogTitle className="text-center text-xl">{title}</DialogTitle>
           {description && (

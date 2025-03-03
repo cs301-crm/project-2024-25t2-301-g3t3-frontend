@@ -33,9 +33,15 @@ export default function AccountsPage() {
   const [accountTypeFilter, setAccountTypeFilter] = useState<string | null>(null);
   const [accountStatusFilter, setAccountStatusFilter] = useState<string | null>(null);
 
-  // Refresh data when the component mounts
+  // Refresh data when the component mounts - only once
   useEffect(() => {
-    refreshData();
+    // Only refresh data on initial mount
+    const handleInitialLoad = async () => {
+      await refreshData();
+    };
+    
+    handleInitialLoad();
+    // Empty dependency array ensures this only runs once on mount
   }, []);
   
   // Fetch accounts for all clients when the page loads
@@ -178,24 +184,6 @@ export default function AccountsPage() {
               >
                 <RefreshCw className={`mr-1 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh Data
-              </Button>
-              <Button 
-                size="sm" 
-                variant={useMockData ? "outline" : "default"} 
-                onClick={() => setUseMockData(false)}
-                disabled={!useMockData || loading}
-              >
-                <Server className="mr-1 h-4 w-4" />
-                Use API Data
-              </Button>
-              <Button 
-                size="sm" 
-                variant={useMockData ? "default" : "outline"} 
-                onClick={() => setUseMockData(true)}
-                disabled={useMockData || loading}
-              >
-                <Database className="mr-1 h-4 w-4" />
-                Use Mock Data
               </Button>
             </div>
             

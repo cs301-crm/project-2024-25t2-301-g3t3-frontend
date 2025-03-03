@@ -19,7 +19,7 @@ api.interceptors.request.use(
   },
   (error) => {
     console.error('API Request Error:', error);
-    return Promise.reject(error);
+    return Promise.reject(error instanceof Error ? error : new Error(String(error)));
   }
 );
 
@@ -68,8 +68,8 @@ api.interceptors.response.use(
       console.error('API Request Error:', error.message);
     }
     
-    // Return a rejected promise with the error
-    return Promise.reject(error);
+    // Ensure we're rejecting with an Error object
+    return Promise.reject(error instanceof Error ? error : new Error(String(error)));
   }
 );
 

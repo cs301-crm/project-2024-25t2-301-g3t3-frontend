@@ -41,7 +41,7 @@ export default function ClientsPage() {
   // Refresh data when the component mounts
   useEffect(() => {
     refreshData();
-  }, []);
+  }, [refreshData]);
   
   // Check if we're coming from the Account Management tab
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function ClientsPage() {
     return () => {
       isMounted = false;
     };
-  }, [searchParams, clients, useMockData]); // Remove fetchClientAccounts from dependencies
+  }, [searchParams, clients, useMockData, fetchClientAccounts]);
 
   // Filter clients based on search query
   const filteredClients = clients.filter((client) => {
@@ -122,6 +122,13 @@ export default function ClientsPage() {
           }
         }
       }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, clientId: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleClientExpand(clientId);
     }
   };
 
@@ -246,8 +253,13 @@ export default function ClientsPage() {
                         className="rounded-md border p-3 hover:bg-slate-50"
                       >
                         <div 
+                          role="button"
+                          tabIndex={0}
                           className="flex items-center justify-between cursor-pointer"
                           onClick={() => toggleClientExpand(client.id)}
+                          onKeyDown={(e) => handleKeyDown(e, client.id)}
+                          aria-expanded={expandedClient === client.id}
+                          aria-controls={`client-details-${client.id}`}
                         >
                           <div>
                             <p className="text-sm font-medium">
@@ -272,7 +284,10 @@ export default function ClientsPage() {
                         </div>
                         
                         {expandedClient === client.id && (
-                          <div className="mt-3 border-t pt-3">
+                          <div 
+                            id={`client-details-${client.id}`}
+                            className="mt-3 border-t pt-3"
+                          >
                             <div className="mb-2 flex justify-between items-center">
                               <h4 className="text-sm font-medium">Account Management</h4>
                               <CreateAccountDialog 

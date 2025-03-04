@@ -8,8 +8,6 @@ import {
   Search, 
   Trash2,
   RefreshCw,
-  Database,
-  Server,
   Filter
 } from "lucide-react";
 import { Input } from "@/components/ui/input";

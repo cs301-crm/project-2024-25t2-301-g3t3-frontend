@@ -9,8 +9,6 @@ import {
   Search, 
   Trash2,
   RefreshCw,
-  Database,
-  Server,
   ChevronDown,
   ChevronUp
 } from "lucide-react";

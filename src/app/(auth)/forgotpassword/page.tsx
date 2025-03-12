@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Shield } from "lucide-react";
 
-import { LoginForm } from "./components/login-form";
+import { ForgotPasswordForm } from "./components/forgot-password-form"; // Update this import
 import { Branding } from "@/components/branding";
 import {
   Card,
@@ -14,11 +14,11 @@ import {
 } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Login | Scrooge Bank CRM System",
-  description: "Login to the Scrooge Bank CRM system",
+  title: "Forgot Password | Scrooge Bank CRM System",
+  description: "Reset your password for the Scrooge Bank CRM system",
 };
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   return (
     <div className="flex flex-col items-center space-y-8">
       <Branding size="md" showTagline={true} layout="horizontal" />
@@ -26,22 +26,22 @@ export default function LoginPage() {
       <Card className="w-full border-slate-200 shadow-sm">
         <CardHeader className="space-y-1 pb-6">
           <CardTitle className="text-center text-xl font-medium tracking-tight">
-            Login
+            Forgot Password
           </CardTitle>
           <CardDescription className="text-center text-slate-500">
-            Enter your credentials to access your account
+            Enter your email to reset your password
           </CardDescription>
         </CardHeader>
         <CardContent className="pb-6">
-          <LoginForm />
+          <ForgotPasswordForm /> {/* Update this component */}
         </CardContent>
         <CardFooter className="flex flex-col space-y-4 border-t bg-slate-50 px-6 py-4">
           <div className="flex justify-center space-x-4 text-center text-sm">
             <Link
-              href="/forgotpassword"
+              href="/login"
               className="text-sm text-slate-600 hover:text-slate-900 hover:underline"
             >
-              Forgot your password?
+              Back to login
             </Link>
             <span className="text-slate-300">|</span>
             <Link

@@ -38,13 +38,13 @@ export default function SignupPage() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4 border-t bg-slate-50 px-6 py-4">
           <div className="flex justify-center space-x-4 text-center text-sm">
-            {/* <Link
-              href="#"
+            <Link
+              href="/forgotpassword"
               className="text-sm text-slate-600 hover:text-slate-900 hover:underline"
             >
               Forgot your password?
-            </Link> */}
-            {/* <span className="text-slate-300">|</span> */}
+            </Link>
+            <span className="text-slate-300">|</span>
             <Link
               href="/login"
               className="text-sm text-slate-600 hover:text-slate-900 hover:underline"

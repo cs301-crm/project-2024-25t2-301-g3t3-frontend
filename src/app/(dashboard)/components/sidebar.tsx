@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Users, 
-  ClipboardList, 
-  BarChart3, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Users,
+  ClipboardList,
+  BarChart3,
+  Settings,
   Calendar,
   TrendingUp,
   BellRing,
   HelpCircle,
-  CreditCard
+  CreditCard,
 } from "lucide-react";
 import { useRole } from "@/contexts/role-context";
 
@@ -25,7 +25,7 @@ interface NavItem {
 export function Sidebar() {
   const pathname = usePathname();
   const { role } = useRole();
-
+  // const role = "admin"; // Testing conditional rendering with admin role
   // Agent-specific navigation items
   const agentNavItems: NavItem[] = [
     {
@@ -71,6 +71,11 @@ export function Sidebar() {
       href: "/calendar",
       label: "Calendar",
       icon: <Calendar className="h-4 w-4" />,
+    },
+    {
+      href: "/agent/manage",
+      label: "Agent Management",
+      icon: <Users className="h-4 w-4" />,
     },
   ];
 
@@ -129,26 +134,27 @@ export function Sidebar() {
     <aside className="hidden w-64 border-r bg-white md:block">
       <div className="flex flex-col gap-6 p-4">
         <div className="space-y-1">
-          {role === "agent" 
+          {role === "agent"
             ? renderNavItems(agentNavItems)
-            : renderNavItems(mainNavItems)
-          }
+            : renderNavItems(mainNavItems)}
         </div>
-        
+
         {role !== "agent" && (
           <>
             <div>
-              <h3 className="mb-1 px-3 text-xs font-semibold uppercase text-slate-500">Reporting</h3>
+              <h3 className="mb-1 px-3 text-xs font-semibold uppercase text-slate-500">
+                Reporting
+              </h3>
               <div className="space-y-1">
                 {renderNavItems(reportingNavItems)}
               </div>
             </div>
-            
+
             <div>
-              <h3 className="mb-1 px-3 text-xs font-semibold uppercase text-slate-500">System</h3>
-              <div className="space-y-1">
-                {renderNavItems(systemNavItems)}
-              </div>
+              <h3 className="mb-1 px-3 text-xs font-semibold uppercase text-slate-500">
+                System
+              </h3>
+              <div className="space-y-1">{renderNavItems(systemNavItems)}</div>
             </div>
           </>
         )}

@@ -15,7 +15,13 @@ interface RoleContextType {
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 // Create a provider component
-export function RoleProvider({ children, initialRole = "agent" }: { children: ReactNode; initialRole?: UserRole }) {
+export function RoleProvider({
+  children,
+  initialRole = "agent",
+}: {
+  children: ReactNode;
+  initialRole?: UserRole;
+}) {
   const [role, setRole] = useState<UserRole>(initialRole);
 
   return (

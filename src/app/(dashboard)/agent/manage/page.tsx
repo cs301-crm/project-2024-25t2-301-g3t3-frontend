@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export default function ManagePage() {
+export default function AgentsPage() {
   return (
     <div className="flex flex-col space-y-6 p-8">
       <div>

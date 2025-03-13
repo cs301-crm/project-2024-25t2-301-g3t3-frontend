@@ -25,18 +25,18 @@ export function Header() {
           <Menu className="h-5 w-5" />
         </Button>
       </div>
-      
+
       <div className="hidden md:flex md:items-center md:gap-2">
         <Link href="/dashboard" className="flex items-center">
           <Branding size="sm" showTagline={false} layout="horizontal" />
         </Link>
       </div>
-      
+
       <div className="ml-auto flex items-center gap-4">
         <Button variant="ghost" size="icon" aria-label="Notifications">
           <Bell className="h-5 w-5" />
         </Button>
-        
+
         <div className="flex items-center gap-2">
           <span className="hidden text-sm text-slate-500 md:inline-block">
             {role === "agent" ? `Agent ${agentId}` : "Admin User"}
@@ -45,7 +45,7 @@ export function Header() {
             <User className="h-5 w-5" />
           </Button>
         </div>
-        
+
         <Button variant="ghost" size="icon" aria-label="Log out">
           <LogOut className="h-5 w-5" />
         </Button>

@@ -145,7 +145,7 @@ function DefaultDashboard() {
 export default function DashboardPage() {
   const { role } = useRole();
   // const role = "admin"; // Testing conditionally rendering the dashboard based on the role
-  console.log(role);
+  // console.log(role);
   const { agentId, refreshData } = useAgent();
 
   // Refresh data when the component mounts

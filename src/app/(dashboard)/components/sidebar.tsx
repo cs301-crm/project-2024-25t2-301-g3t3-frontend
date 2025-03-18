@@ -13,6 +13,7 @@ import {
   BellRing,
   HelpCircle,
   CreditCard,
+  UserCog,
 } from "lucide-react";
 import { useRole } from "@/contexts/role-context";
 
@@ -25,7 +26,7 @@ interface NavItem {
 export function Sidebar() {
   const pathname = usePathname();
   const { role } = useRole();
-  // const role = "admin"; // Testing conditional rendering with admin role
+
   // Agent-specific navigation items
   const agentNavItems: NavItem[] = [
     {
@@ -47,6 +48,12 @@ export function Sidebar() {
       href: "/transactions",
       label: "View Transactions",
       icon: <CreditCard className="h-4 w-4" />,
+    },
+    // Adjust below for admin role only
+    {
+      href: "/agent/manage",
+      label: "Agent Management",
+      icon: <UserCog className="h-4 w-4" />,
     },
   ];
 
@@ -75,7 +82,7 @@ export function Sidebar() {
     {
       href: "/agent/manage",
       label: "Agent Management",
-      icon: <Users className="h-4 w-4" />,
+      icon: <UserCog className="h-4 w-4" />,
     },
   ];
 

@@ -51,3 +51,25 @@ export enum Gender {
   NON_BINARY = 'NON_BINARY',
   PREFER_NOT_TO_SAY = 'PREFER_NOT_TO_SAY',
 }
+
+// For agent-management page
+export interface Agent {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  status: "active" | "disabled"
+}
+
+export interface Client {
+  id: string
+  name: string
+  email: string
+  status: "active" | "inactive"
+}
+
+export interface LogEntry {
+  timestamp: string
+  action: string
+  details: string
+}

@@ -9,7 +9,7 @@ import { FormControl } from "@/components/ui/form";
 interface PasswordInputProps {
   placeholder?: string;
   disabled?: boolean;
-  field: any;
+  field: React.InputHTMLAttributes<HTMLInputElement>;
   className?: string;
 }
 

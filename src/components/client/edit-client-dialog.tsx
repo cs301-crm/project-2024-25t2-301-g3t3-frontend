@@ -7,7 +7,10 @@ import { Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormDialog } from "@/components/forms/form-dialog";
 import { ClientFormFields } from "@/components/forms/client-form-fields";
-import { clientFormSchema, ClientFormValues } from "@/lib/schemas/client-schema";
+import {
+  clientFormSchema,
+  ClientFormValues,
+} from "@/lib/schemas/client-schema";
 import { useToast } from "@/components/ui/use-toast";
 
 interface EditClientDialogProps {
@@ -15,7 +18,10 @@ interface EditClientDialogProps {
   trigger?: React.ReactNode;
 }
 
-export function EditClientDialog({ client, trigger }: Readonly<EditClientDialogProps>) {
+export function EditClientDialog({
+  client,
+  trigger,
+}: Readonly<EditClientDialogProps>) {
   const { updateClient, loading } = useAgent();
   const { toast } = useToast();
 
@@ -45,6 +51,7 @@ export function EditClientDialog({ client, trigger }: Readonly<EditClientDialogP
         description: `${data.firstName} ${data.lastName}'s profile has been updated successfully.`,
       });
     } catch (error) {
+      console.error("Client error:", error);
       toast({
         title: "Error",
         description: "Failed to update client. Please try again.",

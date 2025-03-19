@@ -33,14 +33,14 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginFormValues) {
     setIsLoading(true);
-    
+
     try {
       // In a real application, you would call your authentication API here
       console.log("Login credentials:", values);
-      
+
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       // Redirect to dashboard on successful login
       router.push("/dashboard");
     } catch (error) {
@@ -58,7 +58,9 @@ export function LoginForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-slate-700">Email</FormLabel>
+              <FormLabel className="text-sm font-medium text-slate-700">
+                Email
+              </FormLabel>
               <FormControl>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -81,12 +83,14 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-slate-700">Password</FormLabel>
+              <FormLabel className="text-sm font-medium text-slate-700">
+                Password
+              </FormLabel>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <PasswordInput 
-                  field={field} 
-                  disabled={isLoading} 
+                <PasswordInput
+                  field={field}
+                  disabled={isLoading}
                   placeholder="••••••••"
                 />
               </div>
@@ -94,8 +98,8 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full bg-slate-800 font-medium hover:bg-slate-900"
           disabled={isLoading}
         >

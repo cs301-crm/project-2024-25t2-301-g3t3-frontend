@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { useAgent } from "@/contexts/agent-context";
@@ -19,13 +19,13 @@ import { CreateAccountDialog } from "@/components/client/create-account-dialog";
 import { EditAccountDialog } from "@/components/client/edit-account-dialog";
 import { EditClientDialog } from "@/components/client/edit-client-dialog";
 
-export default function ClientsPage() {
+function ClientsPageInner() {
   const {
     clients,
     loading,
     error,
     useMockData,
-    setUseMockData,
+    // setUseMockData,
     refreshData,
     deleteClient,
     deleteAccount,
@@ -403,5 +403,13 @@ export default function ClientsPage() {
         </DashboardCard>
       </div>
     </div>
+  );
+}
+
+export default function ClientsPage() {
+  return (
+    <Suspense fallback={<div>Loading Client Page...</div>}>
+      <ClientsPageInner />
+    </Suspense>
   );
 }

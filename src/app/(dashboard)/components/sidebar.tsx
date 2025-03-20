@@ -5,10 +5,8 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  ClipboardList,
   BarChart3,
   Settings,
-  Calendar,
   TrendingUp,
   BellRing,
   HelpCircle,

@@ -49,12 +49,6 @@ export function Sidebar() {
       label: "View Transactions",
       icon: <CreditCard className="h-4 w-4" />,
     },
-    // Adjust below for admin role only
-    {
-      href: "/agent/manage",
-      label: "Agent Management",
-      icon: <UserCog className="h-4 w-4" />,
-    },
   ];
 
   // Default navigation items for other roles
@@ -65,19 +59,19 @@ export function Sidebar() {
       icon: <LayoutDashboard className="h-4 w-4" />,
     },
     {
-      href: "/contacts",
-      label: "Contacts",
+      href: "/client/manage",
+      label: "Client Management",
       icon: <Users className="h-4 w-4" />,
     },
     {
-      href: "/tasks",
-      label: "Tasks",
-      icon: <ClipboardList className="h-4 w-4" />,
+      href: "/accounts",
+      label: "Account Management",
+      icon: <CreditCard className="h-4 w-4" />,
     },
     {
-      href: "/calendar",
-      label: "Calendar",
-      icon: <Calendar className="h-4 w-4" />,
+      href: "/transactions",
+      label: "View Transactions",
+      icon: <CreditCard className="h-4 w-4" />,
     },
     {
       href: "/agent/manage",

@@ -12,7 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <RoleProvider initialRole="agent">
+    <RoleProvider initialRole="admin">
       <AgentProvider>
         <div className="flex min-h-screen flex-col bg-slate-50">
           <Header />

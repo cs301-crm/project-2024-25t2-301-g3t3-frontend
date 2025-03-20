@@ -1,4 +1,4 @@
-import api from './config';
+import axiosClient from './axiosClient';
 import { AccountDTO } from './types';
 import { handleApiError } from './error-handler';
 
@@ -26,7 +26,7 @@ export const accountService = {
    * @returns Promise with account data
    */
   getAccountById: async (accountId: string): Promise<AccountDTO> => {
-    const response = await api.get(`/accounts/${accountId}`);
+    const response = await axiosClient.get(`/accounts/${accountId}`);
     return response.data;
   },
 
@@ -36,7 +36,7 @@ export const accountService = {
    * @returns Promise with the created account
    */
   createAccount: async (accountData: AccountDTO): Promise<AccountDTO> => {
-    const response = await api.post('/accounts', accountData);
+    const response = await axiosClient.post('/accounts', accountData);
     return response.data;
   },
 
@@ -47,7 +47,7 @@ export const accountService = {
    * @returns Promise with the updated account
    */
   updateAccount: async (accountId: string, accountData: AccountDTO): Promise<AccountDTO> => {
-    const response = await api.put(`/accounts/${accountId}`, accountData);
+    const response = await axiosClient.put(`/accounts/${accountId}`, accountData);
     return response.data;
   },
 
@@ -57,7 +57,7 @@ export const accountService = {
    * @returns Promise with the deletion result
    */
   deleteAccount: async (accountId: string): Promise<void> => {
-    await api.delete(`/accounts/${accountId}`);
+    await axiosClient.delete(`/accounts/${accountId}`);
   },
 
   /**
@@ -68,7 +68,7 @@ export const accountService = {
   getAccountsByClientId: async (clientId: string): Promise<AccountDTO[]> => {
     try {
       // Using the endpoint from the Java controller: @GetMapping("/client/{clientId}")
-      const response = await api.get(`/accounts/client/${clientId}`);
+      const response = await axiosClient.get(`/accounts/client/${clientId}`);
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to retrieve accounts for client');

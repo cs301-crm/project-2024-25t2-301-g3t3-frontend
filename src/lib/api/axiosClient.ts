@@ -1,15 +1,16 @@
 import axios from 'axios';
 
 // Create an Axios instance with default configuration
-const api = axios.create({
+const axiosClient = axios.create({
   baseURL: 'http://localhost:8081/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // Add request interceptor for debugging
-api.interceptors.request.use(
+axiosClient.interceptors.request.use(
   (config) => {
     console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, {
       data: config.data,
@@ -23,13 +24,31 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor for error handling
-api.interceptors.response.use(
+axiosClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // Handle different types of errors
-    if (error.response) {
-      // Server responded with an error status code (4xx, 5xx)
+  async (error) => {
+    const request = error.config;
+
+    // If response is 401, try to refresh acces token.
+    if (
+      error.response?.status === 401 &&
+      !request.url.includes("/auth/login") &&
+      !request._retry
+    ) {
+      request._retry = true;
+      try {
+        await axiosClient.post("/auth/refresh");
+        return axiosClient(request);
+      } catch {
+        //Redirects user back to the previous page after re-login
+        sessionStorage.setItem("redirectAfterLogin", window.location.href);
+        console.error("Unable to refresh access token, re-login required");
+        //Remove user state
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
+
+    } else if (error.response) {  // Catch other errors
       const status = error.response.status;
       const errorData = error.response.data;
       const errorMessage = errorData?.message || 'An error occurred';
@@ -57,20 +76,13 @@ api.interceptors.response.use(
           method: error.config?.method
         });
       }
-    } else if (error.request) {
-      // Request was made but no response received (network error)
-      console.error('API Network Error: No response received', {
-        endpoint: error.config?.url,
-        method: error.config?.method
-      });
     } else {
-      // Error in setting up the request
-      console.error('API Request Error:', error.message);
+      console.error("Network error");
     }
-    
-    // Ensure we're rejecting with an Error object
-    return Promise.reject(error instanceof Error ? error : new Error(String(error)));
-  }
+
+    return Promise.reject(error);
+  },
 );
 
-export default api;
+
+export default axiosClient;

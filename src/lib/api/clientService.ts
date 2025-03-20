@@ -1,4 +1,4 @@
-import api from './config';
+import axiosClient from './axiosClient';
 import { ClientDTO } from './types';
 
 /**
@@ -83,7 +83,7 @@ export const clientService = {
    * @returns Promise with client data
    */
   getClientById: async (clientId: string): Promise<ClientDTO> => {
-    const response = await api.get(`/clients/${clientId}`);
+    const response = await axiosClient.get(`/clients/${clientId}`);
     return response.data;
   },
 
@@ -93,7 +93,7 @@ export const clientService = {
    * @returns Promise with the created client
    */
   createClient: async (clientData: ClientDTO): Promise<ClientDTO> => {
-    const response = await api.post('/clients', clientData);
+    const response = await axiosClient.post('/clients', clientData);
     return response.data;
   },
 
@@ -104,7 +104,7 @@ export const clientService = {
    * @returns Promise with the updated client
    */
   updateClient: async (clientId: string, clientData: ClientDTO): Promise<ClientDTO> => {
-    const response = await api.put(`/clients/${clientId}`, clientData);
+    const response = await axiosClient.put(`/clients/${clientId}`, clientData);
     return response.data;
   },
 
@@ -114,7 +114,7 @@ export const clientService = {
    * @returns Promise with the deletion result
    */
   deleteClient: async (clientId: string): Promise<void> => {
-    await api.delete(`/clients/${clientId}`);
+    await axiosClient.delete(`/clients/${clientId}`);
   },
 
   /**
@@ -124,7 +124,7 @@ export const clientService = {
    * @returns Promise with the verification result
    */
   verifyClient: async (clientId: string, nric: string): Promise<{ verified: boolean }> => {
-    const response = await api.post(`/clients/${clientId}/verify`, { nric });
+    const response = await axiosClient.post(`/clients/${clientId}/verify`, { nric });
     return response.data;
   }
 };

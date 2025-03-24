@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2, Mail, Lock } from "lucide-react";
+import { Loader2, User, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +26,7 @@ export function LoginForm() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
@@ -55,19 +55,19 @@ export function LoginForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="email"
+          name="username"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-slate-700">
-                Email
+                Username
               </FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
-                    placeholder="your.email@company.com"
-                    type="email"
-                    autoComplete="email"
+                    placeholder="your.username"
+                    type="text"
+                    autoComplete="username"
                     disabled={isLoading}
                     className="pl-10 focus:border-slate-400 focus:ring-1 focus:ring-slate-200"
                     {...field}

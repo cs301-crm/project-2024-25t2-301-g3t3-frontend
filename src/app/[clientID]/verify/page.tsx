@@ -112,7 +112,10 @@ export default function VerifyPage() {
             </Alert>
           )}
         </CardContent>
-        <CardFooter className="flex justify-end">
+        <CardFooter className="flex justify-between">
+          <Button variant="outline" asChild>
+            <a href="/dashboard">Go to Dashboard</a>
+          </Button>
           <Button
             onClick={handleVerify}
             disabled={

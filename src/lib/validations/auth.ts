@@ -5,7 +5,7 @@ export const loginFormSchema = z.object({
     message: "Username is required.",
   }),
   password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
+    message: "Invalid username or password.",
   }),
 });
 

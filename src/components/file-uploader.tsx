@@ -1,81 +1,83 @@
-"use client"
+"use client";
 
-import { useState, useRef, useCallback } from "react"
-import { useDropzone } from "react-dropzone"
-import { Upload, X, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState, useRef, useCallback } from "react";
+import { useDropzone, FileRejection } from "react-dropzone";
+import { Upload, X, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface FileUploaderProps {
-  onFileChange: (file: File | null) => void
-  isUploading: boolean
-  setIsUploading: (isUploading: boolean) => void
-  maxSizeMB?: number
-  acceptedFileTypes?: string[]
+  onFileChange: (file: File | null) => void;
+  isUploading: boolean;
+  setIsUploading: (isUploading: boolean) => void;
+  maxSizeMB?: number;
+  acceptedFileTypes?: string[];
 }
 
 export function FileUploader({
   onFileChange,
   isUploading,
-  setIsUploading,
+  // setIsUploading,
   maxSizeMB = 10,
   acceptedFileTypes = ["image/jpeg", "image/png", "application/pdf"],
 }: FileUploaderProps) {
-  const [error, setError] = useState<string | null>(null)
-  const [dragActive, setDragActive] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [error, setError] = useState<string | null>(null);
+  // const [dragActive, setDragActive] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const maxSizeBytes = maxSizeMB * 1024 * 1024
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
   const onDrop = useCallback(
-    (acceptedFiles: File[], rejectedFiles: any[]) => {
-      setDragActive(false)
+    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+      // setDragActive(false);
 
       if (rejectedFiles.length > 0) {
-        const rejectionErrors = rejectedFiles[0].errors
-        if (rejectionErrors.some((e: any) => e.code === "file-too-large")) {
-          setError(`File is too large. Maximum size is ${maxSizeMB}MB.`)
-        } else if (rejectionErrors.some((e: any) => e.code === "file-invalid-type")) {
-          setError(`Invalid file type. Please upload ${acceptedFileTypes.join(", ")} files.`)
+        if (rejectedFiles[0].errors.some((e) => e.code === "file-too-large")) {
+          setError(`File is too large. Maximum size is ${maxSizeMB}MB.`);
+        } else if (
+          rejectedFiles[0].errors.some((e) => e.code === "file-invalid-type")
+        ) {
+          setError(
+            `Invalid file type. Please upload ${acceptedFileTypes.join(
+              ", "
+            )} files.`
+          );
         } else {
-          setError("Invalid file. Please try again.")
+          setError("Invalid file. Please try again.");
         }
-        return
+        return;
       }
 
       if (acceptedFiles.length > 0) {
-        setError(null)
-        const file = acceptedFiles[0]
-        onFileChange(file)
+        setError(null);
+        const file = acceptedFiles[0];
+        onFileChange(file);
       }
     },
-    [maxSizeMB, acceptedFileTypes, onFileChange],
-  )
+    [maxSizeMB, acceptedFileTypes, onFileChange]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxFiles: 1,
     maxSize: maxSizeBytes,
-    accept: acceptedFileTypes.reduce(
-      (acc, type) => {
-        acc[type] = []
-        return acc
-      },
-      {} as Record<string, string[]>,
-    ),
+    accept: acceptedFileTypes.reduce((acc, type) => {
+      acc[type] = [];
+      return acc;
+    }, {} as Record<string, string[]>),
     multiple: false,
-  })
+  });
 
-  // Add a method to clear the file
-  const clearFile = () => {
-    onFileChange(null)
-    setError(null)
-    if (inputRef.current) {
-      inputRef.current.value = ""
-    }
-  }
+  // // Add a method to clear the file
+  // const clearFile = () => {
+  //   onFileChange(null)
+  //   setError(null)
+  //   if (inputRef.current) {
+  //     inputRef.current.value = ""
+  //   }
+  // }
 
   // Replace the existing handleRemoveFile with clearFile
-  const handleRemoveFile = clearFile
+  // const handleRemoveFile = clearFile
 
   return (
     <div className="w-full">
@@ -100,9 +102,13 @@ export function FileUploader({
           )}
 
           <div className="space-y-1">
-            <p className="text-sm font-medium">{isUploading ? "Uploading file..." : "Drag & drop your file here"}</p>
+            <p className="text-sm font-medium">
+              {isUploading ? "Uploading file..." : "Drag & drop your file here"}
+            </p>
             <p className="text-xs text-slate-500">
-              {isUploading ? "Please wait while we process your file" : `PDF, JPG or PNG up to ${maxSizeMB}MB`}
+              {isUploading
+                ? "Please wait while we process your file"
+                : `PDF, JPG or PNG up to ${maxSizeMB}MB`}
             </p>
           </div>
 
@@ -113,8 +119,8 @@ export function FileUploader({
               size="sm"
               className="mt-2"
               onClick={(e) => {
-                e.stopPropagation()
-                inputRef.current?.click()
+                e.stopPropagation();
+                inputRef.current?.click();
               }}
             >
               Select file
@@ -130,6 +136,5 @@ export function FileUploader({
         </div>
       )}
     </div>
-  )
+  );
 }
-

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,17 +11,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Loader2 } from "lucide-react"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 
 interface OtpVerificationModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onVerify: (otp: string) => void
-  onResendOtp: () => void
-  isVerifying?: boolean
-  error?: string | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onVerify: (otp: string) => void;
+  onResendOtp: () => void;
+  isVerifying?: boolean;
+  error?: string | null;
 }
 
 export function OtpVerificationModal({
@@ -32,95 +32,109 @@ export function OtpVerificationModal({
   isVerifying = false,
   error = null,
 }: OtpVerificationModalProps) {
-  const [otp, setOtp] = useState<string[]>(Array(6).fill(""))
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
-  const [resendDisabled, setResendDisabled] = useState(false)
-  const [countdown, setCountdown] = useState(0)
+  const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [resendDisabled, setResendDisabled] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   // Reset OTP when modal opens
   useEffect(() => {
     if (open) {
-      setOtp(Array(6).fill(""))
+      setOtp(Array(6).fill(""));
+      setCountdown(0);
+      setResendDisabled(false);
       // Focus the first input when modal opens
       setTimeout(() => {
         if (inputRefs.current[0]) {
-          inputRefs.current[0].focus()
+          inputRefs.current[0].focus();
         }
-      }, 100)
+      }, 100);
     }
-  }, [open])
+  }, [open]);
 
   // Handle countdown for resend button
   useEffect(() => {
     if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
     } else if (countdown === 0 && resendDisabled) {
-      setResendDisabled(false)
+      setResendDisabled(false);
     }
-  }, [countdown, resendDisabled])
+  }, [countdown, resendDisabled]);
 
   const handleOtpChange = (index: number, value: string) => {
     // Only allow numbers
-    if (value && !/^\d*$/.test(value)) return
+    if (value && !/^\d*$/.test(value)) return;
 
-    const newOtp = [...otp]
+    const newOtp = [...otp];
     // Take only the last character if pasting multiple digits
-    newOtp[index] = value.slice(-1)
-    setOtp(newOtp)
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
 
     // Auto-focus next input if a digit was entered
     if (value && index < 5 && inputRefs.current[index + 1]) {
-      inputRefs.current[index + 1].focus()
+      inputRefs.current[index + 1]?.focus();
     }
-  }
+  };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     // Move to previous input on backspace if current input is empty
-    if (e.key === "Backspace" && !otp[index] && index > 0 && inputRefs.current[index - 1]) {
-      inputRefs.current[index - 1].focus()
+    if (
+      e.key === "Backspace" &&
+      !otp[index] &&
+      index > 0 &&
+      inputRefs.current[index - 1]
+    ) {
+      inputRefs.current[index - 1]?.focus();
     }
 
     // Handle arrow keys
     if (e.key === "ArrowLeft" && index > 0) {
-      e.preventDefault()
-      inputRefs.current[index - 1]?.focus()
+      e.preventDefault();
+      inputRefs.current[index - 1]?.focus();
     }
 
     if (e.key === "ArrowRight" && index < 5) {
-      e.preventDefault()
-      inputRefs.current[index + 1]?.focus()
+      e.preventDefault();
+      inputRefs.current[index + 1]?.focus();
     }
-  }
+  };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    const pastedData = e.clipboardData.getData("text").trim()
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").trim();
 
     // Check if pasted content is a 6-digit number
     if (/^\d{6}$/.test(pastedData)) {
-      const digits = pastedData.split("")
-      setOtp(digits)
+      const digits = pastedData.split("");
+      setOtp(digits);
 
       // Focus the last input
       if (inputRefs.current[5]) {
-        inputRefs.current[5].focus()
+        inputRefs.current[5].focus();
       }
     }
-  }
+  };
 
   const handleResendOtp = () => {
-    onResendOtp()
-    setResendDisabled(true)
-    setCountdown(60) // 60 second cooldown
-  }
+    onResendOtp();
+    setResendDisabled(true);
+    setCountdown(60); // 60 second cooldown
+  };
 
   const handleVerify = () => {
-    const otpString = otp.join("")
-    onVerify(otpString)
-  }
+    const otpString = otp.join("");
+    onVerify(otpString);
 
-  const isOtpComplete = otp.every((digit) => digit !== "")
+    // Reset timer state after verification
+    // setCountdown(0);
+    // setResendDisabled(false);
+  };
+
+  const isOtpComplete = otp.every((digit) => digit !== "");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -128,7 +142,8 @@ export function OtpVerificationModal({
         <DialogHeader>
           <DialogTitle>Verify OTP</DialogTitle>
           <DialogDescription>
-            Enter the 6-digit verification code sent to your email to complete agent creation.
+            Enter the 6-digit verification code sent to your email to complete
+            agent creation.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6 py-4">
@@ -136,7 +151,9 @@ export function OtpVerificationModal({
             {otp.map((digit, index) => (
               <Input
                 key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
+                ref={(el) => {
+                  inputRefs.current[index] = el; // Assign the element to the ref array
+                }}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
@@ -153,7 +170,11 @@ export function OtpVerificationModal({
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
         </div>
         <DialogFooter className="flex-col sm:flex-col gap-2">
-          <Button onClick={handleVerify} disabled={!isOtpComplete || isVerifying} className="w-full">
+          <Button
+            onClick={handleVerify}
+            disabled={!isOtpComplete || isVerifying}
+            className="w-full"
+          >
             {isVerifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Confirm
           </Button>
@@ -169,6 +190,5 @@ export function OtpVerificationModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

@@ -1,47 +1,46 @@
-import { Transaction, Client } from "@/contexts/agent-context";
+import { Transaction } from "@/lib/api/types";
 
 /**
- * Filter transactions based on search query
- * @param transactions List of transactions to filter
- * @param clients List of clients for name lookup
- * @param searchQuery Search query string
- * @returns Filtered list of transactions
+ * Gets the full client name from a transaction
+ * @param transaction - Transaction object containing client names
+ * @returns Formatted "FirstName LastName" string
  */
-export function filterTransactions(
-  transactions: Transaction[],
-  clients: Client[],
-  searchQuery: string
-): Transaction[] {
-  if (!searchQuery.trim()) {
-    return transactions;
-  }
-  
-  const searchLower = searchQuery.toLowerCase();
-  
-  return transactions.filter((transaction) => {
-    // Get client for this transaction
-    const client = clients.find(client => client.id === transaction.clientId);
-    
-    // Check if any field matches the search query
-    return (
-      transaction.id.toLowerCase().includes(searchLower) ||
-      transaction.amount.toString().includes(searchLower) ||
-      transaction.status.toLowerCase().includes(searchLower) ||
-      transaction.date.toLowerCase().includes(searchLower) ||
-      (transaction.description?.toLowerCase().includes(searchLower) || false) ||
-      client?.firstName.toLowerCase().includes(searchLower) ||
-      client?.lastName.toLowerCase().includes(searchLower)
-    );
-  });
+export function getClientName(transaction: Transaction): string {
+  return `${transaction.clientFirstName} ${transaction.clientLastName}`.trim();
 }
 
 /**
- * Get client name from client ID
- * @param clientId Client ID
- * @param clients List of clients
- * @returns Client name or "Unknown Client" if not found
+ * Filters transactions based on search query (searches all text fields including client names)
+ * @param transactions - Array of transactions to filter
+ * @param searchQuery - Search string to filter by
+ * @returns Filtered array of transactions
  */
-export function getClientName(clientId: string, clients: Client[]): string {
-  const client = clients.find(client => client.id === clientId);
-  return client ? `${client.firstName} ${client.lastName}` : "Unknown Client";
+export function filterTransactions(
+  transactions: Transaction[],
+  searchQuery: string
+): Transaction[] {
+  // Return all transactions if search query is empty
+  if (!searchQuery.trim()) return transactions;
+  
+  const searchLower = searchQuery.toLowerCase();
+  
+  return transactions.filter(transaction => {
+    // Get full client name once for reuse
+    const clientFullName = getClientName(transaction).toLowerCase();
+    
+    // Prepare all searchable fields
+    const searchableFields = [
+      transaction.id,
+      transaction.amount.toString(),
+      transaction.status,
+      transaction.date,
+      transaction.description || '',
+      transaction.clientFirstName.toLowerCase(),
+      transaction.clientLastName.toLowerCase(),
+      clientFullName
+    ];
+
+    // Check if any field contains the search query
+    return searchableFields.some(field => field.includes(searchLower));
+  });
 }

@@ -14,13 +14,42 @@ export interface ClientDTO {
   postalCode: string;
   nric: string;
   agentId?: string;
-  accounts?: AccountDTO[];
+}
+
+export interface Client {
+  clientId: string;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  dateOfBirth?: string;
+  gender?: string;
+  phoneNumber?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  nric?: string;
+  agentId: string;
+  verificationStatus?: string;
 }
 
 // Account Types
 export interface AccountDTO {
   accountId?: string;
   clientId: string;
+  accountType: string;
+  accountStatus: string;
+  openingDate: string;
+  initialDeposit: number;
+  currency: string;
+  branchId: string;
+}
+
+export interface Account {
+  accountId: string;
+  clientId: string;
+  clientName: string;
   accountType: string;
   accountStatus: string;
   openingDate: string;
@@ -61,15 +90,26 @@ export interface Agent {
   status: "active" | "disabled"
 }
 
-export interface Client {
-  id: string
-  name: string
-  email: string
-  status: "active" | "inactive"
-}
 
 export interface LogEntry {
-  timestamp: string
-  action: string
-  details: string
+  id: string;
+  agentId: string;
+  clientId: string;
+  clientName: string;
+  crudType: string;
+  dateTime: string;
+  attributeName?: string;
+  beforeValue?: string;
+  afterValue?: string;
+}
+
+export interface Transaction {
+  id: string;
+  clientId: string;
+  amount: number;
+  status: "completed" | "pending" | "failed";
+  date: string;
+  description?: string;
+  clientFirstName: string;
+  clientLastName: string;
 }

@@ -1,15 +1,14 @@
 import React from "react";
-import { Transaction, Client } from "@/contexts/agent-context";
+import { Transaction } from "@/lib/api/types";
 import { TransactionItem } from "./transaction-item";
 import { getClientName } from "@/lib/utils/transaction-filters";
 
 interface TransactionListProps {
   transactions: Transaction[];
-  clients: Client[];
   onViewDetails: (transaction: Transaction) => void;
 }
 
-export function TransactionList({ transactions, clients, onViewDetails }: Readonly<TransactionListProps>) {
+export function TransactionList({ transactions, onViewDetails }: Readonly<TransactionListProps>) {
   return (
     <div className="max-h-[400px] overflow-y-auto pr-2">
       {transactions.length > 0 ? (
@@ -18,7 +17,7 @@ export function TransactionList({ transactions, clients, onViewDetails }: Readon
             <TransactionItem
               key={transaction.id}
               transaction={transaction}
-              clientName={getClientName(transaction.clientId, clients)}
+              clientName={getClientName(transaction)}
               onViewDetails={() => onViewDetails(transaction)}
             />
           ))}

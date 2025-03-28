@@ -1,27 +1,33 @@
 "use client";
 
 import React from "react";
-import { Header } from "./components/header";
-import { Sidebar } from "./components/sidebar";
-import { RoleProvider } from "@/contexts/role-context";
-import { AgentProvider } from "@/contexts/agent-context";
+import { Header } from "../../components/layout/header";
+import { DynamicSidebar } from "../../components/layout/DynamicSidebar";
+import { UserProvider } from "@/contexts/user-context";
+import { ClientProvider } from "@/contexts/client-context"; 
+import { QueryClient, QueryClientProvider } from 'react-query';
 
+const queryClient = new QueryClient();
 export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <RoleProvider initialRole="admin">
-      <AgentProvider>
-        <div className="flex min-h-screen flex-col bg-slate-50">
-          <Header />
-          <div className="flex flex-1">
-            <Sidebar />
-            <main className="flex-1">{children}</main>
-          </div>
+    <UserProvider>
+      <QueryClientProvider client={queryClient}>
+        <ClientProvider>
+        <div className="flex flex-col h-screen bg-slate-50">
+      <Header /> 
+        <div className="flex flex-1 overflow-hidden">
+          <DynamicSidebar />
+          <main className="flex-1 overflow-auto">
+            {children}
+          </main>
         </div>
-      </AgentProvider>
-    </RoleProvider>
+      </div>
+        </ClientProvider>
+      </QueryClientProvider>
+    </UserProvider>
   );
 }

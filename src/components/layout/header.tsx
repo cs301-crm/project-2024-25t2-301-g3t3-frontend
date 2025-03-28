@@ -5,13 +5,11 @@ import Link from "next/link";
 import { Menu, User, Bell, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Branding } from "@/components/branding";
-import { useAgent } from "@/contexts/agent-context";
-import { useRole } from "@/contexts/role-context";
+import { useUser } from "@/contexts/user-context";
 
 export function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const { agentId } = useAgent();
-  const { role } = useRole();
+  const { role, user } = useUser();
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center border-b bg-white px-4 shadow-sm">
@@ -39,7 +37,7 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <span className="hidden text-sm text-slate-500 md:inline-block">
-            {role === "agent" ? `Agent ${agentId}` : "Admin User"}
+            {role === "agent" ? `Agent ${user.id}` : "Admin User"}
           </span>
           <Button variant="ghost" size="icon" aria-label="User menu">
             <User className="h-5 w-5" />

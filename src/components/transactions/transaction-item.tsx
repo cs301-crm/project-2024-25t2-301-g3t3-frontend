@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import { Transaction } from "@/contexts/agent-context";
+import { Transaction } from "@/lib/api/types";
 import { getStatusColor, getStatusIcon } from "@/lib/utils/transaction-utils";
 
 interface TransactionItemProps {

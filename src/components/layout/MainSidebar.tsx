@@ -13,7 +13,7 @@ import {
   CreditCard,
   UserCog,
 } from "lucide-react";
-import { useRole } from "@/contexts/role-context";
+import { useUser } from "@/contexts/user-context";
 
 interface NavItem {
   href: string;
@@ -21,9 +21,9 @@ interface NavItem {
   icon: React.ReactNode;
 }
 
-export function Sidebar() {
+export function MainSidebar() {
   const pathname = usePathname();
-  const { role } = useRole();
+  const { role } = useUser();
 
   // Agent-specific navigation items
   const agentNavItems: NavItem[] = [
@@ -33,7 +33,7 @@ export function Sidebar() {
       icon: <LayoutDashboard className="h-4 w-4" />,
     },
     {
-      href: "/client/manage",
+      href: "/client",
       label: "Client Management",
       icon: <Users className="h-4 w-4" />,
     },
@@ -132,7 +132,7 @@ export function Sidebar() {
   return (
     <aside className="hidden w-64 border-r bg-white md:block">
       <div className="flex flex-col gap-6 p-4">
-        <div className="space-y-1">
+        <div className="space-y-2">
           {role === "agent"
             ? renderNavItems(agentNavItems)
             : renderNavItems(mainNavItems)}

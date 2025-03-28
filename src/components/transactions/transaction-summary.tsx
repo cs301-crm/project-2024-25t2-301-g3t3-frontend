@@ -1,5 +1,5 @@
 import React from "react";
-import { Transaction } from "@/contexts/agent-context";
+import { Transaction } from "@/lib/api/types";
 import { TRANSACTION_STATUS } from "@/lib/utils/transaction-utils";
 
 interface TransactionSummaryProps {

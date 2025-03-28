@@ -1,124 +1,133 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
-import { useAgent } from "@/contexts/agent-context";
-import { CreditCard, Search, Trash2, RefreshCw, Filter } from "lucide-react";
+import { useUser } from "@/contexts/user-context";
+import { CreditCard, Search, RefreshCw, Filter, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { EditAccountDialog } from "@/components/client/edit-account-dialog";
 import { CreateAccountDialog } from "@/components/client/create-account-dialog";
+import { Account, AccountStatus, AccountType } from "@/lib/api/types";
+import { handleApiError } from "@/lib/api";
+import accountService from "@/lib/api/mockAccountService";
+import DeleteAccountButton from "@/components/client/delete-acount-dialog";
+import { InfiniteData, useInfiniteQuery, useQueryClient } from "react-query";
+import { useDebounce } from "@/hooks/use-debounce"
+
 
 export default function AccountsPage() {
-  const {
-    clients,
-    accounts,
-    loading,
-    error,
-    useMockData,
-    // setUseMockData,
-    refreshData,
-    deleteAccount,
-    fetchClientAccounts,
-  } = useAgent();
+
+  const { user } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
-  const [accountTypeFilter, setAccountTypeFilter] = useState<string | null>(
-    null
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const [accountTypeFilter, setAccountTypeFilter] = useState<string | null>(null);
+  const [accountStatusFilter, setAccountStatusFilter] = useState<string | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const lastAccountRef = useRef<HTMLDivElement | null>(null);
+  const [error, setError] = useState<string>("");
+  const queryClient = useQueryClient();
+  
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    isRefetching,
+    refetch,
+  } = useInfiniteQuery(
+    [
+      "accounts",
+      user.id,
+      debouncedSearchQuery,
+      accountTypeFilter,
+      accountStatusFilter,
+    ],
+    async ({ pageParam = 1 }) => {
+      setError("");
+      try {
+        const response = await accountService.getAccountsByAgentId({
+          agentId: user.id,
+          searchQuery: debouncedSearchQuery,
+          type: accountTypeFilter,
+          status: accountStatusFilter,
+          page: pageParam,
+          limit: 10,
+        });
+        return response;
+      } catch (err) {
+        handleApiError(err);
+        setError("Error loading accounts");
+        throw err;
+      }
+    },
+    {
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.length > 0 ? allPages.length + 1 : undefined;
+      },
+      refetchOnWindowFocus: false,
+    }
   );
-  const [accountStatusFilter, setAccountStatusFilter] = useState<string | null>(
-    null
-  );
 
-  // Refresh data when the component mounts - only once
+  const accounts = data?.pages.flat() || [];
+
+  // Infinite scroll observer
   useEffect(() => {
-    // Only refresh data on initial mount
-    const handleInitialLoad = async () => {
-      await refreshData();
-    };
+    const lastElement = lastAccountRef.current;
+    if (!lastElement || !hasNextPage || isFetchingNextPage) return;
 
-    handleInitialLoad();
-    // Empty dependency array ensures this only runs once on mount
-  }, []);
-
-  // Fetch accounts for all clients when the page loads
-  useEffect(() => {
-    // Create a flag to track if the component is mounted
-    let isMounted = true;
-
-    if (!useMockData && clients.length > 0) {
-      const fetchAllClientAccounts = async () => {
-        try {
-          // Fetch accounts for each client
-          for (const client of clients) {
-            // Check if component is still mounted before proceeding
-            if (!isMounted) return;
-
-            // Skip mock client IDs (which start with "client")
-            if (client.id.startsWith("client")) {
-              console.log(
-                `Skipping API fetch for mock client ID: ${client.id}`
-              );
-              continue;
-            }
-
-            await fetchClientAccounts(client.id);
-          }
-        } catch (error) {
-          console.error("Error fetching client accounts:", error);
-        }
-      };
-
-      fetchAllClientAccounts();
+    if (observerRef.current) {
+      observerRef.current.disconnect();
     }
 
-    // Cleanup function to set mounted flag to false when component unmounts
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observerRef.current = observer;
+    observer.observe(lastElement);
+
     return () => {
-      isMounted = false;
+      observer.disconnect();
     };
-  }, [clients, useMockData]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, accounts.length]);
 
-  // Filter accounts based on search query and filters
-  const filteredAccounts = accounts.filter((account) => {
-    // Find the client for this account
-    const client = clients.find((c) => c.id === account.clientId);
-    if (!client) return false;
+  const accountTypes = Object.values(AccountType);
+  const accountStatuses = Object.values(AccountStatus);
 
-    const clientName = `${client.firstName} ${client.lastName}`.toLowerCase();
-    const searchLower = searchQuery.toLowerCase();
+  const handleRefresh = useCallback(() => {
+    setError("");
+    refetch();
+  }, [refetch]);
 
-    // Apply search filter
-    const matchesSearch =
-      clientName.includes(searchLower) ||
-      account.accountType.toLowerCase().includes(searchLower) ||
-      account.accountStatus.toLowerCase().includes(searchLower) ||
-      account.id.toLowerCase().includes(searchLower);
 
-    // Apply account type filter
-    const matchesType = accountTypeFilter
-      ? account.accountType === accountTypeFilter
-      : true;
-
-    // Apply account status filter
-    const matchesStatus = accountStatusFilter
-      ? account.accountStatus === accountStatusFilter
-      : true;
-
-    return matchesSearch && matchesType && matchesStatus;
-  });
-
-  // Get unique account types and statuses for filters
-  const accountTypes = [
-    ...new Set(accounts.map((account) => account.accountType)),
-  ];
-  const accountStatuses = [
-    ...new Set(accounts.map((account) => account.accountStatus)),
-  ];
-
-  // Get client name by client ID
-  const getClientName = (clientId: string) => {
-    const client = clients.find((c) => c.id === clientId);
-    return client ? `${client.firstName} ${client.lastName}` : "Unknown Client";
-  };
+  const handleDeleteSuccess = useCallback((deletedAccountId: string) => {
+    // Optimistically remove from cache
+    queryClient.setQueryData<InfiniteData<Account[]>>(
+      ["accounts", user.id, debouncedSearchQuery, accountTypeFilter, accountStatusFilter],
+      (old?: InfiniteData<Account[]>) => {
+        if (!old) {
+          // Return empty infinite data structure if no existing data
+          return {
+            pages: [[]], // Array with one empty page
+            pageParams: [undefined] // Corresponding page params
+          };
+        }
+  
+        return {
+          ...old,
+          pages: old.pages.map(page => 
+            page.filter(account => account.accountId !== deletedAccountId)
+          )
+        };
+      }
+    );
+  }, [queryClient, user.id, debouncedSearchQuery, accountTypeFilter, accountStatusFilter]);
 
   return (
     <div className="flex flex-col space-y-6 p-8">
@@ -141,7 +150,7 @@ export default function AccountsPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span>Total Accounts:</span>
-                    <span className="font-medium">{accounts.length}</span>
+                    <span className="font-medium">{accounts ? accounts.length : 0}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -149,8 +158,8 @@ export default function AccountsPage() {
                     <span>Active Accounts:</span>
                     <span className="font-medium">
                       {
-                        accounts.filter((a) => a.accountStatus === "ACTIVE")
-                          .length
+                        accounts ? accounts.filter((a) => a.accountStatus === "ACTIVE")
+                          .length : 0
                       }
                     </span>
                   </div>
@@ -160,8 +169,8 @@ export default function AccountsPage() {
                     <span>Inactive/Closed Accounts:</span>
                     <span className="font-medium">
                       {
-                        accounts.filter((a) => a.accountStatus !== "ACTIVE")
-                          .length
+                        accounts ? accounts.filter((a) => a.accountStatus !== "ACTIVE")
+                          .length : 0
                       }
                     </span>
                   </div>
@@ -179,7 +188,7 @@ export default function AccountsPage() {
                   >
                     <span>{type}:</span>
                     <span className="font-medium">
-                      {accounts.filter((a) => a.accountType === type).length}
+                      {accounts ? accounts.filter((a) => a.accountType === type).length : 0}
                     </span>
                   </div>
                 ))}
@@ -198,20 +207,20 @@ export default function AccountsPage() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => refreshData()}
-                disabled={loading}
+                onClick={handleRefresh}
+                disabled={isFetching}
               >
                 <RefreshCw
-                  className={`mr-1 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                  className={`mr-1 h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
                 />
                 Refresh Data
               </Button>
             </div>
 
-            {error && (
-              <div className="rounded-md bg-red-50 p-4 border border-red-200">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
+            {error && !isFetching && (
+            <div className="rounded-md bg-red-50 p-4 border border-red-200">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
             )}
 
             <div className="flex flex-col space-y-2">
@@ -252,9 +261,7 @@ export default function AccountsPage() {
                 <select
                   className="text-sm rounded-md border border-input px-3 py-1"
                   value={accountStatusFilter || ""}
-                  onChange={(e) =>
-                    setAccountStatusFilter(e.target.value || null)
-                  }
+                  onChange={(e) => setAccountStatusFilter(e.target.value || null)}
                 >
                   <option value="">All Statuses</option>
                   {accountStatuses.map((status) => (
@@ -277,89 +284,76 @@ export default function AccountsPage() {
               </div>
             </div>
 
-            {loading ? (
+            {isFetching && !isFetchingNextPage && !isRefetching? (
               <div className="flex flex-col items-center justify-center py-8">
                 <RefreshCw className="h-8 w-8 text-slate-400 animate-spin mb-4" />
                 <p className="text-sm text-slate-500">Loading accounts...</p>
               </div>
-            ) : (
-              <div className="max-h-[400px] overflow-y-auto pr-2">
-                {filteredAccounts.length > 0 ? (
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-slate-100 rounded-md text-xs font-medium">
-                      <div className="col-span-3">Client</div>
-                      <div className="col-span-2">Account Type</div>
-                      <div className="col-span-1">Branch ID</div>
-                      <div className="col-span-1">Status</div>
-                      <div className="col-span-2">Opening Date</div>
-                      <div className="col-span-2">Initial Deposit</div>
-                      <div className="col-span-1">Actions</div>
-                    </div>
-
-                    {filteredAccounts.map((account) => (
-                      <div
-                        key={account.id}
-                        className="grid grid-cols-12 gap-2 rounded-md border p-3 hover:bg-slate-50 text-sm items-center"
-                      >
-                        <div className="col-span-3">
-                          <p className="font-medium">
-                            {getClientName(account.clientId)}
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            ID: {account.clientId}
-                          </p>
-                        </div>
-                        <div className="col-span-2">{account.accountType}</div>
-                        <div className="col-span-1">{account.branchId}</div>
-                        <div className="col-span-1">
-                          <span
-                            className={`text-xs px-2 py-1 rounded-full ${
-                              account.accountStatus === "ACTIVE"
-                                ? "bg-green-100 text-green-800"
-                                : account.accountStatus === "INACTIVE"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {account.accountStatus}
-                          </span>
-                        </div>
-                        <div className="col-span-2">{account.openingDate}</div>
-                        <div className="col-span-2">
-                          {account.initialDeposit} {account.currency}
-                        </div>
-                        <div className="col-span-1 flex space-x-1">
-                          <EditAccountDialog
-                            account={account}
-                            clientName={getClientName(account.clientId)}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => {
-                              if (
-                                confirm(
-                                  "Are you sure you want to delete this account?"
-                                )
-                              ) {
-                                deleteAccount(account.id);
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                          </Button>
-                        </div>
+            ) : accounts.length > 0 ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-slate-100 rounded-md text-xs font-medium">
+                  <div className="col-span-3">Client</div>
+                  <div className="col-span-2">Account Type</div>
+                  <div className="col-span-1">Branch ID</div>
+                  <div className="col-span-1">Status</div>
+                  <div className="col-span-2">Opening Date</div>
+                  <div className="col-span-2">Initial Deposit</div>
+                  <div className="col-span-1">Actions</div>
+                </div>
+                <div className="max-h-[300px] flex flex-col gap-2 overflow-y-auto">
+                  {accounts.map((account, index) => (
+                    <div
+                      key={account.accountId}
+                      ref={index === accounts.length - 1 ? lastAccountRef : null}
+                      className="grid grid-cols-12 gap-2 rounded-md border p-3 hover:bg-slate-50 text-sm items-center"
+                    >
+                      <div className="col-span-3">
+                        <p className="font-medium">{account.clientName}</p>
+                        <p className="text-xs text-slate-500">
+                          ID: {account.clientId}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center space-y-3 py-8">
-                    <CreditCard className="h-12 w-12 text-slate-300" />
-                    <p className="text-sm text-slate-500">No accounts found</p>
-                    <CreateAccountDialog />
-                  </div>
-                )}
+                      <div className="col-span-2">{account.accountType}</div>
+                      <div className="col-span-1">{account.branchId}</div>
+                      <div className="col-span-1">
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${
+                            account.accountStatus === "ACTIVE"
+                              ? "bg-green-100 text-green-800"
+                              : account.accountStatus === "INACTIVE"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {account.accountStatus}
+                        </span>
+                      </div>
+                      <div className="col-span-2">{account.openingDate}</div>
+                      <div className="col-span-2">
+                        {account.initialDeposit} {account.currency}
+                      </div>
+                      <div className="col-span-1 flex space-x-1">
+                      <DeleteAccountButton 
+                          accountId={account.accountId} 
+                          clientId={account.clientId} 
+                          clientName={account.clientName}
+                          onSuccess={() => handleDeleteSuccess(account.accountId)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  {isFetchingNextPage && (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="h-6 w-6 text-slate-400 animate-spin" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center space-y-3 py-8">
+                <CreditCard className="h-12 w-12 text-slate-300" />
+                <p className="text-sm text-slate-500">No accounts found</p>
+                <CreateAccountDialog />
               </div>
             )}
           </div>

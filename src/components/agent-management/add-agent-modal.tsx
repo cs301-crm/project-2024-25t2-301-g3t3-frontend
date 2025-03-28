@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import type { Agent } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
@@ -15,12 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { InfoIcon } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AddAgentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddAgent: (agent: Omit<Agent, "id">) => void;
+  onAddAgent: (agent: Omit<Agent, "id">, showOtpVerification: boolean) => void;
 }
 
 export function AddAgentModal({
@@ -34,43 +34,24 @@ export function AddAgentModal({
     email: "",
     status: "active",
   });
-  const [password, setPassword] = useState("");
-  const [autoGeneratePassword, setAutoGeneratePassword] = useState(true);
 
   const handleChange = (field: keyof Omit<Agent, "id">, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const generateRandomPassword = () => {
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    let result = "";
-    for (let i = 0; i < 12; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // In a real application, you would handle the password here
-    const finalPassword = autoGeneratePassword
-      ? generateRandomPassword()
-      : password;
-    console.log(`Creating agent with password: ${finalPassword}`);
+    // Pass the agent data and indicate that OTP verification should be shown
+    onAddAgent(formData, true);
 
-    onAddAgent(formData);
-
-    // Reset form
+    // Reset form (will be cleared when modal closes)
     setFormData({
       firstName: "",
       lastName: "",
       email: "",
       status: "active",
     });
-    setPassword("");
-    setAutoGeneratePassword(true);
   };
 
   return (
@@ -85,6 +66,14 @@ export function AddAgentModal({
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            <Alert className="bg-blue-50 border-blue-200">
+              <InfoIcon className="h-4 w-4 text-blue-500" />
+              <AlertDescription className="text-blue-700 text-sm">
+                A temporary password will be auto-generated and emailed to the
+                agent along with their username.
+              </AlertDescription>
+            </Alert>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
@@ -115,30 +104,6 @@ export function AddAgentModal({
                 required
               />
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="autoGenerate"
-                  checked={autoGeneratePassword}
-                  onCheckedChange={(checked) =>
-                    setAutoGeneratePassword(checked as boolean)
-                  }
-                />
-                <Label htmlFor="autoGenerate">Auto-generate password</Label>
-              </div>
-            </div>
-            {!autoGeneratePassword && (
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required={!autoGeneratePassword}
-                />
-              </div>
-            )}
           </div>
           <DialogFooter>
             <Button
@@ -148,7 +113,7 @@ export function AddAgentModal({
             >
               Cancel
             </Button>
-            <Button type="submit">Add Agent</Button>
+            <Button type="submit">Continue</Button>
           </DialogFooter>
         </form>
       </DialogContent>

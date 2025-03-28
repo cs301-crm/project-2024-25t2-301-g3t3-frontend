@@ -87,6 +87,19 @@ export function ClientFormFields({ form }: ClientFormFieldsProps) {
               </FormItem>
             )}
           />
+                    <FormField
+              control={form.control}
+              name="nric"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>NRIC</FormLabel>
+                  <FormControl>
+                    <Input placeholder="S1234567D" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
         </div>
       </div>
 
@@ -213,19 +226,6 @@ export function ClientFormFields({ form }: ClientFormFieldsProps) {
                   <FormLabel>Postal Code</FormLabel>
                   <FormControl>
                     <Input placeholder="10001" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="nric"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>NRIC</FormLabel>
-                  <FormControl>
-                    <Input placeholder="S1234567D" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

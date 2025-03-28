@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
+import { useClient } from '@/contexts/client-context';
 import {
   Dialog,
   DialogContent,
@@ -16,41 +17,49 @@ import { TransactionDetails } from "@/components/transactions/transaction-detail
 import { filterTransactions } from "@/lib/utils/transaction-filters";
 import { Transaction } from "@/lib/api/types";
 import { RefreshCw, CreditCard } from "lucide-react";
+import { ClientNotFound } from "@/components/client/clientNotFound";
+import { ClientLoading } from "@/components/client/clientLoading";
 import { Button } from "@/components/ui/button";
-import { useUser } from "@/contexts/user-context";
-import accountService from "@/lib/api/mockAccountService";
 
 export default function TransactionsPage() {
-  const { user } = useUser();
+  const { 
+    transactions, 
+    loadingTransactions,
+    getClientTransactions,
+    client,
+    loadingClient,
+    loadClientError
+  } = useClient();
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [error, setError] = useState<string>("");
-  const [loadingTransactions, setLoadingTransactions] = useState<boolean>(false);
-  const [transactions, setTransactions] = useState<Transaction[] | null>(null);
 
-  const getClientTransactions = async () => {
-      if(!user.id){return}
-      setLoadingTransactions(true);
-      try {
-        const fetchedTransactions = await accountService.getTransactionsByAgentId(user.id);
-        setTransactions(fetchedTransactions);
-      } catch (err) {
-        console.log(err);
-        setError("Unable to load transactions"); 
-      } finally {
-        setLoadingTransactions(false);
-      }
+  const loadTransactions = async () => {
+    try {
+      await getClientTransactions();
+    } catch (err) {
+      console.log(err);
+      setError("Failed to load transactions");
+    }
   };
 
   const handleRefresh = () => {
-    getClientTransactions();
+    loadTransactions();
   };
 
   useEffect(() => {
-    getClientTransactions();
-  }, [user.id]);
+    loadTransactions();
+  }, [client?.clientId]);
 
+  if (loadingClient) {
+    return <ClientLoading />;
+  }
+    
+  if (!client && !loadClientError) {
+    return <ClientNotFound />;
+  }
 
   // Filter transactions using the simplified filter function
   const filteredTransactions = filterTransactions(transactions || [], searchQuery);
@@ -79,8 +88,8 @@ export default function TransactionsPage() {
   return (
     <div className="flex flex-col space-y-6 p-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">View Transactions</h1>
-        <p className="text-slate-500">View and manage client transactions</p>
+        <h1 className="text-2xl font-bold text-slate-900">{client && client.firstName} {client && client.lastName}</h1>
+        <p className="text-slate-500">{client?.clientId}</p>
       </div>
 
       {error && (

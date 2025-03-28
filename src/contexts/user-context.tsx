@@ -23,7 +23,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 // Create a provider component
 export function UserProvider({
   children,
-  initialRole = "agent",
+  initialRole = "admin",
 }: {
   children: ReactNode;
   initialRole?: UserRole;

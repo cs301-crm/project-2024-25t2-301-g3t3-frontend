@@ -57,7 +57,7 @@ export function MainSidebar() {
       icon: <LayoutDashboard className="h-4 w-4" />,
     },
     {
-      href: "/client/manage",
+      href: "/client",
       label: "Client Management",
       icon: <Users className="h-4 w-4" />,
     },

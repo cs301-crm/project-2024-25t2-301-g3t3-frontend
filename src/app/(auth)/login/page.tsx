@@ -43,13 +43,6 @@ export default function LoginPage() {
             >
               Forgot your password?
             </Link>
-            <span className="text-slate-300">|</span>
-            <Link
-              href="/signup"
-              className="text-sm text-slate-600 hover:text-slate-900 hover:underline"
-            >
-              Sign up
-            </Link>
           </div>
           <div className="flex items-center justify-center text-center text-xs text-slate-500">
             <Shield className="mr-1 h-3 w-3" />

@@ -1,5 +1,6 @@
 import axiosClient from './axiosClient';
-import { ClientDTO } from './types';
+import { handleApiError } from './error-handler';
+import { Client, ClientDTO, LogEntry } from './types';
 
 /**
  * Client API Service
@@ -11,68 +12,36 @@ export const clientService = {
    * @param agentId - The ID of the agent whose clients to retrieve
    * @returns Promise with array of clients
    */
-  getClientsByAgentId: async (agentId: string): Promise<ClientDTO[]> => {
-    console.log(`Fetching clients for agent: ${agentId}`);
-    
+
+  getClientsByAgentId: async (
+    agentId: string,
+    searchQuery: string = "",
+    page: number = 1,
+    limit: number = 10
+  ): Promise<Partial<Client>[]> => {
     try {
-      // In a real implementation, this would call an API endpoint
-      // For now, we'll simulate with known client IDs for agent001
-      if (agentId === "agent001") {
-        // Known client IDs for agent001
-        const agentClientIds = [
-          "c1000000-0000-0000-0000-000000000001",
-          "c2000000-0000-0000-0000-000000000002"
-        ];
-        
-        // Fetch each client by ID
-        const clientPromises = agentClientIds.map(id => clientService.getClientById(id));
-        const clients = await Promise.all(clientPromises);
-        
-        // Add the agentId to each client
-        const clientsWithAgentId = clients.map(client => ({
-          ...client,
-          agentId
-        }));
-        
-        console.log('Successfully fetched clients for agent:', clientsWithAgentId);
-        return clientsWithAgentId;
-      } else {
-        console.log('No clients found for this agent');
-        return [];
-      }
-    } catch (error) {
-      console.error(`Error fetching clients for agent ${agentId}:`, error);
-      throw error;
-    }
-  },
-  
-  /**
-   * Get all clients
-   * @returns Promise with array of clients
-   * 
-   * Note: The backend doesn't support a GET /clients endpoint for all clients.
-   * Instead, we fetch specific clients by ID that we know exist in the database.
-   */
-  getAllClients: async (): Promise<ClientDTO[]> => {
-    console.log('Fetching known clients from API');
-    
-    // Known client IDs in the database
-    const knownClientIds = [
-      "c1000000-0000-0000-0000-000000000001",
-      "c2000000-0000-0000-0000-000000000002",
-      "c3000000-0000-0000-0000-000000000003"
-    ];
-    
-    try {
-      // Fetch each client by ID
-      const clientPromises = knownClientIds.map(id => clientService.getClientById(id));
-      const clients = await Promise.all(clientPromises);
+      // Create URLSearchParams object to handle query parameters
+      const params = new URLSearchParams();
+      params.append('agentId', agentId);
       
-      console.log('Successfully fetched clients:', clients);
-      return clients;
+      // Only append searchQuery if it's not empty
+      if (searchQuery.trim() !== "") {
+        params.append('searchQuery', searchQuery);
+      }
+      
+      // Always include pagination parameters
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+      
+      const response = await axiosClient.get(`/clients?${params.toString()}`);
+      
+      if (!response) {
+        throw new Error('Error fetching clients');
+      }
+      
+      return response.data;
     } catch (error) {
-      console.error('Error fetching clients:', error);
-      // Re-throw the error
+      handleApiError(error);
       throw error;
     }
   },
@@ -82,9 +51,15 @@ export const clientService = {
    * @param clientId - The ID of the client to retrieve
    * @returns Promise with client data
    */
-  getClientById: async (clientId: string): Promise<ClientDTO> => {
-    const response = await axiosClient.get(`/clients/${clientId}`);
-    return response.data;
+  getClientById: async (clientId: string): Promise<Client> => {
+    try {
+      const response = await axiosClient.get(`/clients/${clientId}`);
+      return response.data;
+
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to fetch client');
+    }
   },
 
   /**
@@ -92,9 +67,15 @@ export const clientService = {
    * @param clientData - The client data to create
    * @returns Promise with the created client
    */
-  createClient: async (clientData: ClientDTO): Promise<ClientDTO> => {
-    const response = await axiosClient.post('/clients', clientData);
-    return response.data;
+  createClient: async (clientData: ClientDTO): Promise<Client> => {
+    try {
+      const response = await axiosClient.post('/clients', clientData);
+      return response.data;
+
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to create client');
+    }
   },
 
   /**
@@ -103,9 +84,15 @@ export const clientService = {
    * @param clientData - The updated client data
    * @returns Promise with the updated client
    */
-  updateClient: async (clientId: string, clientData: ClientDTO): Promise<ClientDTO> => {
-    const response = await axiosClient.put(`/clients/${clientId}`, clientData);
-    return response.data;
+  updateClient: async (clientId: string, clientData: Client): Promise<Client> => {
+    try {
+      const response = await axiosClient.put(`/clients/${clientId}`, clientData);
+      return response.data;
+
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to update client');
+    }
   },
 
   /**
@@ -114,7 +101,36 @@ export const clientService = {
    * @returns Promise with the deletion result
    */
   deleteClient: async (clientId: string): Promise<void> => {
-    await axiosClient.delete(`/clients/${clientId}`);
+    try {
+      await axiosClient.delete(`/clients/${clientId}`);
+
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to delete client');
+    }
+   
+  },
+
+  getLogsByClientId: async (clientId: string): Promise<LogEntry[]> => {
+    try {
+      const response = await axiosClient.get(`/logs/client/${clientId}`);
+      return response.data
+
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to fetch logs');
+    }
+  },
+
+  getLogsByAgentId: async (agentId: string): Promise<LogEntry[]> => {
+    try {
+      const response = await axiosClient.get(`/logs/agent/${agentId}`);
+      return response.data
+
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to fetch logs');
+    }
   },
 
   /**

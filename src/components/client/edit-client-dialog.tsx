@@ -2,8 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useAgent, Client } from "@/contexts/agent-context";
-import { Edit } from "lucide-react";
+import { useClient } from "@/contexts/client-context";
+import { Edit } from "lucide-react"; 
 import { Button } from "@/components/ui/button";
 import { FormDialog } from "@/components/forms/form-dialog";
 import { ClientFormFields } from "@/components/forms/client-form-fields";
@@ -12,6 +12,7 @@ import {
   ClientFormValues,
 } from "@/lib/schemas/client-schema";
 import { useToast } from "@/components/ui/use-toast";
+import { Client } from "@/lib/api/types";
 
 interface EditClientDialogProps {
   client: Client;
@@ -22,7 +23,7 @@ export function EditClientDialog({
   client,
   trigger,
 }: Readonly<EditClientDialogProps>) {
-  const { updateClient, loading } = useAgent();
+  const { updateClient, loadingAction } = useClient();
   const { toast } = useToast();
 
   const form = useForm<ClientFormValues>({
@@ -32,20 +33,20 @@ export function EditClientDialog({
       lastName: client.lastName,
       dateOfBirth: client.dateOfBirth ?? "",
       gender: client.gender ?? "",
-      emailAddress: client.email,
+      nric: client.nric ?? "",
+      emailAddress: client.emailAddress,
       phoneNumber: client.phoneNumber ?? "",
       address: client.address ?? "",
       city: client.city ?? "",
       state: client.state ?? "",
       country: client.country ?? "",
       postalCode: client.postalCode ?? "",
-      nric: client.nric ?? "",
     },
   });
 
   async function onSubmit(data: ClientFormValues) {
     try {
-      await updateClient(client.id, data);
+      await updateClient(data);
       toast({
         title: "Client updated",
         description: `${data.firstName} ${data.lastName}'s profile has been updated successfully.`,
@@ -74,8 +75,9 @@ export function EditClientDialog({
       }
       form={form}
       onSubmit={onSubmit}
-      loading={loading}
-      submitLabel="Save Changes"
+      loading={loadingAction}
+      disableSubmit={loadingAction}
+      submitLabel={"Save Changes"} 
       maxWidth="600px"
     >
       <ClientFormFields form={form} />

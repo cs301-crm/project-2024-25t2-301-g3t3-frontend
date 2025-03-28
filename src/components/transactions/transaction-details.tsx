@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import { Transaction } from "@/contexts/agent-context";
+import { Transaction } from "@/lib/api/types";
 import { DialogFooter } from "@/components/ui/dialog";
 import { getStatusColor, getStatusIcon, TRANSACTION_STATUS } from "@/lib/utils/transaction-utils";
 

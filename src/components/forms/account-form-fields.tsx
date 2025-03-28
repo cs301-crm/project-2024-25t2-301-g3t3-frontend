@@ -23,35 +23,25 @@ interface AccountFormFieldsProps {
 export function AccountFormFields({
   form,
   showClientSelection = false,
-  clients = [],
-  onClientChange,
 }: AccountFormFieldsProps) {
   return (
     <div className="space-y-4">
       {showClientSelection && (
         <div className="rounded-md border p-4">
-          <h3 className="mb-3 text-sm font-medium">Client Selection</h3>
           <FormField
             control={form.control}
-            name="clientId"
+            name="accountType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Select Client</FormLabel>
+                <FormLabel>Account Type</FormLabel>
                 <FormControl>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={field.value}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      onClientChange?.(e.target.value);
-                    }}
+                    {...field}
                   >
-                    <option value="">-- Select a client --</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.firstName} {client.lastName} ({client.email})
-                      </option>
-                    ))}
+                    <option value={AccountType.SAVINGS}>Savings</option>
+                    <option value={AccountType.CHECKING}>Checking</option>
+                    <option value={AccountType.BUSINESS}>Business</option>
                   </select>
                 </FormControl>
                 <FormMessage />
@@ -61,7 +51,7 @@ export function AccountFormFields({
         </div>
       )}
       <div className="rounded-md border p-4">
-        <h3 className="mb-3 text-sm font-medium">Account Information</h3>
+        <h3 className="mb-3 text-sm font-bold">Account Information</h3>
         <div className="grid gap-4">
           <FormField
             control={form.control}

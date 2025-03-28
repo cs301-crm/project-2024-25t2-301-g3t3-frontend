@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { toast } from '@/components/ui/use-toast';
+
 
 /**
  * Handles API errors by displaying appropriate toast notifications
@@ -11,7 +11,7 @@ export function handleApiError(error: unknown, customMessage?: string): void {
   
   // Determine the appropriate error message
   let displayMessage = customMessage;
-  let title = "Error";
+  // let title = "Error";
   
   if (error instanceof AxiosError) {
     const status = error.response?.status;
@@ -19,7 +19,7 @@ export function handleApiError(error: unknown, customMessage?: string): void {
     const errorMessage = errorData?.message || 'An error occurred';
     
     // Set the title based on the error type
-    title = status ? `Error ${status}` : "API Error";
+    // title = status ? `Error ${status}` : "API Error";
     
     if (!displayMessage) {
       // Check for specific error types in the error message
@@ -60,12 +60,6 @@ export function handleApiError(error: unknown, customMessage?: string): void {
       }
     }
     
-    // Show toast notification with the error message
-    toast({
-      title: title,
-      description: displayMessage,
-      variant: "destructive",
-    });
     
     // Log detailed error information to console for debugging
     console.error('API Error Details:', {
@@ -83,25 +77,11 @@ export function handleApiError(error: unknown, customMessage?: string): void {
       console.error('Network Error: This might indicate that the backend server is not running or not accessible.');
     }
   } else if (error instanceof Error) {
-    // Handle non-Axios errors
-    if (!customMessage) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
     
     console.error('Non-API Error:', error);
+
   } else {
     // Handle unknown errors
-    if (!customMessage) {
-      toast({
-        title: "Unknown Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
-    }
     
     console.error('Unknown Error:', error);
   }

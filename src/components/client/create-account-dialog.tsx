@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, ChevronsUpDown, Check, Loader2 } from "lucide-react";
-import { useInfiniteQuery } from "react-query";
+import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 import { useClient } from "@/contexts/client-context";
 import { useUser } from "@/contexts/user-context";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import { accountFormSchema, AccountFormValues, defaultAccountValues } from "@/li
 import { AccountFormFields } from "../forms/account-form-fields";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/components/ui/use-toast";
+
+
 interface CreateAccountDialogProps {
   clientId?: string;
   clientName?: string;
@@ -49,10 +51,10 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
     fetchNextPage,
     hasNextPage,
     isFetching,
-    isFetchingNextPage,
-  } = useInfiniteQuery(
-    ["create-account-clients", debouncedSearch],
-    async ({ pageParam = 1 }) => {
+    isFetchingNextPage
+  } = useInfiniteQuery({
+    queryKey: ['create-account-clients', debouncedSearch],
+    queryFn: async ({ pageParam = 1 }) => {
       const result = await clientService.getClientsByAgentId(
         user.id,
         debouncedSearch,
@@ -63,16 +65,16 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
         name: `${c.firstName} ${c.lastName}`,
       }));
     },
-    {
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.length === 10 ? allPages.length + 1 : undefined;
-      },
-      refetchOnWindowFocus: false,
-      staleTime: 60 * 1000,
-      keepPreviousData: false
-    }
-  );
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === 10 ? allPages.length + 1 : undefined;
+    },
+    initialPageParam: 1,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+    staleTime: 60 * 1000,
+  });
 
+  
   const clients = data?.pages.flat() || [];
 
   // Infinite scroll effect

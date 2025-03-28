@@ -5,7 +5,7 @@ import { Header } from "../../components/layout/header";
 import { DynamicSidebar } from "../../components/layout/DynamicSidebar";
 import { UserProvider } from "@/contexts/user-context";
 import { ClientProvider } from "@/contexts/client-context"; 
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
 export default function DashboardLayout({

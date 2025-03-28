@@ -11,7 +11,7 @@ import { Account, AccountStatus, AccountType } from "@/lib/api/types";
 import { handleApiError } from "@/lib/api";
 import accountService from "@/lib/api/mockAccountService";
 import DeleteAccountButton from "@/components/client/delete-acount-dialog";
-import { InfiniteData, useInfiniteQuery, useQueryClient } from "react-query";
+import { InfiniteData, keepPreviousData, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/use-debounce"
 
 
@@ -26,7 +26,7 @@ export default function AccountsPage() {
   const lastAccountRef = useRef<HTMLDivElement | null>(null);
   const [error, setError] = useState<string>("");
   const queryClient = useQueryClient();
-  
+    
   const {
     data,
     fetchNextPage,
@@ -35,7 +35,7 @@ export default function AccountsPage() {
     isFetchingNextPage,
     isRefetching,
     refetch,
-  } = useInfiniteQuery(
+  } = useInfiniteQuery({queryKey: 
     [
       "accounts",
       user.id,
@@ -43,7 +43,7 @@ export default function AccountsPage() {
       accountTypeFilter,
       accountStatusFilter,
     ],
-    async ({ pageParam = 1 }) => {
+    queryFn: async ({ pageParam = 1 }) => {
       setError("");
       try {
         const response = await accountService.getAccountsByAgentId({
@@ -60,14 +60,15 @@ export default function AccountsPage() {
         setError("Error loading accounts");
         throw err;
       }
-    },
-    {
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.length > 0 ? allPages.length + 1 : undefined;
       },
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.length === 10 ? allPages.length + 1 : undefined;
+      },
+      initialPageParam: 1,
+      placeholderData: keepPreviousData,
       refetchOnWindowFocus: false,
-    }
-  );
+      staleTime: 60 * 1000,
+});
 
   const accounts = data?.pages.flat() || [];
 

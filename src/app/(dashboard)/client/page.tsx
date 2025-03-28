@@ -11,7 +11,7 @@ import clientService from '@/lib/api/mockClientService'
 import { useUser } from '@/contexts/user-context'
 import { handleApiError } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce"; 
-import { useInfiniteQuery } from "react-query";
+import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 
 function ClientsPageInner() {
   
@@ -23,7 +23,7 @@ function ClientsPageInner() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastClientRef = useRef<HTMLDivElement | null>(null);
   const isInitialMount = useRef(true);
-  
+
 
   const {
     data,
@@ -31,11 +31,11 @@ function ClientsPageInner() {
     hasNextPage,
     isFetching,
     isFetchingNextPage,
-    isRefetching,
     refetch,
-  } = useInfiniteQuery(
-    ["clients-page", debouncedSearchQuery],
-    async ({ pageParam = 1 }) => {
+    isRefetching
+  } = useInfiniteQuery({
+    queryKey: ['clients-page', debouncedSearchQuery],
+    queryFn: async ({ pageParam = 1 }) => {
       try {
         setError("");
         const result = await clientService.getClientsByAgentId(
@@ -50,39 +50,36 @@ function ClientsPageInner() {
         throw err; 
       }
     },
-    {
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.length > 0 ? allPages.length + 1 : undefined;
-      },
-      refetchOnWindowFocus: true,
-      staleTime: 60 * 1000, 
-      keepPreviousData: false
-    }
-  );
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === 10 ? allPages.length + 1 : undefined;
+    },
+    initialPageParam: 1,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+    staleTime: 60 * 1000,
+  });
 
   // Flatten paginated results
   const clients = data?.pages.flat() || [];
 
-  // Handle tab visibility changes
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && !isInitialMount.current) {
-        refetch({ refetchPage: (_, index) => index === 0 });
+        refetch(); // Fetches all pages instead of targeting index 0
       }
       isInitialMount.current = false;
     };
-    
+  
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [refetch]);
-
+  
   // Handle refresh
   const handleRefresh = useCallback(() => {
-    refetch({ refetchPage: () => true }); 
+    refetch(); // Fetches all pages instead of specifying refetchPage
   }, [refetch]);
-
 
   useEffect(() => {
     const lastElement = lastClientRef.current;

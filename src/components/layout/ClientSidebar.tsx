@@ -21,7 +21,7 @@ import {
 import { ArrowLeft, CreditCard, Users, ChevronsUpDown, Check, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useInfiniteQuery } from "react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import clientService from "@/lib/api/mockClientService";
 
 interface NavItem {
@@ -49,29 +49,28 @@ export function ClientSidebar() {
     hasNextPage,
     isFetching,
     isFetchingNextPage,
-  } = useInfiniteQuery(
-    ["sidebar-clients", debouncedSearch],
-    async ({ pageParam = 1 }) => {
+  } = useInfiniteQuery({
+    queryKey: ["sidebar-clients", debouncedSearch],
+    queryFn: async ({ pageParam = 1 }) => {
       const result = await clientService.getClientsByAgentId(
         user.id,
         debouncedSearch,
         pageParam,
-        10 // limit
+        10 
       );
       return result.map(c => ({
         clientId: c.clientId || '',
         name: `${c.firstName} ${c.lastName}`,
       }));
     },
-    {
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.length === 10 ? allPages.length + 1 : undefined;
-      },
-      refetchOnWindowFocus: false,
-      staleTime: 60 * 1000,
-      keepPreviousData: true
-    }
-  );
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === 10 ? allPages.length + 1 : undefined;
+    },
+    initialPageParam: 1,
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+    staleTime: 60 * 1000,
+});
 
   const clients = data?.pages.flat() || [];
 

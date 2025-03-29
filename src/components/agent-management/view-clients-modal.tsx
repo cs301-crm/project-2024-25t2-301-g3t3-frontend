@@ -2,11 +2,12 @@
 
 import type { Agent, Client } from "@/lib/api/types"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
-import { useState } from "react"
+// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+// import { Badge } from "@/components/ui/badge"
+// import { Input } from "@/components/ui/input"
+// import { Search } from "lucide-react"
+// import { useState } from "react"
+import ClientsPageInner from "../client/ClientsPageInner"
 
 interface ViewClientsModalProps {
   agent: Agent
@@ -15,19 +16,19 @@ interface ViewClientsModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function ViewClientsModal({ agent, clients, open, onOpenChange }: ViewClientsModalProps) {
-  const [searchTerm, setSearchTerm] = useState("")
+export function ViewClientsModal({ agent, open, onOpenChange }: ViewClientsModalProps) {
+  // const [searchTerm, setSearchTerm] = useState("")
 
-  const filteredClients = clients.filter((client) => {
-    const searchLower = searchTerm.toLowerCase()
+  // const filteredClients = clients.filter((client) => {
+  //   const searchLower = searchTerm.toLowerCase()
 
-    return (
-      client.firstName.toLowerCase().includes(searchLower) ||
-      client.lastName.toLowerCase().includes(searchLower) ||
-      client.emailAddress.toLowerCase().includes(searchLower) ||
-      client.clientId.toLowerCase().includes(searchLower)
-    )
-  })
+  //   return (
+  //     client.firstName.toLowerCase().includes(searchLower) ||
+  //     client.lastName.toLowerCase().includes(searchLower) ||
+  //     client.emailAddress.toLowerCase().includes(searchLower) ||
+  //     client.clientId.toLowerCase().includes(searchLower)
+  //   )
+  // })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -38,7 +39,7 @@ export function ViewClientsModal({ agent, clients, open, onOpenChange }: ViewCli
           </DialogTitle>
           <DialogDescription>Viewing all clients assigned to this agent.</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        {/* <div className="space-y-4 py-4">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -95,7 +96,8 @@ export function ViewClientsModal({ agent, clients, open, onOpenChange }: ViewCli
               </TableBody>
             </Table>
           </div>
-        </div>
+        </div> */}
+           <ClientsPageInner agentId={agent.id} />
       </DialogContent>
     </Dialog>
   )

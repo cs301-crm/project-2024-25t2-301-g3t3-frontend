@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { usePathname, useRouter, useParams } from "next/navigation";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
@@ -40,8 +40,11 @@ export function ClientSidebar() {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 300); 
   const [selectedClient, setSelectedClient] = useState<{ clientId: string; name: string } | null>(null);
-  
-  const lastItemRef = useRef<HTMLDivElement>(null);
+  const [lastItem, setLastItem] = useState<HTMLElement | null>(null);
+  const lastItemRef = useCallback((node: HTMLElement | null) => {
+    if (node) setLastItem(node);
+  }, []);
+  const pageSize = 10;
 
   const {
     data,
@@ -56,7 +59,7 @@ export function ClientSidebar() {
         user.id,
         debouncedSearch,
         pageParam,
-        10 
+        pageSize
       );
       return result.map(c => ({
         clientId: c.clientId || '',
@@ -64,7 +67,7 @@ export function ClientSidebar() {
       }));
     },
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.length === 10 ? allPages.length + 1 : undefined;
+      return lastPage.length === pageSize ? allPages.length + 1 : undefined;
     },
     initialPageParam: 1,
     placeholderData: keepPreviousData,
@@ -76,26 +79,23 @@ export function ClientSidebar() {
 
   // Infinite scroll effect
   useEffect(() => {
+    if (!lastItem) return;
+    
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.5  }
     );
-
-    const currentLastItem = lastItemRef.current;
-    if (currentLastItem) {
-      observer.observe(currentLastItem);
-    }
-
+  
+    observer.observe(lastItem);
+  
     return () => {
-      if (currentLastItem) {
-        observer.unobserve(currentLastItem);
-      }
+      observer.unobserve(lastItem);
     };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [lastItem, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -165,12 +165,12 @@ export function ClientSidebar() {
                     </div>
                   ) : clients.length > 0 ? (
                     <>
-                      {clients.map((client, index) => (
+                      {clients.map((client) => (
                         <CommandItem
                           key={client.clientId}
                           value={client.name}
                           onSelect={() => handleClientSelect(client.clientId)}
-                          ref={index === clients.length - 1 ? lastItemRef : null}
+                          ref={lastItemRef}
                         >
                           <Check
                             className={cn(

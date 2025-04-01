@@ -106,7 +106,7 @@ function AgentManagementInner() {
     );
   });
 
-  const handleAddAgent = (
+  const handleAddAgent = async (
     newAgent: Omit<Agent, "id">,
     showOtpVerification: boolean
   ) => {
@@ -123,27 +123,47 @@ function AgentManagementInner() {
       });
     } else {
       // Direct creation without OTP (not used in current flow)
-      completeAgentCreation(newAgent);
+      const agent = await mockUserService.addAgent(newAgent, agents);
+      setAgents([...agents, agent]);
+      setClients({ ...clients, [agent.id]: [] });
+      setLogs({ ...logs, [agent.id]: [] });
     }
   };
 
-  const handleVerifyOtp = (otp: string) => {
+  const handleVerifyOtp = async (otp: string) => {
     if (!pendingAgent) return;
 
     setIsVerifyingOtp(true);
     setOtpError(null);
 
     // Simulate OTP verification with a delay
-    setTimeout(() => {
+    setTimeout(async () => {
       // For demo purposes, we'll consider "123456" as the correct OTP
       if (otp === "123456") {
-        completeAgentCreation(pendingAgent);
-        setIsOtpModalOpen(false);
-        setPendingAgent(null);
-        toast({
-          title: "Agent Created",
-          description: "The agent has been created successfully.",
-        });
+        try {
+          const { agent, updatedAgents, updatedClients, updatedLogs } =
+            await mockUserService.completeAgentCreation(
+              pendingAgent,
+              agents,
+              clients,
+              logs
+            );
+
+          setAgents(updatedAgents);
+          setClients(updatedClients);
+          setLogs(updatedLogs);
+
+          setIsOtpModalOpen(false);
+          setPendingAgent(null);
+
+          toast({
+            title: "Agent Created",
+            description: `The agent ${agent.firstName} ${agent.lastName} has been created successfully.`,
+          });
+        } catch (error) {
+          console.error("Error creating agent:", error);
+          setOtpError("Failed to create agent. Please try again.");
+        }
       } else {
         setOtpError("Invalid OTP. Please try again.");
       }
@@ -159,17 +179,6 @@ function AgentManagementInner() {
     });
   };
 
-  const completeAgentCreation = (newAgent: Omit<Agent, "id">) => {
-    const agentId = `AG${String(agents.length + 1).padStart(3, "0")}`;
-    const agent: Agent = {
-      ...newAgent,
-      id: agentId,
-    };
-    setAgents([...agents, agent]);
-    setClients({ ...clients, [agentId]: [] });
-    setLogs({ ...logs, [agentId]: [] });
-  };
-
   const handleUpdateAgent = (updatedAgent: Agent) => {
     setAgents(
       agents.map((agent) =>
@@ -179,18 +188,13 @@ function AgentManagementInner() {
     setEditingAgent(null);
   };
 
-  const handleDeleteAgent = (id: string) => {
+  const handleDeleteAgent = async (id: string) => {
     if (confirm("Are you sure you want to delete this agent?")) {
-      setAgents(agents.filter((agent) => agent.id !== id));
-
-      // Handle associated clients and logs
-      const newClients = { ...clients };
-      delete newClients[id];
-      setClients(newClients);
-
-      const newLogs = { ...logs };
-      delete newLogs[id];
-      setLogs(newLogs);
+      const { updatedAgents, updatedClients, updatedLogs } =
+        await mockUserService.deleteAgent(id, agents, clients, logs);
+      setAgents(updatedAgents);
+      setClients(updatedClients);
+      setLogs(updatedLogs);
     }
   };
 
@@ -207,29 +211,10 @@ function AgentManagementInner() {
     );
   };
 
-  const handleResetPassword = (id: string) => {
-    // In a real application, this would trigger a password reset flow
+  const handleResetPassword = async (id: string) => {
     console.log(`Password reset requested for agent ${id}`);
-
-    // Add a log entry for the password reset
-    const now = new Date().toISOString();
-    const newLogEntry: LogEntry = {
-      id: `LOG${Math.floor(Math.random() * 10000)
-        .toString()
-        .padStart(4, "0")}`,
-      agentId: id,
-      clientId: "",
-      clientName: "",
-      crudType: "RESET",
-      dateTime: now,
-      attributeName: "Password",
-      afterValue: "Password was reset by admin",
-    };
-
-    setLogs((prevLogs) => ({
-      ...prevLogs,
-      [id]: [newLogEntry, ...(prevLogs[id] || [])],
-    }));
+    const updatedLogs = await mockUserService.resetPassword(id, logs);
+    setLogs(updatedLogs);
   };
 
   // Update the getAgentClients function to work with the new Client interface

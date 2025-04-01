@@ -373,8 +373,94 @@ const agents: Agent[] = [
     ],
   };
 
-  export const mockUserService = {
-    getAgents: async () => agents,
-    getClients: async () => clients,
-    getLogs: async () => logs,
+// Fetch all agents
+export const getAgents = async () => agents;
+
+// Fetch all clients
+export const getClients = async () => clients;
+
+// Fetch all logs
+export const getLogs = async () => logs;
+
+// Add a new agent
+export const addAgent = async (newAgent: Omit<Agent, "id">, agents: Agent[]) => {
+  const agentId = `AG${String(agents.length + 1).padStart(3, "0")}`;
+  const agent: Agent = {
+    ...newAgent,
+    id: agentId,
   };
+
+  // Update mock data
+  agents.push(agent);
+  clients[agentId] = [];
+  logs[agentId] = [];
+
+  return agent;
+};
+
+// Delete an agent
+export const deleteAgent = async (
+  id: string,
+  agents: Agent[],
+  clients: Record<string, Client[]>,
+  logs: Record<string, LogEntry[]>
+) => {
+  const updatedAgents = agents.filter((agent) => agent.id !== id);
+
+  // Remove associated clients and logs
+  delete clients[id];
+  delete logs[id];
+
+  return { updatedAgents, updatedClients: clients, updatedLogs: logs };
+};
+
+// Reset an agent's password
+export const resetPassword = async (
+  id: string,
+  logs: Record<string, LogEntry[]>
+) => {
+  const now = new Date().toISOString();
+  const newLogEntry: LogEntry = {
+    id: `LOG${Math.floor(Math.random() * 10000).toString().padStart(4, "0")}`,
+    agentId: id,
+    clientId: "",
+    clientName: "",
+    crudType: "RESET",
+    dateTime: now,
+    attributeName: "Password",
+    afterValue: "Password was reset by admin",
+  };
+
+  logs[id] = [newLogEntry, ...(logs[id] || [])];
+  return logs;
+};
+
+export const completeAgentCreation = async (
+    newAgent: Omit<Agent, "id">,
+    agents: Agent[],
+    clients: Record<string, Client[]>,
+    logs: Record<string, LogEntry[]>
+  ) => {
+    const agentId = `AG${String(agents.length + 1).padStart(3, "0")}`;
+    const agent: Agent = {
+      ...newAgent,
+      id: agentId,
+    };
+  
+    // Update mock data
+    agents.push(agent);
+    clients[agentId] = [];
+    logs[agentId] = [];
+  
+    return { agent, updatedAgents: agents, updatedClients: clients, updatedLogs: logs };
+  };
+
+export const mockUserService = {
+  getAgents,
+  getClients,
+  getLogs,
+  addAgent,
+  deleteAgent,
+  resetPassword,
+    completeAgentCreation,
+};

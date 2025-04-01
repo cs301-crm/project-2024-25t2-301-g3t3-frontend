@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/password-input";
 import { loginFormSchema, LoginFormValues } from "@/lib/validations/auth";
+import { login } from "@/lib/api/mockAuthService";
 
 export function LoginForm() {
   const router = useRouter();
@@ -35,11 +36,15 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      // In a real application, you would call your authentication API here
-      console.log("Login credentials:", values);
+      // // In a real application, you would call your authentication API here
+      // console.log("Login credentials:", values);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // // Simulate API call
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const token = await login(values.email, values.password);
+      console.log("Logged in! Token:", token);
+      localStorage.setItem("token", token);
 
       // Redirect to dashboard on successful login
       router.push("/dashboard");

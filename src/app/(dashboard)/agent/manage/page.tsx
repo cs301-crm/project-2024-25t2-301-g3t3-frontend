@@ -25,7 +25,7 @@ import { ViewClientsModal } from "@/components/agent-management/view-clients-mod
 import { ViewLogsModal } from "@/components/agent-management/view-logs-modal";
 import { useToast } from "@/components/ui/use-toast";
 import type { Agent, Client, LogEntry } from "@/lib/api/types";
-import { mockUserService } from "@/lib/api/mockUserService";
+import { mockUserService as userService } from "@/lib/api/mockUserService";
 
 function AgentManagementInner() {
   const { toast } = useToast();
@@ -72,9 +72,9 @@ function AgentManagementInner() {
 
       // Fetch data from the mock service
       const [fetchedAgents, fetchedClients, fetchedLogs] = await Promise.all([
-        mockUserService.getAgents(),
-        mockUserService.getClients(),
-        mockUserService.getLogs(),
+        userService.getAgents(),
+        userService.getClients(),
+        userService.getLogs(),
       ]);
 
       setAgents(fetchedAgents);
@@ -123,7 +123,7 @@ function AgentManagementInner() {
       });
     } else {
       // Direct creation without OTP (not used in current flow)
-      const agent = await mockUserService.addAgent(newAgent, agents);
+      const agent = await userService.addAgent(newAgent, agents);
       setAgents([...agents, agent]);
       setClients({ ...clients, [agent.id]: [] });
       setLogs({ ...logs, [agent.id]: [] });
@@ -142,7 +142,7 @@ function AgentManagementInner() {
       if (otp === "123456") {
         try {
           const { agent, updatedAgents, updatedClients, updatedLogs } =
-            await mockUserService.completeAgentCreation(
+            await userService.completeAgentCreation(
               pendingAgent,
               agents,
               clients,
@@ -191,7 +191,7 @@ function AgentManagementInner() {
   const handleDeleteAgent = async (id: string) => {
     if (confirm("Are you sure you want to delete this agent?")) {
       const { updatedAgents, updatedClients, updatedLogs } =
-        await mockUserService.deleteAgent(id, agents, clients, logs);
+        await userService.deleteAgent(id, agents, clients, logs);
       setAgents(updatedAgents);
       setClients(updatedClients);
       setLogs(updatedLogs);
@@ -213,7 +213,7 @@ function AgentManagementInner() {
 
   const handleResetPassword = async (id: string) => {
     console.log(`Password reset requested for agent ${id}`);
-    const updatedLogs = await mockUserService.resetPassword(id, logs);
+    const updatedLogs = await userService.resetPassword(id, logs);
     setLogs(updatedLogs);
   };
 

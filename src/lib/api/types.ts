@@ -113,3 +113,40 @@ export interface Transaction {
   clientFirstName: string;
   clientLastName: string;
 }
+
+// User Types
+export interface CreateUserRequestDTO {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: string;
+}
+
+export interface DisableEnableRequestDTO {
+  userId: string;
+}
+
+export interface DangerousActionOtpVerificationDTO {
+  userId: string;
+  otp: string;
+}
+
+export interface UpdateUserRequestDTO {
+  userId: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  role?: string;
+}
+
+export interface ResetPasswordRequestDTO {
+  userId: string;
+  newPassword: string;
+}
+
+export interface GenericResponseDTO<T = unknown> {
+  success: boolean;
+  message: string;
+  data?: T;
+}

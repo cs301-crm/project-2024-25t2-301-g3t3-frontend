@@ -7,17 +7,16 @@ import {
   UpdateUserRequestDTO,
   ResetPasswordRequestDTO,
   GenericResponseDTO,
+  LoginRequestDTO,
+  OtpVerificationDTO,
+  ResendOtpRequestDTO
 } from './types';
 
 export const userService = {
-  /**
-   * Create a new user
-   * @param userData - The data for the new user
-   * @returns Promise with the response from the server
-   */
+  // --- USER CONTROLLER ---
   createUser: async (userData: CreateUserRequestDTO): Promise<GenericResponseDTO> => {
     try {
-      const response = await axiosClient.post('/api/v1/users', userData);
+      const response = await axiosClient.post('/users', userData);
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -25,14 +24,9 @@ export const userService = {
     }
   },
 
-  /**
-   * Disable a user
-   * @param requestData - The data to disable the user
-   * @returns Promise with the response from the server
-   */
-  disableUser: async (requestData: DisableEnableRequestDTO): Promise<GenericResponseDTO> => {
+  disableUser: async (data: DisableEnableRequestDTO): Promise<GenericResponseDTO> => {
     try {
-      const response = await axiosClient.patch('/api/v1/users/disable', requestData);
+      const response = await axiosClient.patch('/users/disable', data);
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -40,14 +34,9 @@ export const userService = {
     }
   },
 
-  /**
-   * Enable a user
-   * @param requestData - The data to enable the user
-   * @returns Promise with the response from the server
-   */
-  enableUser: async (requestData: DisableEnableRequestDTO): Promise<GenericResponseDTO> => {
+  enableUser: async (data: DisableEnableRequestDTO): Promise<GenericResponseDTO> => {
     try {
-      const response = await axiosClient.patch('/api/v1/users/enable', requestData);
+      const response = await axiosClient.patch('/users/enable', data);
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -55,29 +44,19 @@ export const userService = {
     }
   },
 
-  /**
-   * Verify OTP for a dangerous action
-   * @param otpData - The OTP verification data
-   * @returns Promise with the response from the server
-   */
-  verifyOtp: async (otpData: DangerousActionOtpVerificationDTO): Promise<GenericResponseDTO> => {
+  verifyUserOtp: async (data: DangerousActionOtpVerificationDTO): Promise<GenericResponseDTO> => {
     try {
-      const response = await axiosClient.post('/api/v1/users/verify-otp', otpData);
+      const response = await axiosClient.post('/users/verify-otp', data);
       return response.data;
     } catch (error) {
       handleApiError(error);
-      throw new Error('Failed to verify OTP');
+      throw new Error('OTP verification failed');
     }
   },
 
-  /**
-   * Update an existing user
-   * @param userData - The updated user data
-   * @returns Promise with the response from the server
-   */
-  updateUser: async (userData: UpdateUserRequestDTO): Promise<GenericResponseDTO> => {
+  updateUser: async (data: UpdateUserRequestDTO): Promise<GenericResponseDTO> => {
     try {
-      const response = await axiosClient.put('/api/v1/users', userData);
+      const response = await axiosClient.put('/users', data);
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -85,20 +64,64 @@ export const userService = {
     }
   },
 
-  /**
-   * Reset a user's password
-   * @param resetData - The password reset data
-   * @returns Promise with the response from the server
-   */
-  resetPassword: async (resetData: ResetPasswordRequestDTO): Promise<GenericResponseDTO> => {
+  resetPassword: async (data: ResetPasswordRequestDTO): Promise<GenericResponseDTO> => {
     try {
-      const response = await axiosClient.post('/api/v1/users/reset-password', resetData);
+      const response = await axiosClient.post('/users/reset-password', data);
       return response.data;
     } catch (error) {
       handleApiError(error);
       throw new Error('Failed to reset password');
     }
   },
-};
 
-export default userService;
+  // --- AUTH CONTROLLER ---
+  login: async (data: LoginRequestDTO): Promise<GenericResponseDTO> => {
+    try {
+      const response = await axiosClient.post('/auth/login', data);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Login failed');
+    }
+  },
+
+  verifyAuthOtp: async (data: OtpVerificationDTO): Promise<GenericResponseDTO> => {
+    try {
+      const response = await axiosClient.post('/auth/verify-otp', data);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Auth OTP verification failed');
+    }
+  },
+
+  resendAuthOtp: async (data: ResendOtpRequestDTO): Promise<GenericResponseDTO> => {
+    try {
+      const response = await axiosClient.post('/auth/resend-otp', data);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to resend OTP');
+    }
+  },
+
+  logout: async (): Promise<GenericResponseDTO> => {
+    try {
+      const response = await axiosClient.post('/auth/logout');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Logout failed');
+    }
+  },
+
+  refresh: async (): Promise<GenericResponseDTO> => {
+    try {
+      const response = await axiosClient.post('/auth/refresh');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Token refresh failed');
+    }
+  }
+};

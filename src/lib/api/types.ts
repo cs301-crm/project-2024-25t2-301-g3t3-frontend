@@ -119,34 +119,49 @@ export interface CreateUserRequestDTO {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
-  role: string;
+  userRole:string;
 }
 
 export interface DisableEnableRequestDTO {
-  userId: string;
+  email: string;
 }
 
 export interface DangerousActionOtpVerificationDTO {
-  userId: string;
-  otp: string;
+  email: string;
+  oneTimePassword: string;
+  otpContext: string;
 }
 
 export interface UpdateUserRequestDTO {
-  userId: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  role?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  userRole:string;
 }
 
 export interface ResetPasswordRequestDTO {
-  userId: string;
+  email: string;
+  oldPassword: string;
   newPassword: string;
 }
 
-export interface GenericResponseDTO<T = unknown> {
+export interface GenericResponseDTO {
   success: boolean;
   message: string;
-  data?: T;
+  timestamp: string;
+}
+
+// Auth
+export interface LoginRequestDTO {
+  email: string;
+  password: string;
+}
+
+export interface OtpVerificationDTO {
+  email: string;
+  oneTimePassword: string;
+}
+
+export interface ResendOtpRequestDTO {
+  email: string;
 }

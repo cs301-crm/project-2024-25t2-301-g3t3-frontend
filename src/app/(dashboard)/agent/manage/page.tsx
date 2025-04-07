@@ -11,7 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   UserPlus,
-  FileText,
+  FileText, 
   Edit,
   ToggleLeft,
   ToggleRight,

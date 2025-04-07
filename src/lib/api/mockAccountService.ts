@@ -422,20 +422,45 @@ export const accountService = {
       return paginatedAccounts;
     },
     
-    getTransactionsByClientId: async (clientId: string): Promise<Transaction[]> => {
-      // Mock delay to simulate network request
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      
+    getTransactionsByClientId: async (
+      clientId: string,
+      searchQuery: string = "",
+      page: number = 1,
+      limit: number = 10
+    ): Promise<Transaction[]> => {
+      await new Promise((resolve) => setTimeout(resolve, 500));
   
-      return mockTransactions.filter(txn => txn.clientId === clientId);
+      const filtered = mockTransactions.filter(
+        (txn) =>
+          txn.clientId === clientId &&
+          (
+            txn.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            txn.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            `${txn.clientFirstName} ${txn.clientLastName}`.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+      );
+  
+      const start = (page - 1) * limit;
+      return filtered.slice(start, start + limit);
     },
-
-    getTransactionsByAgentId: async (agentId: string): Promise<Transaction[]> => {
-      // Mock delay to simulate network request
-      await new Promise(resolve => setTimeout(resolve, 500));
-      console.log(agentId);
-      return mockTransactions;
+  
+    getTransactionsByAgentId: async (
+      agentId: string,
+      searchQuery: string = "",
+      page: number = 1,
+      limit: number = 10
+    ): Promise<Transaction[]> => {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+  
+      const filtered = mockTransactions.filter(
+        (txn) => (
+            txn.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            txn.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            `${txn.clientFirstName} ${txn.clientLastName}`.toLowerCase().includes(searchQuery.toLowerCase())
+      ));
+  
+      const start = (page - 1) * limit;
+      return filtered.slice(start, start + limit);
     }
 };
 

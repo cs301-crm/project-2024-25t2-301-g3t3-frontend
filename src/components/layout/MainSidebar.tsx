@@ -12,6 +12,7 @@ import {
   HelpCircle,
   CreditCard,
   UserCog,
+  BadgeDollarSign,
 } from "lucide-react";
 import { useUser } from "@/contexts/user-context";
 
@@ -45,7 +46,7 @@ export function MainSidebar() {
     {
       href: "/transactions",
       label: "View Transactions",
-      icon: <CreditCard className="h-4 w-4" />,
+      icon: <BadgeDollarSign className="h-4 w-4" />,
     },
   ];
 
@@ -69,7 +70,7 @@ export function MainSidebar() {
     {
       href: "/transactions",
       label: "View Transactions",
-      icon: <CreditCard className="h-4 w-4" />,
+      icon: <BadgeDollarSign className="h-4 w-4" />,
     },
     {
       href: "/agent/manage",

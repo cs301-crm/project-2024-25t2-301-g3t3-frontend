@@ -3,45 +3,18 @@ import { useClient } from "@/contexts/client-context";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { Button } from "@/components/ui/button";
 import { EditClientDialog } from "@/components/client/edit-client-dialog";
-import { useEffect, useState } from "react";
-import { Loader2, Pencil } from "lucide-react";
+import {  Pencil } from "lucide-react";
 import DeleteClientButton from "@/components/client/delete-client-dialog";
-import clientService from "@/lib/api/mockClientService";
-import { handleApiError, LogEntry } from "@/lib/api";
 import { ClientNotFound } from "@/components/client/clientNotFound";
 import { ClientLoading } from "@/components/client/clientLoading";
 import { useUser } from "@/contexts/user-context";
+import RecentActivities from "@/components/recent-activities/RecentActivities";
+
+
 export default function ClientOverviewPage() {
   const { client, loadingClient, loadClientError } = useClient();
-  const [recentActivities, setRecentActivities] = useState<LogEntry[]>();
-  const [loadingActivities, setLoadingActivities] = useState<boolean>();
-  const [error, setError] = useState<string>("");
-  const { user } = useUser();
+  const { isAdmin } = useUser();
 
-  useEffect(() => {
-    // Fetch recent activities from the API
-    setLoadingActivities(true);
-    const fetchRecentActivities = async () => {
-      setError("")
-      if(client){
-        try {
-          const response = await clientService.getLogsByClientId(client?.clientId)
-          setRecentActivities(response);
-
-        } catch (error) {
-          setError("Failed to fetch recent activities")
-          handleApiError(error);
-        } finally {
-          setLoadingActivities(false);
-        }
-      } else {
-        setError("Failed to fetch recent activities");
-        setLoadingActivities(false);
-      }
-    };
-
-    fetchRecentActivities();
-  }, [client]);
 
   if (loadingClient) {
     return <ClientLoading />;
@@ -51,37 +24,6 @@ export default function ClientOverviewPage() {
     return <ClientNotFound />;
   }
 
-  const generateSimplifiedMessage = (log: LogEntry): string => {
-    let isAccountLog = false;
-  
-    if (
-      (log.beforeValue && (log.beforeValue.includes("accountId") || log.beforeValue.includes("accountType"))) ||
-      (log.afterValue && (log.afterValue.includes("accountId") || log.afterValue.includes("accountType")))
-    ) {
-      isAccountLog = true;
-    }
-  
-    const entityType = isAccountLog ? "account" : "profile";
-  
-    switch (log.crudType) {
-      case "CREATE":
-        return `Created ${entityType} for ${log.clientName}`;
-      case "READ":
-        return `Retrieved ${entityType} for ${log.clientName}`;
-      case "UPDATE":
-        if (log.attributeName && log.attributeName.includes("verificationStatus")) {
-          return `Verified ${entityType} for ${log.clientName}`;
-        }
-        if (log.attributeName && log.attributeName.trim() !== "") {
-          return `Updated ${log.attributeName.replace("|", ", ")} for ${log.clientName}`;
-        }
-        return `Updated ${entityType} for ${log.clientName}`;
-      case "DELETE":
-        return `Deleted ${entityType} for ${log.clientName}`;
-      default:
-        return `Operation on ${entityType} for ${log.clientName}`;
-    }
-  };
   return (
     <div className="flex flex-col space-y-4 p-8">
       <div>
@@ -188,7 +130,7 @@ export default function ClientOverviewPage() {
             <p className="text-sm text-slate-500">Postal Code</p>
             <p className="font-medium">{client && client.postalCode}</p>
           </div>
-          {client?.agentId != user.id && (
+          {isAdmin && (
             <div>
               <p className="text-sm text-slate-500">Agent</p>
               <p className="font-medium">{client && client.agentId}</p>
@@ -197,50 +139,7 @@ export default function ClientOverviewPage() {
         </div>
       </DashboardCard>
 
-      <DashboardCard title="Recent Activities" className="border-l-4 border-l-slate-700">
-        <div className="space-y-2">
-          {error && (
-              <div className="rounded-md bg-red-50 p-4 border border-red-200">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
-          <div className="max-h-[200px] overflow-y-auto">
-            
-          {loadingActivities ? (
-            <div className="flex items-center justify-center py-4 gap-2 text-slate-500">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              <p>Loading recent activities...</p>
-            </div>
-          ) : recentActivities && recentActivities.length > 0 ? (
-            recentActivities.map((log, index) => (
-              <div 
-                key={index}
-                className="flex items-center justify-between py-2 px-3 hover:bg-slate-50 rounded-lg transition-colors"
-              >
-                <p className="text-sm text-slate-600 font-medium">
-                  {generateSimplifiedMessage(log)}
-                </p>
-                <p className="text-xs text-slate-500 font-mono">
-                  {new Date(log.dateTime).toLocaleString()}
-                </p>
-              </div>
-            ))
-          ) : (
-            <>
-              {!error && (
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-slate-500">No recent activities</p>
-                </div>
-
-              )}
-            </>
-          )}
-
-
-
-          </div>
-        </div>
-    </DashboardCard>
+      <RecentActivities clientId={client?.clientId}/>
     </div>
   );
 }

@@ -113,3 +113,17 @@ export interface Transaction {
   clientFirstName: string;
   clientLastName: string;
 }
+
+export interface CommunicationsEntry {
+  subject: string;
+  status: string;
+  timestamp: string;
+}
+
+export interface AdminLogEntry {
+  log_id: string;
+  actor: string;
+  transaction_type: string;
+  action: string;
+  timestamp: string;
+}

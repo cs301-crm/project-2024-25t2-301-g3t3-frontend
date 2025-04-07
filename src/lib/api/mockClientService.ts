@@ -1,5 +1,5 @@
 
-import { Client, ClientDTO, LogEntry } from './types';
+import { Client, ClientDTO, CommunicationsEntry, LogEntry } from './types';
 
 const mockClients: Client[] = [
   {
@@ -740,7 +740,7 @@ const mockClients: Client[] = [
       dateTime: "2024-03-28T14:00:00Z",
     },
     {
-      id: "log-001",
+      id: "log-007",
       agentId: "agent001",
       clientId: "c1000000-0000-0000-0000-000000000001",
       clientName: "John Doe",
@@ -748,7 +748,7 @@ const mockClients: Client[] = [
       dateTime: "2024-03-28T10:00:00Z",
     },
     {
-      id: "log-002",
+      id: "log-008",
       agentId: "agent001",
       clientId: "c1000000-0000-0000-0000-000000000001",
       clientName: "John Doe",
@@ -759,7 +759,7 @@ const mockClients: Client[] = [
       afterValue: "987-654-3210",
     },
     {
-      id: "log-003",
+      id: "log-009",
       agentId: "agent001",
       clientId: "c1000000-0000-0000-0000-000000000001",
       clientName: "John Doe",
@@ -767,7 +767,7 @@ const mockClients: Client[] = [
       dateTime: "2024-03-28T14:00:00Z",
     },
     {
-      id: "log-004",
+      id: "log-0010",
       agentId: "agent001",
       clientId: "c1000000-0000-0000-0000-000000000001",
       clientName: "John Doe",
@@ -775,7 +775,7 @@ const mockClients: Client[] = [
       dateTime: "2024-03-28T10:00:00Z",
     },
     {
-      id: "log-005",
+      id: "log-011",
       agentId: "agent001",
       clientId: "c1000000-0000-0000-0000-000000000001",
       clientName: "John Doe",
@@ -786,7 +786,115 @@ const mockClients: Client[] = [
       afterValue: "987-654-3210",
     },
     {
-      id: "log-006",
+      id: "log-012",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "DELETE",
+      dateTime: "2024-03-28T14:00:00Z",
+    },
+    {
+      id: "log-007",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "CREATE",
+      dateTime: "2024-03-28T10:00:00Z",
+    },
+    {
+      id: "log-008",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "UPDATE",
+      dateTime: "2024-03-28T12:00:00Z",
+      attributeName: "phoneNumber",
+      beforeValue: "123-456-7890",
+      afterValue: "987-654-3210",
+    },
+    {
+      id: "log-009",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "DELETE",
+      dateTime: "2024-03-28T14:00:00Z",
+    },
+    {
+      id: "log-010",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "CREATE",
+      dateTime: "2024-03-28T10:00:00Z",
+    },
+    {
+      id: "log-011",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "UPDATE",
+      dateTime: "2024-03-28T12:00:00Z",
+      attributeName: "phoneNumber",
+      beforeValue: "123-456-7890",
+      afterValue: "987-654-3210",
+    },
+    {
+      id: "log-012",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "DELETE",
+      dateTime: "2024-03-28T14:00:00Z",
+    },
+    {
+      id: "log-013",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "CREATE",
+      dateTime: "2024-03-28T10:00:00Z",
+    },
+    {
+      id: "log-014",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "UPDATE",
+      dateTime: "2024-03-28T12:00:00Z",
+      attributeName: "phoneNumber",
+      beforeValue: "123-456-7890",
+      afterValue: "987-654-3210",
+    },
+    {
+      id: "log-015",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "DELETE",
+      dateTime: "2024-03-28T14:00:00Z",
+    },
+    {
+      id: "log-016",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "CREATE",
+      dateTime: "2024-03-28T10:00:00Z",
+    },
+    {
+      id: "log-017",
+      agentId: "agent001",
+      clientId: "c1000000-0000-0000-0000-000000000001",
+      clientName: "John Doe",
+      crudType: "UPDATE",
+      dateTime: "2024-03-28T12:00:00Z",
+      attributeName: "phoneNumber",
+      beforeValue: "123-456-7890",
+      afterValue: "987-654-3210",
+    },
+    {
+      id: "log-018",
       agentId: "agent001",
       clientId: "c1000000-0000-0000-0000-000000000001",
       clientName: "John Doe",
@@ -795,7 +903,108 @@ const mockClients: Client[] = [
     },
   ];
   
-
+  const mockCommunicationsLogs: CommunicationsEntry[] = [
+    {
+      subject: "Welcome Email Sent",
+      status: "SENT",
+      timestamp: "2024-03-01T09:30:00Z",
+    },
+    {
+      subject: "Verification Reminder",
+      status: "SENT",
+      timestamp: "2024-03-02T10:15:00Z",
+    },
+    {
+      subject: "Profile Update Follow-up",
+      status: "SENT",
+      timestamp: "2024-03-03T14:45:00Z",
+    },
+    {
+      subject: "Failed Delivery: Email Bounce",
+      status: "FAILED",
+      timestamp: "2024-03-04T16:10:00Z",
+    },
+    {
+      subject: "Monthly Summary Sent",
+      status: "SENT",
+      timestamp: "2024-03-05T08:00:00Z",
+    },
+    {
+      subject: "Security Alert Follow-up",
+      status: "SENDING",
+      timestamp: "2024-03-06T11:20:00Z",
+    },
+    {
+      subject: "Manual Review Needed",
+      status: "FAILED",
+      timestamp: "2024-03-07T12:30:00Z",
+    },
+    {
+      subject: "Policy Change Notification",
+      status: "SENT",
+      timestamp: "2024-03-08T15:00:00Z",
+    },
+    {
+      subject: "Subscription Renewal Reminder",
+      status: "SENT",
+      timestamp: "2024-03-09T09:45:00Z",
+    },
+    {
+      subject: "Feedback Request Sent",
+      status: "SENT",
+      timestamp: "2024-03-10T10:30:00Z",
+    },
+    {
+      subject: "Welcome Email Sent",
+      status: "SENT",
+      timestamp: "2024-03-01T09:30:00Z",
+    },
+    {
+      subject: "Verification Reminder",
+      status: "SENT",
+      timestamp: "2024-03-02T10:15:00Z",
+    },
+    {
+      subject: "Profile Update Follow-up",
+      status: "SENT",
+      timestamp: "2024-03-03T14:45:00Z",
+    },
+    {
+      subject: "Failed Delivery: Email Bounce",
+      status: "FAILED",
+      timestamp: "2024-03-04T16:10:00Z",
+    },
+    {
+      subject: "Monthly Summary Sent",
+      status: "SENT",
+      timestamp: "2024-03-05T08:00:00Z",
+    },
+    {
+      subject: "Security Alert Follow-up",
+      status: "SENDING",
+      timestamp: "2024-03-06T11:20:00Z",
+    },
+    {
+      subject: "Manual Review Needed",
+      status: "FAILED",
+      timestamp: "2024-03-07T12:30:00Z",
+    },
+    {
+      subject: "Policy Change Notification",
+      status: "SENT",
+      timestamp: "2024-03-08T15:00:00Z",
+    },
+    {
+      subject: "Subscription Renewal Reminder",
+      status: "SENT",
+      timestamp: "2024-03-09T09:45:00Z",
+    },
+    {
+      subject: "Feedback Request Sent",
+      status: "SENT",
+      timestamp: "2024-03-10T10:30:00Z",
+    },
+  ];
 
 
   const clientService = {
@@ -873,22 +1082,68 @@ const mockClients: Client[] = [
       }
     },
     
-    getLogsByClientId: (clientId: string): Promise<LogEntry[]> => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(mockLogs.filter((log) => log.clientId === clientId));
-        }, 500);
-      });
-    },
 
-    getLogsByAgentId: (agentId: string): Promise<LogEntry[]> => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(mockLogs.filter((log) => log.agentId === agentId));
-        }, 500);
-      });
-    },
+      getLogsByAgentId: async (
+        agentId: string,
+        searchQuery: string = "",
+        page: number = 1,
+        limit: number = 10
+      ): Promise<LogEntry[]> => {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+    
+        const filtered = mockLogs.filter(
+          (log) =>
+            log.agentId === agentId &&
+            (log.clientName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              log.crudType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              log.attributeName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              log.beforeValue?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              log.afterValue?.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
+    
+        const start = (page - 1) * limit;
+        return filtered.slice(start, start + limit);
+      },
+    
+      getLogsByClientId: async (
+        clientId: string,
+        searchQuery: string = "",
+        page: number = 1,
+        limit: number = 10
+      ): Promise<LogEntry[]> => {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+    
+        const filtered = mockLogs.filter(
+          (log) =>
+            log.clientId === clientId &&
+            (log.clientName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              log.crudType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              log.attributeName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              log.beforeValue?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              log.afterValue?.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
+    
+        const start = (page - 1) * limit;
+        return filtered.slice(start, start + limit);
+      },
+  
+    getCommunicationsByAgentId: async (
+      agentId: string,
+      searchQuery: string = "",
+      page: number = 1,
+      limit: number = 10
+    ): Promise<CommunicationsEntry[]> => {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+  
+      const filtered = mockCommunicationsLogs.filter(
+        (entry : CommunicationsEntry) =>
+          entry.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          entry.status.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
+      const start = (page - 1) * limit;
+      return filtered.slice(start, start + limit);
+    },
     // verifyClient: async (clientId: string, nric: string): Promise<{ verified: boolean }> => {
     //   // In a real-world scenario, the verification logic will happen here
     //   return { verified: true };

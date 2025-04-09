@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/password-input";
 import { loginFormSchema, LoginFormValues } from "@/lib/validations/auth";
 import { login } from "@/lib/api/mockAuthService";
-import { OtpVerificationModal } from "@/components/agent-management/otp-verification-modal";
+import { OtpVerificationModal } from "@/components/user-management/otp-verification-modal";
 
 export function LoginForm() {
   const router = useRouter();

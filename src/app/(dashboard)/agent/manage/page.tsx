@@ -18,11 +18,11 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { AddAgentModal } from "@/components/agent-management/add-agent-modal";
-import { OtpVerificationModal } from "@/components/agent-management/otp-verification-modal";
-import { EditAgentModal } from "@/components/agent-management/edit-agent-modal";
-import { ViewClientsModal } from "@/components/agent-management/view-clients-modal";
-import { ViewLogsModal } from "@/components/agent-management/view-logs-modal";
+import { AddAgentModal } from "@/components/user-management/add-user-modal";
+import { OtpVerificationModal } from "@/components/user-management/otp-verification-modal";
+import { EditAgentModal } from "@/components/user-management/edit-user-modal";
+import { ViewClientsModal } from "@/components/user-management/view-clients-modal";
+import { ViewLogsModal } from "@/components/user-management/view-logs-modal";
 import { useToast } from "@/components/ui/use-toast";
 import type { Agent, Client, LogEntry } from "@/lib/api/types";
 import { mockUserService as userService } from "@/lib/api/mockUserService";

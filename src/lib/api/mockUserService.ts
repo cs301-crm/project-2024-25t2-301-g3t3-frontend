@@ -1,4 +1,117 @@
-import type { User, Client, LogEntry, CreateUserRequestDTO } from "./types"
+import type {
+  User,
+  Client,
+  LogEntry,
+  CreateUserRequestDTO,
+  AdminLogEntry,
+} from "./types";
+
+// -----------------------------------------------------------------------------
+// Admin logs section
+// -----------------------------------------------------------------------------
+
+// Mock admin logs data
+const mockAdminLogs: AdminLogEntry[] = [
+  {
+    log_id: "log-001",
+    actor: "admin001",
+    transaction_type: "POST",
+    action: "Created new client record",
+    timestamp: "2024-03-01T10:00:00Z",
+  },
+  {
+    log_id: "log-002",
+    actor: "admin002",
+    transaction_type: "PUT",
+    action: "Updated client profile",
+    timestamp: "2024-03-02T12:30:00Z",
+  },
+  {
+    log_id: "log-003",
+    actor: "admin001",
+    transaction_type: "DELETE",
+    action: "Removed account",
+    timestamp: "2024-03-03T09:15:00Z",
+  },
+  {
+    log_id: "log-004",
+    actor: "admin003",
+    transaction_type: "GET",
+    action: "Fetched transaction list",
+    timestamp: "2024-03-04T16:20:00Z",
+  },
+  {
+    log_id: "log-005",
+    actor: "admin001",
+    transaction_type: "POST",
+    action: "Created admin user",
+    timestamp: "2024-03-05T11:00:00Z",
+  },
+  {
+    log_id: "log-006",
+    actor: "admin002",
+    transaction_type: "PUT",
+    action: "Updated password policy",
+    timestamp: "2024-03-06T14:45:00Z",
+  },
+  {
+    log_id: "log-007",
+    actor: "admin001",
+    transaction_type: "DELETE",
+    action: "Deleted inactive users",
+    timestamp: "2024-03-07T08:10:00Z",
+  },
+  {
+    log_id: "log-008",
+    actor: "admin003",
+    transaction_type: "POST",
+    action: "Created new role",
+    timestamp: "2024-03-08T15:00:00Z",
+  },
+  {
+    log_id: "log-009",
+    actor: "admin001",
+    transaction_type: "PUT",
+    action: "Modified system settings",
+    timestamp: "2024-03-09T13:25:00Z",
+  },
+  {
+    log_id: "log-010",
+    actor: "admin002",
+    transaction_type: "GET",
+    action: "Viewed audit logs",
+    timestamp: "2024-03-10T17:55:00Z",
+  },
+];
+
+// Simulate API delay
+const simulateApiDelay = () =>
+  new Promise((resolve) => setTimeout(resolve, 300));
+
+/**
+ * Fetch paginated and searchable admin logs
+ */
+export const getAdminLogs = async (
+  searchQuery: string = "",
+  page: number = 1,
+  limit: number = 10
+): Promise<AdminLogEntry[]> => {
+  await simulateApiDelay();
+
+  const filtered = mockAdminLogs.filter(
+    (log) =>
+      log.actor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.transaction_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.action.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const start = (page - 1) * limit;
+  return filtered.slice(start, start + limit);
+};
+
+// -----------------------------------------------------------------------------
+// Users, Clients, and Logs section
+// -----------------------------------------------------------------------------
 
 // Extend the existing agents data to include role
 const users: User[] = [
@@ -59,7 +172,7 @@ const users: User[] = [
     status: "active",
     role: "admin",
   },
-]
+];
 
 const clients: Record<string, Client[]> = {
   AG001: [
@@ -228,7 +341,7 @@ const clients: Record<string, Client[]> = {
       verificationStatus: "pending",
     },
   ],
-}
+};
 
 const logs: Record<string, LogEntry[]> = {
   AG001: [
@@ -393,7 +506,7 @@ const logs: Record<string, LogEntry[]> = {
       afterValue: "Agent logged in",
     },
   ],
-  // Add logs for admin users
+  // Logs for admin users
   AD001: [
     {
       id: "LOG016",
@@ -418,78 +531,95 @@ const logs: Record<string, LogEntry[]> = {
       afterValue: "Created new user account",
     },
   ],
-}
+};
+
+// -----------------------------------------------------------------------------
+// User Service Methods
+// -----------------------------------------------------------------------------
 
 // Fetch all users
-export const getUsers = async () => users
+export const getUsers = async () => users;
 
 // Alias for backward compatibility
-export const getAgents = async () => users
+export const getAgents = async () => users;
 
 // Fetch all clients
-export const getClients = async () => clients
+export const getClients = async () => clients;
 
-// Fetch all logs
-export const getLogs = async () => logs
+// Fetch all logs (agent and admin logs are stored separately)
+export const getLogs = async () => logs;
 
 // Add a new user
-export const addUser = async (newUser: Omit<User, "id">, existingUsers: User[]) => {
-  const prefix = newUser.role === "admin" ? "AD" : "AG"
-  const roleUsers = existingUsers.filter((u) => u.role === newUser.role)
-  const userId = `${prefix}${String(roleUsers.length + 1).padStart(3, "0")}`
+export const addUser = async (
+  newUser: Omit<User, "id">,
+  existingUsers: User[]
+): Promise<User> => {
+  const prefix = newUser.role === "admin" ? "AD" : "AG";
+  const roleUsers = existingUsers.filter((u) => u.role === newUser.role);
+  const userId = `${prefix}${String(roleUsers.length + 1).padStart(3, "0")}`;
 
   const user: User = {
     ...newUser,
     id: userId,
-  }
+  };
 
   // Update mock data
-  users.push(user)
+  users.push(user);
 
   // Only initialize clients for agents
   if (newUser.role === "agent") {
-    clients[userId] = []
+    clients[userId] = [];
   }
 
-  logs[userId] = []
+  logs[userId] = [];
 
-  return user
-}
+  return user;
+};
 
 // Alias for backward compatibility
-export const addAgent = async (newUser: Omit<User, "id">, existingUsers: User[]) => {
-  return addUser({ ...newUser, role: "agent" }, existingUsers)
-}
+export const addAgent = async (
+  newUser: Omit<User, "id">,
+  existingUsers: User[]
+) => {
+  return addUser({ ...newUser, role: "agent" }, existingUsers);
+};
 
 // Delete a user
 export const deleteUser = async (
   id: string,
   existingUsers: User[],
   existingClients: Record<string, Client[]>,
-  existingLogs: Record<string, LogEntry[]>,
+  existingLogs: Record<string, LogEntry[]>
 ) => {
-  const updatedUsers = existingUsers.filter((user) => user.id !== id)
+  const updatedUsers = existingUsers.filter((user) => user.id !== id);
 
   // Remove associated clients and logs
-  delete existingClients[id]
-  delete existingLogs[id]
+  delete existingClients[id];
+  delete existingLogs[id];
 
-  return { updatedUsers, updatedClients: existingClients, updatedLogs: existingLogs }
-}
+  return {
+    updatedUsers,
+    updatedClients: existingClients,
+    updatedLogs: existingLogs,
+  };
+};
 
 // Alias for backward compatibility
 export const deleteAgent = async (
   id: string,
   existingUsers: User[],
   existingClients: Record<string, Client[]>,
-  existingLogs: Record<string, LogEntry[]>,
+  existingLogs: Record<string, LogEntry[]>
 ) => {
-  return deleteUser(id, existingUsers, existingClients, existingLogs)
-}
+  return deleteUser(id, existingUsers, existingClients, existingLogs);
+};
 
 // Reset a user's password
-export const resetPassword = async (id: string, existingLogs: Record<string, LogEntry[]>) => {
-  const now = new Date().toISOString()
+export const resetPassword = async (
+  id: string,
+  existingLogs: Record<string, LogEntry[]>
+) => {
+  const now = new Date().toISOString();
   const newLogEntry: LogEntry = {
     id: `LOG${Math.floor(Math.random() * 10000)
       .toString()
@@ -501,52 +631,62 @@ export const resetPassword = async (id: string, existingLogs: Record<string, Log
     dateTime: now,
     attributeName: "Password",
     afterValue: "Password was reset by admin",
-  }
+  };
 
-  existingLogs[id] = [newLogEntry, ...(existingLogs[id] || [])]
-  return existingLogs
-}
+  existingLogs[id] = [newLogEntry, ...(existingLogs[id] || [])];
+  return existingLogs;
+};
 
 export const completeUserCreation = async (
   newUser: Omit<User, "id">,
   existingUsers: User[],
   existingClients: Record<string, Client[]>,
-  existingLogs: Record<string, LogEntry[]>,
+  existingLogs: Record<string, LogEntry[]>
 ) => {
-  const user = await addUser(newUser, existingUsers)
+  const user = await addUser(newUser, existingUsers);
 
   return {
     user,
     updatedUsers: existingUsers,
     updatedClients: existingClients,
     updatedLogs: existingLogs,
-  }
-}
+  };
+};
 
 // Alias for backward compatibility
 export const completeAgentCreation = async (
   newUser: Omit<User, "id">,
   existingUsers: User[],
   existingClients: Record<string, Client[]>,
-  existingLogs: Record<string, LogEntry[]>,
+  existingLogs: Record<string, LogEntry[]>
 ) => {
-  return completeUserCreation({ ...newUser, role: "agent" }, existingUsers, existingClients, existingLogs)
-}
+  return completeUserCreation({ ...newUser, role: "agent" }, existingUsers, existingClients, existingLogs);
+};
 
 // Create a user with the real service DTO format
-export const createUser = async (userData: CreateUserRequestDTO): Promise<User> => {
+export const createUser = async (
+  userData: CreateUserRequestDTO
+): Promise<User> => {
   const newUser: Omit<User, "id"> = {
     firstName: userData.firstName,
     lastName: userData.lastName,
     email: userData.email,
     status: "active",
     role: userData.role,
-  }
+  };
 
-  return addUser(newUser, users)
-}
+  return addUser(newUser, users);
+};
 
-export const mockUserService = {
+// -----------------------------------------------------------------------------
+// Combined Service
+// -----------------------------------------------------------------------------
+
+export const userService = {
+  // Admin logs methods
+  getAdminLogs,
+
+  // User, client, and logs methods
   getUsers,
   getAgents,
   getClients,
@@ -559,4 +699,6 @@ export const mockUserService = {
   completeUserCreation,
   completeAgentCreation,
   createUser,
-}
+};
+
+export default userService;

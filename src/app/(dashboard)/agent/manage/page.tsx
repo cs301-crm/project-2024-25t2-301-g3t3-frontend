@@ -25,7 +25,7 @@ import { ViewClientsModal } from "@/components/user-management/view-clients-moda
 import { ViewLogsModal } from "@/components/user-management/view-logs-modal";
 import { useToast } from "@/components/ui/use-toast";
 import type { User, Client, LogEntry } from "@/lib/api/types";
-import { mockUserService as userService } from "@/lib/api/mockUserService";
+import { userService } from "@/lib/api/mockUserService";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 

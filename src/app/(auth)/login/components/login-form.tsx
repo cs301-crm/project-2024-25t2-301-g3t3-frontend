@@ -18,17 +18,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/password-input";
 import { loginFormSchema, LoginFormValues } from "@/lib/validations/auth";
-import { login } from "@/lib/api/mockAuthService";
+import { userService } from "@/lib/api/userService";
 import { OtpVerificationModal } from "@/components/user-management/otp-verification-modal";
-
+import { OtpVerificationDTO, ResendOtpRequestDTO, UserContextDTO } from "@/lib/api/types";
+import { useUser } from "@/contexts/user-context";
+import { toast } from "@/components/ui/use-toast";
 export function LoginForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
-  const [pendingToken, setPendingToken] = useState<string | null>(null);
-
+  const [error, setError] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const { setUser } = useUser();
+  
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -39,50 +43,86 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginFormValues) {
     setIsLoading(true);
-
+    setError("");
+    setEmail(values.email);
     try {
-      const token = await login(values.email, values.password);
-      console.log("Logged in! Token:", token);
+      const result = await userService.login(values);
 
-      // Store the token temporarily and open the OTP modal
-      setPendingToken(token);
-      setIsOtpModalOpen(true);
+      if(result.success){
+        setIsOtpModalOpen(true);
+      } else {
+        setError("Invalid email or password");
+      }
     } catch (error) {
-      console.error("Login failed:", error);
+      setError("Network Error");
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
   }
 
   const handleVerifyOtp = async (otp: string) => {
-    if (!pendingToken) return;
-
-    setIsVerifyingOtp(true);
+    if (isVerifyingOtp) return;
+    
+   
     setOtpError(null);
-
-    // Simulate OTP verification with a delay
-    setTimeout(() => {
-      if (otp === "123456") {
-        // OTP is correct, proceed with login
-        localStorage.setItem("token", pendingToken);
-        setIsOtpModalOpen(false);
+    try {
+      const OtpDTO: OtpVerificationDTO = {
+        email,
+        oneTimePassword: otp
+      }
+      const result = await userService.verifyAuthOtp(OtpDTO);
+  
+      if(result.success){
+  
+        const { userid, fullName, role } = result.message;
+  
+        const user: UserContextDTO = { userid, fullName, role };
+        // Update state
+        setUser(user);
+        toast({
+          title: "Login Success",
+          description: `Welcome back, ${fullName}`,
+        });
         router.push("/dashboard");
       } else {
-        setOtpError("Invalid OTP. Please try again.");
+        throw new Error("Failed to verify OTP");
       }
+    } catch (err){
+      setOtpError("Failed to verify OTP");
+      console.log(err);
+    } finally {
       setIsVerifyingOtp(false);
-    }, 1500);
+    }
+
   };
 
-  const handleResendOtp = () => {
-    // Simulate OTP resend
-    console.log("OTP resent to the user.");
+  const handleResendOtp = async () => {
+
+    try {
+      if(!email) return
+      const resendDTO : ResendOtpRequestDTO = {
+        email
+      }
+      const result = await userService.resendAuthOtp(resendDTO);
+      if(result.success){
+        console.log("OTP resent to the user.");
+      }
+    } catch (err){
+      console.log(err);
+    }
+   
   };
 
   return (
     <>
+      {error &&(
+        <div className="rounded-md bg-red-50 p-4 border border-red-200">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-3">
           <FormField
             control={form.control}
             name="email"
@@ -130,7 +170,7 @@ export function LoginForm() {
           />
           <Button
             type="submit"
-            className="w-full bg-slate-800 font-medium hover:bg-slate-900"
+            className="w-full bg-slate-800 font-medium cursor-pointer hover:bg-slate-900"
             disabled={isLoading}
           >
             {isLoading ? (

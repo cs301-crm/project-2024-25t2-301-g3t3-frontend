@@ -9,7 +9,8 @@ import {
   GenericResponseDTO,
   LoginRequestDTO,
   OtpVerificationDTO,
-  ResendOtpRequestDTO
+  ResendOtpRequestDTO,
+  OtpSuccessResponse
 } from './types';
 
 export const userService = {
@@ -85,7 +86,7 @@ export const userService = {
     }
   },
 
-  verifyAuthOtp: async (data: OtpVerificationDTO): Promise<GenericResponseDTO> => {
+  verifyAuthOtp: async (data: OtpVerificationDTO): Promise<OtpSuccessResponse> => {
     try {
       const response = await axiosClient.post('/auth/verify-otp', data);
       return response.data;

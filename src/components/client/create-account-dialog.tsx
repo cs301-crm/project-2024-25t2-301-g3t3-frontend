@@ -56,7 +56,7 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
     queryKey: ['create-account-clients', debouncedSearch],
     queryFn: async ({ pageParam = 1 }) => {
       const result = await clientService.getClientsByAgentId(
-        user.id,
+        user.userid,
         debouncedSearch,
         pageParam
       );
@@ -158,7 +158,7 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
       <div className="space-y-4">
         {!clientId && (
           <div className="mb-4 p-3 border rounded-md">
-            <label className="block text-sm font-bold mb-2">Client</label>
+            <label className="block text-sm font-medium mb-2">Client</label>
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button 

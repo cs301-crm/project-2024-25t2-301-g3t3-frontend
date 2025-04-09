@@ -15,6 +15,7 @@ interface ClientContextType {
   loadingClient: boolean;
   loadingAccounts: boolean;
   loadClientError: string | null;
+  setClient: (client: Client | null) => void; 
   fetchClient: () => Promise<void>;
   updateClient: (updates: Partial<Client>) => Promise<void>;
   deleteClient: () => Promise<void>;
@@ -189,13 +190,14 @@ export function ClientProvider({ children }: { children: ReactNode }) {
         loadClientError,
         accounts,
         fetchClient,
+        setClient,
         updateClient,
         fetchClientAccounts,
         addAccount,
         deleteClient,
         deleteAccount
         }),
-        [client, loadingClient, accounts, loadingAccounts, loadingAction, loadClientError, fetchClient, updateClient, fetchClientAccounts, addAccount, deleteAccount, deleteClient]
+        [client, loadingClient, accounts, loadingAccounts, loadingAction, loadClientError, setClient, fetchClient, updateClient, fetchClientAccounts, addAccount, deleteAccount, deleteClient]
     );
 
   return <ClientContext.Provider value={contextValue}>{children}</ClientContext.Provider>;

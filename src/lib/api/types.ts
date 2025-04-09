@@ -156,6 +156,12 @@ export interface GenericResponseDTO {
   timestamp: string;
 }
 
+export interface OtpSuccessResponse {
+  success: boolean;
+  message: UserContextResponseDTO;
+  timestamp: string;
+}
+
 // Auth
 export interface LoginRequestDTO {
   email: string;
@@ -183,4 +189,17 @@ export interface AdminLogEntry {
   transaction_type: string;
   action: string;
   timestamp: string;
+}
+
+export interface UserContextResponseDTO {
+  userid: string,
+  role: string,
+  fullName: string,
+  jwt: string
+}
+
+export interface UserContextDTO {
+  userid: string,
+  role: string,
+  fullName: string
 }

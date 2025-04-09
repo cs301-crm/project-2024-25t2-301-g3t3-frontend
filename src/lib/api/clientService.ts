@@ -128,7 +128,7 @@ export const clientService = {
       params.append('page', page.toString());
       params.append('limit', limit.toString());
   
-      const response = await axiosClient.get(`/logs/client?${params.toString()}`);
+      const response = await axiosClient.get(`/client-logs/client?${params.toString()}`);
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -154,7 +154,7 @@ export const clientService = {
       params.append('page', page.toString());
       params.append('limit', limit.toString());
   
-      const response = await axiosClient.get(`/logs/agent?${params.toString()}`);
+      const response = await axiosClient.get(`/client-logs/agent?${params.toString()}`);
       return response.data;
     } catch (error) {
       handleApiError(error);

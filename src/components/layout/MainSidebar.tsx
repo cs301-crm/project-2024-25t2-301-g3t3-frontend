@@ -24,7 +24,7 @@ interface NavItem {
 
 export function MainSidebar() {
   const pathname = usePathname();
-  const { role } = useUser();
+  const { isAdmin } = useUser();
 
   // Agent-specific navigation items
   const agentNavItems: NavItem[] = [
@@ -134,7 +134,7 @@ export function MainSidebar() {
     <aside className="hidden w-64 border-r bg-white md:block">
       <div className="flex flex-col gap-6 p-4">
         <div className="space-y-2">
-          {role === "agent"
+          {!isAdmin
             ? renderNavItems(agentNavItems)
             : renderNavItems(mainNavItems)}
         </div>

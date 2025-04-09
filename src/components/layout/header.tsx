@@ -9,7 +9,7 @@ import { useUser } from "@/contexts/user-context";
 
 export function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const { role, user } = useUser();
+  const { user, isAdmin} = useUser();
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center border-b bg-white px-4 shadow-sm">
@@ -37,7 +37,7 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <span className="hidden text-sm text-slate-500 md:inline-block">
-            {role === "agent" ? `Agent ${user.id}` : "Admin User"}
+            {!isAdmin ? `Agent ${user.fullName}` : "Admin User"}
           </span>
           <Button variant="ghost" size="icon" aria-label="User menu">
             <User className="h-5 w-5" />

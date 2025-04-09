@@ -27,12 +27,12 @@ export default function Communications() {
     isRefetching,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["communications", user.id, debouncedCommQuery],
+    queryKey: ["communications", user.userid, debouncedCommQuery],
     queryFn: async ({ pageParam = 1 }) => {
       setCommError("");
       try {
         return await clientService.getCommunicationsByAgentId(
-          user.id,
+          user.userid,
           debouncedCommQuery,
           pageParam,
           10

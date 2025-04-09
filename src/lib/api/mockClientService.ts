@@ -1059,6 +1059,7 @@ const mockClients: Client[] = [
   
     createClient: async (clientData: ClientDTO): Promise<Client> => {
       const newClient = { ...clientData, clientId: `c${Date.now()}`, agentId: "agent001"};
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       mockClients.push(newClient);
       return newClient;
     },
@@ -1143,6 +1144,41 @@ const mockClients: Client[] = [
 
       const start = (page - 1) * limit;
       return filtered.slice(start, start + limit);
+    },
+    
+    reassignClient: async (clientId: string, newAgentId: string): Promise<Client> => {
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
+      
+      const clientIndex = mockClients.findIndex(client => client.clientId === clientId);
+      
+      if (clientIndex === -1) {
+        throw new Error('Client not found');
+      }
+    
+      // Get the current agent ID before updating
+      const currentAgentId = mockClients[clientIndex].agentId;
+      
+      // Update the client's agentId
+      mockClients[clientIndex] = {
+        ...mockClients[clientIndex],
+        agentId: newAgentId
+      };
+    
+      // Create a log entry for the reassignment
+      const clientName = `${mockClients[clientIndex].firstName} ${mockClients[clientIndex].lastName}`;
+      mockLogs.push({
+        id: `log-${Date.now()}`,
+        agentId: currentAgentId, // The agent who performed the reassignment
+        clientId,
+        clientName,
+        crudType: "UPDATE",
+        dateTime: new Date().toISOString(),
+        attributeName: "agentId",
+        beforeValue: currentAgentId,
+        afterValue: newAgentId
+      });
+    
+      return mockClients[clientIndex];
     },
     // verifyClient: async (clientId: string, nric: string): Promise<{ verified: boolean }> => {
     //   // In a real-world scenario, the verification logic will happen here

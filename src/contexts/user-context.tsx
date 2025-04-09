@@ -1,49 +1,65 @@
 "use client";
 
+import { UserContextDTO } from "@/lib/api/types";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-// Define the available roles
-export type UserRole = "agent" | "admin";
-
-interface User {
-  id: string
-}
 
 // Define the context type
 interface UserContextType {
-  role: UserRole;
-  user: User
+  user: UserContextDTO;
+  loading: boolean;
   isAdmin: boolean;
-  setRole: (role: UserRole) => void;
-  setUser: (user: User) => void;
+  setUser: (user: UserContextDTO) => void;
 }
 
 // Create the context with a default value
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Create a provider component
 export function UserProvider({
   children,
-  initialRole = "admin",
 }: {
   children: ReactNode;
-  initialRole?: UserRole;
 }) {
+  // const defaultUser = {
+  //   userid: "",
+  //   role: "",
+  //   fullName: ""
+  // }
+
   const testUser = {
-    id: "agent001"
+    userid: "agent001",
+    role: "ROLE_ADMIN",
+    fullName: "John Champion"
   }
-  const [role, setRole] = useState<UserRole>(initialRole);
-  const [user, setUser] = useState<User>(testUser);
+
+  const [user, setUser] = useState<UserContextDTO>(testUser);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true); 
+  // Load user from localStorage on first render
 
   useEffect(() => {
-    if(role && role === "admin"){
-      setIsAdmin(true);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
-  }, [role]);
-  
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      //localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    setIsAdmin(user?.role === "ROLE_ADMIN");
+  }, [user]);
+
+
   return (
-    <UserContext.Provider value={{ role, user, isAdmin, setRole, setUser }}>
+    <UserContext.Provider value={{ user, loading, isAdmin, setUser }}>
       {children}
     </UserContext.Provider>
   );

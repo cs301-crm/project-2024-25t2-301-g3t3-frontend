@@ -18,7 +18,7 @@ interface RecentActivitiesProps {
   }
 
   export default function RecentActivities({ clientId }: RecentActivitiesProps) {
-    const { user, role } = useUser();
+    const { user, isAdmin } = useUser();
     const [error, setError] = useState("");
     const [activitySearchQuery, setActivitySearchQuery] = useState("");
     const debouncedSearchQuery = useDebounce(activitySearchQuery, 300);
@@ -37,7 +37,7 @@ interface RecentActivitiesProps {
           );
         } else {
           return await clientService.getLogsByAgentId(
-            user.id,
+            user.userid,
             debouncedSearchQuery,
             pageParam,
             10
@@ -58,7 +58,7 @@ interface RecentActivitiesProps {
       isRefetching,
       refetch,
     } = useInfiniteQuery({
-      queryKey: ["recentActivities", clientId ?? user.id, debouncedSearchQuery],
+      queryKey: ["recentActivities", clientId ?? user.userid, debouncedSearchQuery],
       queryFn: fetchLogs,
       getNextPageParam: (lastPage, allPages) =>
         lastPage.length === 10 ? allPages.length + 1 : undefined,
@@ -134,7 +134,7 @@ interface RecentActivitiesProps {
     };
   
     return (
-      <DashboardCard title={clientId ? "Recent Activities" : (role == "admin" ? "All Recent Activities" : "My Recent Activities")} className="border-l-4 border-l-slate-700">
+      <DashboardCard title={clientId ? "Recent Activities" : (isAdmin ? "All Recent Activities" : "My Recent Activities")} className="border-l-4 border-l-slate-700">
         <div className="flex flex-col space-y-4">
           <div className="flex flex-wrap gap-2 mb-4">
             <Button size="sm" variant="outline" onClick={handleRefresh} disabled={isFetching}>

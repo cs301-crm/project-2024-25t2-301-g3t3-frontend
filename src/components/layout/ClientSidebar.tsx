@@ -56,7 +56,7 @@ export function ClientSidebar() {
     queryKey: ["sidebar-clients", debouncedSearch],
     queryFn: async ({ pageParam = 1 }) => {
       const result = await clientService.getClientsByAgentId(
-        user.id,
+        user.userid,
         debouncedSearch,
         pageParam,
         pageSize

@@ -15,7 +15,7 @@ export default function ClientsPage() {
           <p className="text-slate-500">Create and manage {isAdmin ? "all" : "your"} client profiles</p>
         </div>
         <div className="grid gap-6">
-          <ClientsPageInner agentId={user.id}/>
+          <ClientsPageInner agentId={user.userid}/>
         </div>
       </div>
     </Suspense>

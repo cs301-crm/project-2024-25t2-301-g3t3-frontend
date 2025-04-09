@@ -143,7 +143,7 @@ export default function ClientsPageInner({ agentId }: ClientsPageInnerProps){
     const content = (
         <div className="flex flex-col space-y-4">
             <div className="flex flex-wrap gap-2 mb-4">
-                {user.id === agentId && (
+                {user.userid === agentId && (
                   <CreateClientDialog compact={true} />
                 )}
               <Button
@@ -221,7 +221,7 @@ export default function ClientsPageInner({ agentId }: ClientsPageInnerProps){
             )}
           </div>
     )
-    return user.id === agentId ? (
+    return user.userid === agentId ? (
         <DashboardCard
           title="Client List"
           className="border-l-4 border-l-slate-700 col-span-2"

@@ -4,6 +4,7 @@ import type {
   LogEntry,
   CreateUserRequestDTO,
   AdminLogEntry,
+  Agent,
 } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -678,6 +679,17 @@ export const createUser = async (
   return addUser(newUser, users);
 };
 
+export const getAgentList = async (): Promise<Partial<Agent>[]> => {
+  await simulateApiDelay();
+  return users
+    .filter((user) => user.role === "agent" && user.status === "active")
+    .map(({ id, firstName, lastName }) => ({
+      id,
+      firstName,
+      lastName,
+    }));
+};
+
 // -----------------------------------------------------------------------------
 // Combined Service
 // -----------------------------------------------------------------------------
@@ -699,6 +711,7 @@ export const userService = {
   completeUserCreation,
   completeAgentCreation,
   createUser,
+  getAgentList
 };
 
 export default userService;

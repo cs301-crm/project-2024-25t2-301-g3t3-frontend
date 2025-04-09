@@ -3,18 +3,18 @@ import { useClient } from "@/contexts/client-context";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { Button } from "@/components/ui/button";
 import { EditClientDialog } from "@/components/client/edit-client-dialog";
-import {  Pencil } from "lucide-react";
+import {  Pencil, UserRoundPen } from "lucide-react";
 import DeleteClientButton from "@/components/client/delete-client-dialog";
 import { ClientNotFound } from "@/components/client/clientNotFound";
 import { ClientLoading } from "@/components/client/clientLoading";
 import { useUser } from "@/contexts/user-context";
 import RecentActivities from "@/components/recent-activities/RecentActivities";
+import { ReassignAgent } from "@/components/client/ReassignAgent";
 
 
 export default function ClientOverviewPage() {
-  const { client, loadingClient, loadClientError } = useClient();
+  const { client, setClient, loadingClient, loadClientError } = useClient();
   const { isAdmin } = useUser();
-
 
   if (loadingClient) {
     return <ClientLoading />;
@@ -33,9 +33,24 @@ export default function ClientOverviewPage() {
           </h1>
           {client && (
             <div className="flex space-x-2">
+              {isAdmin && 
+              <ReassignAgent
+              clientId={client.clientId}
+              agentId={client.agentId}
+              onReassign={(newAgentId) => {
+                setClient({ ...client, agentId: newAgentId });
+              }}
+              trigger={
+                <Button className="cursor-pointer" size="sm" variant="outline">
+                  <UserRoundPen className="h-3 w-3" />
+                  Reassign Agent
+                </Button>
+              }
+            />
+              }
               <EditClientDialog
                 client={client}
-                trigger={<Button className="cursor-pointer" size="sm" variant="outline"><Pencil className="h-3 w-3"/>Edit</Button>}
+                trigger={<Button className="cursor-pointer" size="sm" variant="outline"><Pencil className="h-3 w-3"/>Edit details</Button>}
               />
               <DeleteClientButton/>
             </div>

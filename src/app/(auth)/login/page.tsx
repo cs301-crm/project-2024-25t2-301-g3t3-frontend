@@ -24,7 +24,7 @@ export default function LoginPage() {
       <Branding size="md" showTagline={true} layout="horizontal" />
 
       <Card className="w-full border-slate-200 shadow-sm">
-        <CardHeader className="space-y-1 pb-6">
+        <CardHeader className="space-y-1 pb-1">
           <CardTitle className="text-center text-xl font-medium tracking-tight">
             Login
           </CardTitle>

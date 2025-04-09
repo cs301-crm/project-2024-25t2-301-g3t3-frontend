@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 interface AccountFormFieldsProps {
   form: UseFormReturn<AccountFormValues>;
   showClientSelection?: boolean;
-  clients?: Array<{ id: string; firstName: string; lastName: string; email: string }>;
+  clients?: Array<{ userid: string; firstName: string; lastName: string; email: string }>;
   onClientChange?: (clientId: string) => void;
 }
 
@@ -51,7 +51,7 @@ export function AccountFormFields({
         </div>
       )}
       <div className="rounded-md border p-4">
-        <h3 className="mb-3 text-sm font-bold">Account Information</h3>
+        <h3 className="mb-3 text-sm font-medium">Account Information</h3>
         <div className="grid gap-4">
           <FormField
             control={form.control}

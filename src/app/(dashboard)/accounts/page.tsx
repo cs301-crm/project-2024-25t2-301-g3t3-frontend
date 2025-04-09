@@ -38,7 +38,7 @@ export default function AccountsPage() {
   } = useInfiniteQuery({queryKey: 
     [
       "accounts",
-      user.id,
+      user.userid,
       debouncedSearchQuery,
       accountTypeFilter,
       accountStatusFilter,
@@ -47,7 +47,7 @@ export default function AccountsPage() {
       setError("");
       try {
         const response = await accountService.getAccountsByAgentId({
-          agentId: user.id,
+          agentId: user.userid,
           searchQuery: debouncedSearchQuery,
           type: accountTypeFilter,
           status: accountStatusFilter,
@@ -110,7 +110,7 @@ export default function AccountsPage() {
   const handleDeleteSuccess = useCallback((deletedAccountId: string) => {
     // Optimistically remove from cache
     queryClient.setQueryData<InfiniteData<Account[]>>(
-      ["accounts", user.id, debouncedSearchQuery, accountTypeFilter, accountStatusFilter],
+      ["accounts", user.userid, debouncedSearchQuery, accountTypeFilter, accountStatusFilter],
       (old?: InfiniteData<Account[]>) => {
         if (!old) {
           // Return empty infinite data structure if no existing data
@@ -128,7 +128,7 @@ export default function AccountsPage() {
         };
       }
     );
-  }, [queryClient, user.id, debouncedSearchQuery, accountTypeFilter, accountStatusFilter]);
+  }, [queryClient, user.userid, debouncedSearchQuery, accountTypeFilter, accountStatusFilter]);
 
   return (
     <div className="flex flex-col space-y-6 p-8">

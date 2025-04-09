@@ -57,7 +57,7 @@ export default function Transactions({ clientId }: TransactionsPageProps) {
         );
       } else {
         return await accountService.getTransactionsByAgentId(
-          user.id,
+          user.userid,
           debouncedSearchQuery,
           pageParam,
           10
@@ -78,7 +78,7 @@ export default function Transactions({ clientId }: TransactionsPageProps) {
     isRefetching,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["transactions", clientId ?? user.id, debouncedSearchQuery],
+    queryKey: ["transactions", clientId ?? user.userid, debouncedSearchQuery],
     queryFn: fetchTransactions,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === 10 ? allPages.length + 1 : undefined,

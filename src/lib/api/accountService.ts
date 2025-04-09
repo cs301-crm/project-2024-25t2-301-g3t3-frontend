@@ -115,27 +115,55 @@ export const accountService = {
     }
   },
 
-  getTransactionsByClientId: async (clientId: string): Promise<Transaction[]> => {
+  getTransactionsByClientId: async (
+    clientId: string,
+    searchQuery: string = "",
+    page: number = 1,
+    limit: number = 10
+  ): Promise<Transaction[]> => {
     try {
-      const response = await axiosClient.get(`/transactions/client/${clientId}`);
+      const params = new URLSearchParams();
+  
+      if (searchQuery.trim() !== "") {
+        params.append("searchQuery", searchQuery);
+      }
+  
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+  
+      const response = await axiosClient.get(`/transactions/client/${clientId}?${params.toString()}`);
       return response.data;
-
     } catch (error) {
       handleApiError(error);
-      throw new Error('Failed to fetch transactions');
+      throw new Error("Failed to fetch transactions by client");
     }
   },
+  
 
-  getTransactionsByAgentId: async (agentId: string): Promise<Transaction[]> => {
+  getTransactionsByAgentId: async (
+    agentId: string,
+    searchQuery: string = "",
+    page: number = 1,
+    limit: number = 10
+  ): Promise<Transaction[]> => {
     try {
-      const response = await axiosClient.get(`/transactions/agent/${agentId}`);
+      const params = new URLSearchParams();
+  
+      if (searchQuery.trim() !== "") {
+        params.append("searchQuery", searchQuery);
+      }
+  
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+  
+      const response = await axiosClient.get(`/transactions/agent/${agentId}?${params.toString()}`);
       return response.data;
-
     } catch (error) {
       handleApiError(error);
-      throw new Error('Failed to fetch transactions');
+      throw new Error("Failed to fetch transactions by agent");
     }
   },
+  
 
   
   

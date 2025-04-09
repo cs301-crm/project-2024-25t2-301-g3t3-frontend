@@ -1,6 +1,6 @@
 import axiosClient from './axiosClient';
 import { handleApiError } from './error-handler';
-import { Client, ClientDTO, LogEntry } from './types';
+import { Client, ClientDTO, CommunicationsEntry, LogEntry } from './types';
 
 /**
  * Client API Service
@@ -111,25 +111,78 @@ export const clientService = {
    
   },
 
-  getLogsByClientId: async (clientId: string): Promise<LogEntry[]> => {
+  getLogsByClientId: async (
+    clientId: string,
+    searchQuery: string = "",
+    page: number = 1,
+    limit: number = 10
+  ): Promise<LogEntry[]> => {
     try {
-      const response = await axiosClient.get(`/logs/client/${clientId}`);
-      return response.data
+      const params = new URLSearchParams();
+      params.append('clientId', clientId);
+  
+      if (searchQuery.trim() !== "") {
+        params.append('searchQuery', searchQuery);
+      }
+  
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+  
+      const response = await axiosClient.get(`/logs/client?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to fetch logs');
+    }
+  },
+  
 
+  getLogsByAgentId: async (
+    agentId: string,
+    searchQuery: string = "",
+    page: number = 1,
+    limit: number = 10
+  ): Promise<LogEntry[]> => {
+    try {
+      const params = new URLSearchParams();
+      params.append('agentId', agentId);
+  
+      if (searchQuery.trim() !== "") {
+        params.append('searchQuery', searchQuery);
+      }
+  
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+  
+      const response = await axiosClient.get(`/logs/agent?${params.toString()}`);
+      return response.data;
     } catch (error) {
       handleApiError(error);
       throw new Error('Failed to fetch logs');
     }
   },
 
-  getLogsByAgentId: async (agentId: string): Promise<LogEntry[]> => {
+  getCommunicationsByAgentId: async (
+    agentId: string,
+    searchQuery: string = "",
+    page: number = 1,
+    limit: number = 10
+  ): Promise<CommunicationsEntry[]> => {
     try {
-      const response = await axiosClient.get(`/logs/agent/${agentId}`);
-      return response.data
+      const params = new URLSearchParams();
 
+      if (searchQuery.trim() !== "") {
+        params.append('searchQuery', searchQuery);
+      }
+  
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+  
+      const response = await axiosClient.get(`/communications/${agentId}?${params.toString()}`);
+      return response.data;
     } catch (error) {
       handleApiError(error);
-      throw new Error('Failed to fetch logs');
+      throw new Error('Failed to fetch communications');
     }
   },
 

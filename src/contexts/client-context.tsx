@@ -4,18 +4,16 @@ import { createContext, useContext, useState, useEffect, useMemo, ReactNode, use
 import { usePathname } from "next/navigation";
 import clientService from "@/lib/api/mockClientService";
 import accountService from "@/lib/api/mockAccountService";
-import { Client, Account, AccountDTO, Transaction } from '@/lib/api/types';
+import { Client, Account, AccountDTO } from '@/lib/api/types';
 
 
 // Context type definition
 interface ClientContextType {
   client: Client | null;
   accounts: Account[] | null;
-  transactions: Transaction[] | null;
   loadingAction: boolean;
   loadingClient: boolean;
   loadingAccounts: boolean;
-  loadingTransactions: boolean;
   loadClientError: string | null;
   fetchClient: () => Promise<void>;
   updateClient: (updates: Partial<Client>) => Promise<void>;
@@ -23,7 +21,6 @@ interface ClientContextType {
   fetchClientAccounts: () => Promise<void>;
   addAccount: (addAccount: Omit<AccountDTO, "accountId">) => Promise<Account>;
   deleteAccount: (accountId: string, accountClientId: string) => Promise<void>;
-  getClientTransactions: () => Promise<void>;
 }
 
 // Create the context
@@ -33,10 +30,8 @@ const ClientContext = createContext<ClientContextType | undefined>(undefined);
 export function ClientProvider({ children }: { children: ReactNode }) {
   const [client, setClient] = useState<Client | null>(null);
   const [accounts, setAccounts] = useState<Account[] | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [loadingClient, setLoadingClient] = useState<boolean>(false);
   const [loadingAccounts, setLoadingAccounts] = useState<boolean>(false);
-  const [loadingTransactions, setLoadingTransactions] = useState<boolean>(false);
   const [loadingAction, setLoadingAction ] = useState<boolean>(false);
   const [loadClientError, setLoadClientError] = useState<string | null>(null);
   const pathname = usePathname();
@@ -108,13 +103,17 @@ export function ClientProvider({ children }: { children: ReactNode }) {
 
   const deleteClient = useCallback(async () => {
     if(!clientId){return}
+    if(accounts && accounts?.length > 0){
+      await fetchClientAccounts();
+      throw new Error("Client has existing account(s)."); 
+    }
     try {
       await clientService.deleteClient(clientId);
     } catch (err) {
       console.log(err);
-      throw new Error("Failed to delete client"); 
+      throw new Error("Please try again later"); 
     } 
-  }, [clientId]); 
+  }, [clientId, accounts]); 
 
   const deleteAccount = useCallback(async (accountId: string, accountClientId: string) => {
     if (!accountId) return;
@@ -144,6 +143,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     try {
       const fetchedAccounts = await accountService.getAccountsByClientId(clientId);
       setAccounts(fetchedAccounts);
+      console.log(accounts);
     } catch (err) {
       console.log(err);
       throw new Error("Unable to load accounts"); 
@@ -170,51 +170,32 @@ export function ClientProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    const getClientTransactions = useCallback(async () => {
-      if(!clientId){return}
-      setLoadingTransactions(true);
-      try {
-        const fetchedTransactions = await accountService.getTransactionsByClientId(clientId);
-        setTransactions(fetchedTransactions);
-      } catch (err) {
-        console.log(err);
-        throw new Error("Unable to load transactions"); 
-      } finally {
-        setLoadingTransactions(false);
-      }
-    }, [clientId]);
-
-
     useEffect(() => {
-    if (!clientId){
-      setClient(null);
-      return;
-    }
-     
-    fetchClient();
-    fetchClientAccounts();
-    getClientTransactions();
-  }, [clientId, fetchClient]);
+      if (!clientId){
+        setClient(null);
+        return;
+      }
+       
+      fetchClient();
+      fetchClientAccounts();
+    }, [clientId, fetchClient]);
     // Memoize the context value to prevent unnecessary re-renders
     const contextValue = useMemo(
         () => ({
         client,
         loadingClient,
         loadingAccounts,
-        loadingTransactions,
         loadingAction,
         loadClientError,
         accounts,
-        transactions,
         fetchClient,
         updateClient,
         fetchClientAccounts,
         addAccount,
         deleteClient,
-        getClientTransactions,
         deleteAccount
         }),
-        [client, loadingClient, accounts, loadingAccounts, transactions, loadingTransactions, loadingAction, loadClientError, fetchClient, updateClient, fetchClientAccounts, addAccount, deleteAccount, deleteClient, getClientTransactions]
+        [client, loadingClient, accounts, loadingAccounts, loadingAction, loadClientError, fetchClient, updateClient, fetchClientAccounts, addAccount, deleteAccount, deleteClient]
     );
 
   return <ClientContext.Provider value={contextValue}>{children}</ClientContext.Provider>;

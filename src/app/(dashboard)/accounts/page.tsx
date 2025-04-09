@@ -136,7 +136,7 @@ export default function AccountsPage() {
         <h1 className="text-2xl font-bold text-slate-900">
           Account Management
         </h1>
-        <p className="text-slate-500">View and manage all client accounts</p>
+        <p className="text-slate-500">View and manage client accounts</p>
       </div>
 
       <div className="grid gap-6">

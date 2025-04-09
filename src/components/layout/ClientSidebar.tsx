@@ -18,7 +18,7 @@ import {
   CommandItem,
   CommandEmpty,
 } from "@/components/ui/command";
-import { ArrowLeft, CreditCard, Users, ChevronsUpDown, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, CreditCard, Users, ChevronsUpDown, Check, Loader2, BadgeDollarSign } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
@@ -122,7 +122,7 @@ export function ClientSidebar() {
   const clientNav: NavItem[] = [
     { href: `/client/${id}`, label: "Overview", icon: <Users className="h-4 w-4" /> },
     { href: `/client/${id}/accounts`, label: "Accounts", icon: <CreditCard className="h-4 w-4" /> },
-    { href: `/client/${id}/transactions`, label: "Transactions", icon: <CreditCard className="h-4 w-4" /> },
+    { href: `/client/${id}/transactions`, label: "Transactions", icon: <BadgeDollarSign className="h-4 w-4" /> },
   ];
 
   return (

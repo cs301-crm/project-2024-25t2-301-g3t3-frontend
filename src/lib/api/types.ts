@@ -117,6 +117,7 @@ export interface Transaction {
   clientLastName: string;
 }
 
+
 // User Types
 export interface CreateUserRequestDTO {
   firstName: string;
@@ -168,4 +169,18 @@ export interface OtpVerificationDTO {
 
 export interface ResendOtpRequestDTO {
   email: string;
+
+export interface CommunicationsEntry {
+  subject: string;
+  status: string;
+  timestamp: string;
+}
+
+export interface AdminLogEntry {
+  log_id: string;
+  actor: string;
+  transaction_type: string;
+  action: string;
+  timestamp: string;
+
 }

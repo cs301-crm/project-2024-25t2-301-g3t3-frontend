@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useClient } from "@/contexts/client-context";
-import { handleApiError } from "@/lib/api";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -28,10 +27,9 @@ const DeleteClientButton = () => {
       setOpen(false);
       router.push(`/client`); 
     } catch (err) {
-      handleApiError(err);
       toast({
-        title: "Error",
-        description: "Failed to delete client. Please try again.",
+        title: "Unable to delete Client",
+        description: err instanceof Error ? err.message : String(err),
         variant: "destructive",
       });
     } finally {

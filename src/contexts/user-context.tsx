@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 // Define the available roles
 export type UserRole = "agent" | "admin";
@@ -13,6 +13,7 @@ interface User {
 interface UserContextType {
   role: UserRole;
   user: User
+  isAdmin: boolean;
   setRole: (role: UserRole) => void;
   setUser: (user: User) => void;
 }
@@ -23,7 +24,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 // Create a provider component
 export function UserProvider({
   children,
-  initialRole = "admin",
+  initialRole = "agent",
 }: {
   children: ReactNode;
   initialRole?: UserRole;
@@ -33,9 +34,16 @@ export function UserProvider({
   }
   const [role, setRole] = useState<UserRole>(initialRole);
   const [user, setUser] = useState<User>(testUser);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+  useEffect(() => {
+    if(role && role === "admin"){
+      setIsAdmin(true);
+    }
+  }, [role]);
   
   return (
-    <UserContext.Provider value={{ role, user, setRole, setUser }}>
+    <UserContext.Provider value={{ role, user, isAdmin, setRole, setUser }}>
       {children}
     </UserContext.Provider>
   );

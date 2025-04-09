@@ -8,10 +8,10 @@ import {
   Search,
   Trash2,
   RefreshCw,
-  ChevronDown,
-  ChevronUp,
+  // ChevronDown,
+  // ChevronUp,
   UserPlus,
-  FileText, 
+  FileText,
   Edit,
   ToggleLeft,
   ToggleRight,
@@ -221,9 +221,9 @@ function UserManagementInner() {
     setLogs(updatedLogs);
   };
 
-  const getUserClients = (userId: string) => {
-    return clients[userId] || [];
-  };
+  // const getUserClients = (userId: string) => {
+  //   return clients[userId] || [];
+  // };
 
   const toggleUserExpand = (userId: string) => {
     if (expandedUser === userId) {
@@ -407,16 +407,16 @@ function UserManagementInner() {
                               ID: {user.id}
                             </p>
                           </div>
-                          <div className="flex items-center">
+                          {/* <div className="flex items-center">
                             {expandedUser === user.id ? (
                               <ChevronUp className="h-4 w-4 text-slate-400" />
                             ) : (
                               <ChevronDown className="h-4 w-4 text-slate-400" />
                             )}
-                          </div>
+                          </div> */}
                         </div>
 
-                        {expandedUser === user.id && user.role === "agent" && (
+                        {/* {expandedUser === user.id && user.role === "agent" && (
                           <div
                             id={`user-details-${user.id}`}
                             className="mt-3 border-t pt-3"
@@ -467,7 +467,7 @@ function UserManagementInner() {
                               </p>
                             )}
                           </div>
-                        )}
+                        )} */}
 
                         <div className="mt-2 flex justify-end space-x-2">
                           {user.role === "agent" && (
@@ -483,17 +483,19 @@ function UserManagementInner() {
                               View Clients
                             </Button>
                           )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setViewingLogsUser(user);
-                            }}
-                          >
-                            <FileText className="mr-1 h-3 w-3" />
-                            View Logs
-                          </Button>
+                          {user.role === "agent" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewingLogsUser(user);
+                              }}
+                            >
+                              <FileText className="mr-1 h-3 w-3" />
+                              View Logs
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"

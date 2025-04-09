@@ -22,7 +22,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center space-y-8">
       <Branding size="md" showTagline={true} layout="horizontal" />
-
+      
       <Card className="w-full border-slate-200 shadow-sm">
         <CardHeader className="space-y-1 pb-1">
           <CardTitle className="text-center text-xl font-medium tracking-tight">

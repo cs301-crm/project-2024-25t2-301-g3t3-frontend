@@ -3,7 +3,6 @@
 import React from "react";
 import { Header } from "../../components/layout/header";
 import { DynamicSidebar } from "../../components/layout/DynamicSidebar";
-import { UserProvider } from "@/contexts/user-context";
 import { ClientProvider } from "@/contexts/client-context"; 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -14,7 +13,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <UserProvider>
       <QueryClientProvider client={queryClient}>
         <ClientProvider>
         <div className="flex flex-col h-screen bg-slate-50">
@@ -28,6 +26,5 @@ export default function DashboardLayout({
       </div>
         </ClientProvider>
       </QueryClientProvider>
-    </UserProvider>
   );
 }

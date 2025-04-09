@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useUser } from "@/contexts/user-context";
-import clientService from "@/lib/api/mockClientService";
+import clientService from "@/lib/api/clientService";
 import { DashboardCard } from "../dashboard/dashboard-card";
 import { LogEntry } from "@/lib/api";
 
@@ -37,7 +37,7 @@ interface RecentActivitiesProps {
           );
         } else {
           return await clientService.getLogsByAgentId(
-            user.userid,
+            user.userId,
             debouncedSearchQuery,
             pageParam,
             10
@@ -58,7 +58,7 @@ interface RecentActivitiesProps {
       isRefetching,
       refetch,
     } = useInfiniteQuery({
-      queryKey: ["recentActivities", clientId ?? user.userid, debouncedSearchQuery],
+      queryKey: ["recentActivities", clientId ?? user.userId, debouncedSearchQuery],
       queryFn: fetchLogs,
       getNextPageParam: (lastPage, allPages) =>
         lastPage.length === 10 ? allPages.length + 1 : undefined,

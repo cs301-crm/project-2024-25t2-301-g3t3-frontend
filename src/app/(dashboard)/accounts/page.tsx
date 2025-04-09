@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CreateAccountDialog } from "@/components/client/create-account-dialog";
 import { Account, AccountStatus, AccountType } from "@/lib/api/types";
 import { handleApiError } from "@/lib/api";
-import accountService from "@/lib/api/mockAccountService";
+import accountService from "@/lib/api/accountService";
 import DeleteAccountButton from "@/components/client/delete-acount-dialog";
 import { InfiniteData, keepPreviousData, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/use-debounce"
@@ -38,22 +38,23 @@ export default function AccountsPage() {
   } = useInfiniteQuery({queryKey: 
     [
       "accounts",
-      user.userid,
+      user.userId,
       debouncedSearchQuery,
       accountTypeFilter,
       accountStatusFilter,
     ],
     queryFn: async ({ pageParam = 1 }) => {
       setError("");
+
       try {
-        const response = await accountService.getAccountsByAgentId({
-          agentId: user.userid,
-          searchQuery: debouncedSearchQuery,
-          type: accountTypeFilter,
-          status: accountStatusFilter,
-          page: pageParam,
-          limit: 10,
-        });
+        const response = await accountService.getAccountsByAgentId(
+          user.userId,
+          debouncedSearchQuery,
+          accountTypeFilter,
+          accountStatusFilter,
+          pageParam,
+          10
+        );
         return response;
       } catch (err) {
         handleApiError(err);
@@ -110,7 +111,7 @@ export default function AccountsPage() {
   const handleDeleteSuccess = useCallback((deletedAccountId: string) => {
     // Optimistically remove from cache
     queryClient.setQueryData<InfiniteData<Account[]>>(
-      ["accounts", user.userid, debouncedSearchQuery, accountTypeFilter, accountStatusFilter],
+      ["accounts", user.userId, debouncedSearchQuery, accountTypeFilter, accountStatusFilter],
       (old?: InfiniteData<Account[]>) => {
         if (!old) {
           // Return empty infinite data structure if no existing data
@@ -128,7 +129,7 @@ export default function AccountsPage() {
         };
       }
     );
-  }, [queryClient, user.userid, debouncedSearchQuery, accountTypeFilter, accountStatusFilter]);
+  }, [queryClient, user.userId, debouncedSearchQuery, accountTypeFilter, accountStatusFilter]);
 
   return (
     <div className="flex flex-col space-y-6 p-8">

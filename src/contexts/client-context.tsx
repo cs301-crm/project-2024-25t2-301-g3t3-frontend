@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, useMemo, ReactNode, useCallback } from "react";
 import { usePathname } from "next/navigation";
-import clientService from "@/lib/api/mockClientService";
-import accountService from "@/lib/api/mockAccountService";
+import clientService from "@/lib/api/clientService";
+import accountService from "@/lib/api/accountService";
 import { Client, Account, AccountDTO } from '@/lib/api/types';
 
 
@@ -18,6 +18,7 @@ interface ClientContextType {
   setClient: (client: Client | null) => void; 
   fetchClient: () => Promise<void>;
   updateClient: (updates: Partial<Client>) => Promise<void>;
+  reassignAgent: (newAgentId: string) => Promise<void>;
   deleteClient: () => Promise<void>;
   fetchClientAccounts: () => Promise<void>;
   addAccount: (addAccount: Omit<AccountDTO, "accountId">) => Promise<Account>;
@@ -171,6 +172,47 @@ export function ClientProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    const reassignAgent = useCallback(
+      async (newAgentId: string) => {
+        if (!client || !clientId) return;
+        setLoadingAction(true);
+        try {
+          const updateData: Client = {
+            clientId,
+            firstName: client.firstName,
+            lastName: client.lastName,
+            emailAddress: client.emailAddress,
+            dateOfBirth: client.dateOfBirth ?? '',
+            gender: client.gender ?? '',
+            phoneNumber: client.phoneNumber ?? '',
+            address: client.address ?? '',
+            city: client.city ?? '',
+            state: client.state ?? '',
+            country: client.country ?? '',
+            postalCode: client.postalCode ?? '',
+            nric: client.nric ?? '',
+            agentId: newAgentId,
+          };
+          await clientService.updateClient(clientId, updateData);
+          setClient((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  agentId: newAgentId,
+                }
+              : prev
+          );
+        } catch (err) {
+          console.log(err);
+          throw new Error("Failed to reassign agent");
+        } finally {
+          setLoadingAction(false);
+        }
+      },
+      [clientId, client]
+    );
+    
+
     useEffect(() => {
       if (!clientId){
         setClient(null);
@@ -189,6 +231,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
         loadingAction,
         loadClientError,
         accounts,
+        reassignAgent,
         fetchClient,
         setClient,
         updateClient,
@@ -197,7 +240,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
         deleteClient,
         deleteAccount
         }),
-        [client, loadingClient, accounts, loadingAccounts, loadingAction, loadClientError, setClient, fetchClient, updateClient, fetchClientAccounts, addAccount, deleteAccount, deleteClient]
+        [client, loadingClient, accounts, loadingAccounts, loadingAction, loadClientError, reassignAgent, setClient, fetchClient, updateClient, fetchClientAccounts, addAccount, deleteAccount, deleteClient]
     );
 
   return <ClientContext.Provider value={contextValue}>{children}</ClientContext.Provider>;

@@ -56,7 +56,7 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
     queryKey: ['create-account-clients', debouncedSearch],
     queryFn: async ({ pageParam = 1 }) => {
       const result = await clientService.getClientsByAgentId(
-        user.userid,
+        user.userId,
         debouncedSearch,
         pageParam
       );

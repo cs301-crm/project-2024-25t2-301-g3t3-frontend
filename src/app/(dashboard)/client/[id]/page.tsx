@@ -35,7 +35,6 @@ export default function ClientOverviewPage() {
             <div className="flex space-x-2">
               {isAdmin && 
               <ReassignAgent
-              clientId={client.clientId}
               agentId={client.agentId}
               onReassign={(newAgentId) => {
                 setClient({ ...client, agentId: newAgentId });
@@ -73,9 +72,9 @@ export default function ClientOverviewPage() {
               <div className="flex items-center">
                  <span
                   className={`text-sm px-2 py-1 rounded-full ${
-                    client.verificationStatus === "Verified"
+                    client.verificationStatus === "VERIFIED"
                       ? "bg-green-100 text-green-800"
-                      : client.verificationStatus === "Pending"
+                      : client.verificationStatus === "PENDING"
                       ? "bg-yellow-100 text-yellow-800"
                       : "bg-red-100 text-red-800"
                   }`}
@@ -145,12 +144,6 @@ export default function ClientOverviewPage() {
             <p className="text-sm text-slate-500">Postal Code</p>
             <p className="font-medium">{client && client.postalCode}</p>
           </div>
-          {isAdmin && (
-            <div>
-              <p className="text-sm text-slate-500">Agent</p>
-              <p className="font-medium">{client && client.agentId}</p>
-            </div>
-          )}
         </div>
       </DashboardCard>
 

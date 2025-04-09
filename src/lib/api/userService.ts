@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import axiosClient from './axiosClient';
 import { handleApiError } from './error-handler';
 import {
@@ -81,8 +82,13 @@ export const userService = {
       const response = await axiosClient.post('/auth/login', data);
       return response.data;
     } catch (error) {
-      handleApiError(error);
-      throw new Error('Login failed');
+      let errorMessage = 'Login failed';
+  
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || errorMessage;
+      }
+  
+      throw new Error(errorMessage);
     }
   },
 

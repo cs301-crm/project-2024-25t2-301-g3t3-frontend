@@ -53,9 +53,9 @@ function AdminDashboard() {
 
 export default function DashboardPage() {
   const { user, isAdmin } = useUser();
-  const heading = !isAdmin ? `Agent ${user.userid}'s Dashboard` : "Admin Dashboard";
+  const heading = !isAdmin ? `Agent ${user.fullName}'s Dashboard` : "Admin Dashboard";
   const subtitle = !isAdmin
-    ? `Welcome, Agent ${user.userid}! Here's your Scrooge Bank CRM dashboard`
+    ? `Welcome, Agent ${user.fullName}! Here's your Scrooge Bank CRM dashboard`
     : "Welcome to your Scrooge Bank CRM dashboard";
 
   return (

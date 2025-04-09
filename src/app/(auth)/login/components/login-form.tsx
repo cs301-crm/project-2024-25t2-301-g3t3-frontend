@@ -54,8 +54,11 @@ export function LoginForm() {
         setError("Invalid email or password");
       }
     } catch (error) {
-      setError("Network Error");
-      console.log(error);
+      if (error instanceof Error) {
+        setError(error.message); 
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -75,9 +78,8 @@ export function LoginForm() {
   
       if(result.success){
   
-        const { userid, fullName, role } = result.message;
-  
-        const user: UserContextDTO = { userid, fullName, role };
+        const { userId, fullName, role } = result.message;
+        const user: UserContextDTO = { userId, fullName, role };
         // Update state
         setUser(user);
         toast({

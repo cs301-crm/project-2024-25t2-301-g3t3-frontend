@@ -20,7 +20,7 @@ import {
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { useUser } from "@/contexts/user-context";
 import { useDebounce } from "@/hooks/use-debounce";
-import accountService from "@/lib/api/mockAccountService";
+import accountService from "@/lib/api/accountService";
 import { Transaction } from "@/lib/api/types";
 import { TransactionSummary } from "./transaction-summary";
 import { TransactionSearch } from "./transaction-search";
@@ -57,7 +57,7 @@ export default function Transactions({ clientId }: TransactionsPageProps) {
         );
       } else {
         return await accountService.getTransactionsByAgentId(
-          user.userid,
+          user.userId,
           debouncedSearchQuery,
           pageParam,
           10
@@ -78,7 +78,7 @@ export default function Transactions({ clientId }: TransactionsPageProps) {
     isRefetching,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["transactions", clientId ?? user.userid, debouncedSearchQuery],
+    queryKey: ["transactions", clientId ?? user.userId, debouncedSearchQuery],
     queryFn: fetchTransactions,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === 10 ? allPages.length + 1 : undefined,

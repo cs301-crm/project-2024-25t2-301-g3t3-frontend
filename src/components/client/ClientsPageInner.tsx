@@ -5,7 +5,7 @@ import { Users, Search, RefreshCw, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CreateClientDialog } from "@/components/client/create-client-dialog";
-import clientService from '@/lib/api/mockClientService'
+import clientService from '@/lib/api/clientService'
 import { useUser } from '@/contexts/user-context'
 import { Client, handleApiError } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce"; 
@@ -14,7 +14,7 @@ import { useInfiniteQuery, keepPreviousData, useQueryClient } from "@tanstack/re
 
 
 interface ClientsPageInnerProps {
-  agentId: string
+  agentId?: string
 }
 
 interface InfiniteData<T> {
@@ -37,7 +37,7 @@ export default function ClientsPageInner({ agentId }: ClientsPageInnerProps){
     const lastClientRef = useRef<HTMLDivElement | null>(null);
     const isInitialMount = useRef(true);
     const queryClient = useQueryClient();
-
+    const resolvedAgentId = agentId || user.userId;
     const {
       data,
       fetchNextPage,
@@ -47,20 +47,19 @@ export default function ClientsPageInner({ agentId }: ClientsPageInnerProps){
       refetch,
       isRefetching
     } = useInfiniteQuery({
-      queryKey: ['clients-page', debouncedSearchQuery, agentId],
+      queryKey: ['clients-page', debouncedSearchQuery, resolvedAgentId],
       queryFn: async ({ pageParam = 1 }) => {
         try {
           setError("");
-          const result = await clientService.getClientsByAgentId(
-            agentId, 
-            debouncedSearchQuery, 
-            pageParam
-          );
+          const result = agentId
+            ? await clientService.getClientsByAgentId(agentId, debouncedSearchQuery, pageParam)
+            : await clientService.getAllClients(debouncedSearchQuery, pageParam);
+      
           return result;
         } catch (err) {
           handleApiError(err);
           setError("Unable to fetch clients");
-          throw err; 
+          throw err;
         }
       },
       getNextPageParam: (lastPage, allPages) => {
@@ -126,7 +125,7 @@ export default function ClientsPageInner({ agentId }: ClientsPageInnerProps){
 
     const resetCachedPages = () => {
         queryClient.setQueryData(
-            ['clients-page', debouncedSearchQuery, agentId],
+            ['clients-page', debouncedSearchQuery, resolvedAgentId],
             (data: InfiniteData<ClientPage>) => ({
               pages: data.pages.slice(0, 1),
               pageParams: data.pageParams.slice(0, 1)
@@ -143,7 +142,7 @@ export default function ClientsPageInner({ agentId }: ClientsPageInnerProps){
     const content = (
         <div className="flex flex-col space-y-4">
             <div className="flex flex-wrap gap-2 mb-4">
-                {user.userid === agentId && (
+                {!agentId && (
                   <CreateClientDialog compact={true} />
                 )}
               <Button
@@ -221,7 +220,7 @@ export default function ClientsPageInner({ agentId }: ClientsPageInnerProps){
             )}
           </div>
     )
-    return user.userid === agentId ? (
+    return !agentId ? (
         <DashboardCard
           title="Client List"
           className="border-l-4 border-l-slate-700 col-span-2"

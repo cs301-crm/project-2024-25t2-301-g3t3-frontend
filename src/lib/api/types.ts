@@ -192,14 +192,14 @@ export interface AdminLogEntry {
 }
 
 export interface UserContextResponseDTO {
-  userid: string,
+  userId: string,
   role: string,
   fullName: string,
   jwt: string
 }
 
 export interface UserContextDTO {
-  userid: string,
+  userId: string,
   role: string,
   fullName: string
 }

@@ -24,7 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ClientDTO, Agent } from "@/lib/api/types";
 import { clientFormSchema, ClientFormValues, defaultClientValues } from "@/lib/schemas/client-schema";
-import clientService from "@/lib/api/mockClientService";
+import clientService from "@/lib/api/clientService";
 import { toast } from "../ui/use-toast";
 import { useDebounce } from "@/hooks/use-debounce";
 import userService from "@/lib/api/mockUserService";
@@ -101,7 +101,7 @@ export function CreateClientDialog({ compact = false }: CreateClientDialogProps)
 
   async function onSubmit(data: ClientFormValues) {
     if (!user) return;
-    const agentId = isAdmin ? selectedAgent?.id : user.userid;
+    const agentId = isAdmin ? selectedAgent?.id : user.userId;
     if (!agentId) {
       toast({
         title: "Agent not selected",

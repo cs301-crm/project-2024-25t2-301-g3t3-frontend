@@ -5,7 +5,7 @@ import React, { Suspense } from "react";
 import { useUser } from '@/contexts/user-context'
 
 export default function ClientsPage() {
-  const { user, isAdmin } = useUser();
+  const { isAdmin } = useUser();
 
   return (
     <Suspense fallback={<div>Loading Clients...</div>}>
@@ -15,7 +15,7 @@ export default function ClientsPage() {
           <p className="text-slate-500">Create and manage {isAdmin ? "all" : "your"} client profiles</p>
         </div>
         <div className="grid gap-6">
-          <ClientsPageInner agentId={user.userid}/>
+          <ClientsPageInner />
         </div>
       </div>
     </Suspense>

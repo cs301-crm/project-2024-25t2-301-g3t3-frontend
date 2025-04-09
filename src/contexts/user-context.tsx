@@ -27,7 +27,7 @@ export function UserProvider({
   // }
 
   const testUser = {
-    userid: "agent001",
+    userId: "agent001",
     role: "ROLE_ADMIN",
     fullName: "John Champion"
   }
@@ -47,7 +47,8 @@ export function UserProvider({
 
   useEffect(() => {
     if (user) {
-      //localStorage.setItem("user", JSON.stringify(user));
+      console.log(user);
+      localStorage.setItem("user", JSON.stringify(user));
     } else {
       localStorage.removeItem("user");
     }
@@ -57,7 +58,7 @@ export function UserProvider({
     setIsAdmin(user?.role === "ROLE_ADMIN");
   }, [user]);
 
-
+  
   return (
     <UserContext.Provider value={{ user, loading, isAdmin, setUser }}>
       {children}

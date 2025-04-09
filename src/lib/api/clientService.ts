@@ -13,8 +13,7 @@ export const clientService = {
    * @returns Promise with array of clients
    */
 
-  getClientsByAgentId: async (
-    agentId: string,
+  getAllClients: async (
     searchQuery: string = "",
     page: number = 1,
     limit: number = 10
@@ -22,8 +21,7 @@ export const clientService = {
     try {
       // Create URLSearchParams object to handle query parameters
       const params = new URLSearchParams();
-      params.append('agentId', agentId);
-      
+
       // Only append searchQuery if it's not empty
       if (searchQuery.trim() !== "") {
         params.append('searchQuery', searchQuery);
@@ -34,6 +32,38 @@ export const clientService = {
       params.append('limit', limit.toString());
       
       const response = await axiosClient.get(`/clients?${params.toString()}`);
+      
+      if (!response) {
+        throw new Error('Error fetching clients');
+      }
+      
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw error;
+    }
+  },
+
+  getClientsByAgentId: async (
+    agentId: string,
+    searchQuery: string = "",
+    page: number = 1,
+    limit: number = 10
+  ): Promise<Partial<Client>[]> => {
+    try {
+      // Create URLSearchParams object to handle query parameters
+      const params = new URLSearchParams();
+
+      // Only append searchQuery if it's not empty
+      if (searchQuery.trim() !== "") {
+        params.append('searchQuery', searchQuery);
+      }
+      
+      // Always include pagination parameters
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+      
+      const response = await axiosClient.get(`/clients/${agentId}?${params.toString()}`);
       
       if (!response) {
         throw new Error('Error fetching clients');
@@ -70,6 +100,7 @@ export const clientService = {
   createClient: async (clientData: ClientDTO): Promise<Client> => {
     try {
       const response = await axiosClient.post('/clients', clientData);
+      console.log(response.data);
       return response.data;
 
     } catch (error) {

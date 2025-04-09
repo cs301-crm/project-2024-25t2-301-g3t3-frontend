@@ -165,14 +165,18 @@ export function OtpVerificationModal({
               />
             ))}
           </div>
+          {error &&(
+            <div className="rounded-md bg-red-50 p-4 border border-red-200">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
 
-          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
         </div>
         <DialogFooter className="flex-col sm:flex-col gap-2">
           <Button
             onClick={handleVerify}
             disabled={!isOtpComplete || isVerifying}
-            className="w-full"
+            className="w-full cursor-pointer"
           >
             {isVerifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Confirm
@@ -182,7 +186,7 @@ export function OtpVerificationModal({
             variant="outline"
             onClick={handleResendOtp}
             disabled={resendDisabled}
-            className="w-full"
+            className="w-full cursor-pointer"
           >
             {resendDisabled ? `Resend OTP (${countdown}s)` : "Resend OTP"}
           </Button>

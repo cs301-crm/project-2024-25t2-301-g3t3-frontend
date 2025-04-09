@@ -19,19 +19,17 @@ import { Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Agent } from "@/lib/api/types";
 import userService from "@/lib/api/mockUserService";
-import clientService from "@/lib/api/mockClientService";
 import { toast } from "@/components/ui/use-toast";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useClient } from "@/contexts/client-context";
 
 interface ReassignAgentProps {
-  clientId: string;
   agentId: string;
   onReassign?: (newAgentId: string) => void;
   trigger?: React.ReactNode;
 }
 
 export function ReassignAgent({
-  clientId,
   agentId,
   onReassign,
   trigger,
@@ -44,6 +42,7 @@ export function ReassignAgent({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentAgent, setCurrentAgent] =  useState<Partial<Agent> | null>(null);
   const debouncedSearch = useDebounce(searchTerm, 200);
+  const { reassignAgent } = useClient();
 
   useEffect(() => {
     const fetchAgents = async () => {
@@ -79,7 +78,7 @@ export function ReassignAgent({
     
     try {
       setIsSubmitting(true);
-      await clientService.reassignClient(clientId, selectedAgent.id);
+      await reassignAgent(selectedAgent.id);
       toast({
         title: "Client reassigned",
         description: `Client successfully reassigned to ${selectedAgent.firstName} ${selectedAgent.lastName}`,

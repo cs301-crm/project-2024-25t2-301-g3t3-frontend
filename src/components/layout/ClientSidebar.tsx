@@ -5,7 +5,7 @@ import { usePathname, useRouter, useParams } from "next/navigation";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
 import { useClient } from "@/contexts/client-context";
-import { useUser } from "@/contexts/user-context";
+
 import {
   Popover,
   PopoverTrigger,
@@ -22,7 +22,7 @@ import { ArrowLeft, CreditCard, Users, ChevronsUpDown, Check, Loader2, BadgeDoll
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
-import clientService from "@/lib/api/mockClientService";
+import clientService from "@/lib/api/clientService";
 
 interface NavItem {
   href: string;
@@ -35,7 +35,6 @@ export function ClientSidebar() {
   const pathname = usePathname();
   const { id } = useParams(); 
   const { client } = useClient();
-  const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 300); 
@@ -55,8 +54,7 @@ export function ClientSidebar() {
   } = useInfiniteQuery({
     queryKey: ["sidebar-clients", debouncedSearch],
     queryFn: async ({ pageParam = 1 }) => {
-      const result = await clientService.getClientsByAgentId(
-        user.userid,
+      const result = await clientService.getAllClients(
         debouncedSearch,
         pageParam,
         pageSize
@@ -169,6 +167,7 @@ export function ClientSidebar() {
                         <CommandItem
                           key={client.clientId}
                           value={client.name}
+                          className="cursor-pointer"
                           onSelect={() => handleClientSelect(client.clientId)}
                           ref={lastItemRef}
                         >

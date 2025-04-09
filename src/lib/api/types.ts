@@ -169,6 +169,7 @@ export interface OtpVerificationDTO {
 
 export interface ResendOtpRequestDTO {
   email: string;
+}
 
 export interface CommunicationsEntry {
   subject: string;
@@ -182,5 +183,4 @@ export interface AdminLogEntry {
   transaction_type: string;
   action: string;
   timestamp: string;
-
 }

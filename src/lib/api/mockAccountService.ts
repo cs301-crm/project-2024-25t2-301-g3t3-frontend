@@ -248,6 +248,7 @@ const mockTransactions: Transaction[] = [
   {
     id: 'txn-001',
     clientId: "c1000000-0000-0000-0000-000000000001",
+    accountId: "acc1000000-0000-0000-0000-000000000001",
     amount: 1000,
     status: 'completed',
     date: '2023-10-15T10:30:00Z',
@@ -258,6 +259,7 @@ const mockTransactions: Transaction[] = [
   {
     id: 'txn-002',
     clientId: "c1000000-0000-0000-0000-000000000001",
+    accountId: "acc1000000-0000-0000-0000-000000000001",
     amount: -200,
     status: 'completed',
     date: '2023-10-16T14:45:00Z',
@@ -268,6 +270,7 @@ const mockTransactions: Transaction[] = [
   {
     id: 'txn-003',
     clientId: "c1000000-0000-0000-0000-000000000001",
+    accountId: "acc1000000-0000-0000-0000-000000000001",
     amount: 500,
     status: 'failed',
     date: '2023-10-17T09:15:00Z',

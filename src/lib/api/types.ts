@@ -109,6 +109,7 @@ export interface LogEntry {
 export interface Transaction {
   id: string;
   clientId: string;
+  accountId: string;
   amount: number;
   status: "completed" | "pending" | "failed";
   date: string;

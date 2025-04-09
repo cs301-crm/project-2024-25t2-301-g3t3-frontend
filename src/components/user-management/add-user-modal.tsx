@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
-import type { Agent } from "@/lib/api/types";
+import type { User } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,34 +16,45 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InfoIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-interface AddAgentModalProps {
+interface AddUserModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddAgent: (agent: Omit<Agent, "id">, showOtpVerification: boolean) => void;
+  onAddUser: (user: Omit<User, "id">, showOtpVerification: boolean) => void;
 }
 
-export function AddAgentModal({
+export function AddUserModal({
   open,
   onOpenChange,
-  onAddAgent,
-}: AddAgentModalProps) {
-  const [formData, setFormData] = useState<Omit<Agent, "id">>({
+  onAddUser,
+}: AddUserModalProps) {
+  const [formData, setFormData] = useState<Omit<User, "id">>({
     firstName: "",
     lastName: "",
     email: "",
     status: "active",
+    role: "agent",
   });
 
-  const handleChange = (field: keyof Omit<Agent, "id">, value: string) => {
+  const handleChange = (
+    field: keyof Omit<User, "id">,
+    value: string | "agent" | "admin"
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Pass the agent data and indicate that OTP verification should be shown
-    onAddAgent(formData, true);
+    // Pass the user data and indicate that OTP verification should be shown
+    onAddUser(formData, true);
 
     // Reset form (will be cleared when modal closes)
     setFormData({
@@ -51,6 +62,7 @@ export function AddAgentModal({
       lastName: "",
       email: "",
       status: "active",
+      role: "agent",
     });
   };
 
@@ -59,9 +71,9 @@ export function AddAgentModal({
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add New Agent</DialogTitle>
+            <DialogTitle>Add New User</DialogTitle>
             <DialogDescription>
-              Create a new agent account. They will receive an email with login
+              Create a new user account. They will receive an email with login
               instructions.
             </DialogDescription>
           </DialogHeader>
@@ -70,9 +82,27 @@ export function AddAgentModal({
               <InfoIcon className="h-4 w-4 text-blue-500" />
               <AlertDescription className="text-blue-700 text-sm">
                 A temporary password will be auto-generated and emailed to the
-                agent along with their username.
+                user along with their username.
               </AlertDescription>
             </Alert>
+
+            <div className="space-y-2">
+              <Label htmlFor="role">User Role</Label>
+              <Select
+                value={formData.role}
+                onValueChange={(value: "agent" | "admin") =>
+                  handleChange("role", value)
+                }
+              >
+                <SelectTrigger id="role">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="agent">Agent</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

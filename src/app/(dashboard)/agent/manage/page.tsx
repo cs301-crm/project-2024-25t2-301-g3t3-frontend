@@ -18,38 +18,41 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { AddAgentModal } from "@/components/user-management/add-user-modal";
+import { AddUserModal } from "@/components/user-management/add-user-modal";
 import { OtpVerificationModal } from "@/components/user-management/otp-verification-modal";
-import { EditAgentModal } from "@/components/user-management/edit-user-modal";
+import { EditUserModal } from "@/components/user-management/edit-user-modal";
 import { ViewClientsModal } from "@/components/user-management/view-clients-modal";
 import { ViewLogsModal } from "@/components/user-management/view-logs-modal";
 import { useToast } from "@/components/ui/use-toast";
-import type { Agent, Client, LogEntry } from "@/lib/api/types";
+import type { User, Client, LogEntry } from "@/lib/api/types";
 import { mockUserService as userService } from "@/lib/api/mockUserService";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-function AgentManagementInner() {
+function UserManagementInner() {
   const { toast } = useToast();
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [clients, setClients] = useState<Record<string, Client[]>>({});
   const [logs, setLogs] = useState<Record<string, LogEntry[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [roleFilter, setRoleFilter] = useState<"all" | "agent" | "admin">(
+    "all"
+  );
 
   // Modal states
-  const [isAddAgentOpen, setIsAddAgentOpen] = useState(false);
-  const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
-  const [viewingClientsAgent, setViewingClientsAgent] = useState<Agent | null>(
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [viewingClientsUser, setViewingClientsUser] = useState<User | null>(
     null
   );
-  const [viewingLogsAgent, setViewingLogsAgent] = useState<Agent | null>(null);
+  const [viewingLogsUser, setViewingLogsUser] = useState<User | null>(null);
 
   // OTP verification states
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [pendingAgent, setPendingAgent] = useState<Omit<Agent, "id"> | null>(
-    null
-  );
+  const [pendingUser, setPendingUser] = useState<Omit<User, "id"> | null>(null);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
 
@@ -67,54 +70,52 @@ function AgentManagementInner() {
     setError(null);
 
     try {
-      // Simulate API call with timeout
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       // Fetch data from the mock service
-      const [fetchedAgents, fetchedClients, fetchedLogs] = await Promise.all([
+      const [fetchedUsers, fetchedClients, fetchedLogs] = await Promise.all([
         userService.getAgents(),
+        // userService.getUsers(),
         userService.getClients(),
         userService.getLogs(),
       ]);
 
-      setAgents(fetchedAgents);
+      setUsers(fetchedUsers);
       setClients(fetchedClients);
       setLogs(fetchedLogs);
     } catch (err) {
-      setError("Failed to load agent data. Please try again.");
+      setError("Failed to load user data. Please try again.");
       console.error("Error refreshing data:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter agents based on search query
-  const filteredAgents = agents.filter((agent) => {
+  // Filter users based on search query and role filter
+  const filteredUsers = users.filter((user) => {
     const searchLower = searchQuery.trim().toLowerCase();
-
-    // If search is empty after trimming, show all agents
-    if (searchLower === "") return true;
-
-    return (
-      agent.firstName.toLowerCase().includes(searchLower) ||
-      agent.lastName.toLowerCase().includes(searchLower) ||
-      `${agent.firstName.toLowerCase()} ${agent.lastName.toLowerCase()}`.includes(
+    const matchesSearch =
+      searchLower === "" ||
+      user.firstName.toLowerCase().includes(searchLower) ||
+      user.lastName.toLowerCase().includes(searchLower) ||
+      `${user.firstName.toLowerCase()} ${user.lastName.toLowerCase()}`.includes(
         searchLower
       ) ||
-      agent.email.toLowerCase().includes(searchLower) ||
-      agent.id.toLowerCase().includes(searchLower)
-    );
+      user.email.toLowerCase().includes(searchLower) ||
+      user.id.toLowerCase().includes(searchLower);
+
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
+
+    return matchesSearch && matchesRole;
   });
 
-  const handleAddAgent = async (
-    newAgent: Omit<Agent, "id">,
+  const handleAddUser = async (
+    newUser: Omit<User, "id">,
     showOtpVerification: boolean
   ) => {
     if (showOtpVerification) {
-      // Store the agent data and show OTP verification modal
-      setPendingAgent(newAgent);
+      // Store the user data and show OTP verification modal
+      setPendingUser(newUser);
       setIsOtpModalOpen(true);
-      setIsAddAgentOpen(false);
+      setIsAddUserOpen(false);
 
       // In a real app, you would send an OTP to the admin's email or phone here
       toast({
@@ -123,15 +124,20 @@ function AgentManagementInner() {
       });
     } else {
       // Direct creation without OTP (not used in current flow)
-      const agent = await userService.addAgent(newAgent, agents);
-      setAgents([...agents, agent]);
-      setClients({ ...clients, [agent.id]: [] });
-      setLogs({ ...logs, [agent.id]: [] });
+      const user = await userService.addUser(newUser, users);
+      setUsers([...users, user]);
+
+      // Only initialize clients for agents
+      if (newUser.role === "agent") {
+        setClients({ ...clients, [user.id]: [] });
+      }
+
+      setLogs({ ...logs, [user.id]: [] });
     }
   };
 
   const handleVerifyOtp = async (otp: string) => {
-    if (!pendingAgent) return;
+    if (!pendingUser) return;
 
     setIsVerifyingOtp(true);
     setOtpError(null);
@@ -141,28 +147,28 @@ function AgentManagementInner() {
       // For demo purposes, we'll consider "123456" as the correct OTP
       if (otp === "123456") {
         try {
-          const { agent, updatedAgents, updatedClients, updatedLogs } =
-            await userService.completeAgentCreation(
-              pendingAgent,
-              agents,
+          const { user, updatedUsers, updatedClients, updatedLogs } =
+            await userService.completeUserCreation(
+              pendingUser,
+              users,
               clients,
               logs
             );
 
-          setAgents(updatedAgents);
+          setUsers(updatedUsers);
           setClients(updatedClients);
           setLogs(updatedLogs);
 
           setIsOtpModalOpen(false);
-          setPendingAgent(null);
+          setPendingUser(null);
 
           toast({
-            title: "Agent Created",
-            description: `The agent ${agent.firstName} ${agent.lastName} has been created successfully.`,
+            title: "User Created",
+            description: `The user ${user.firstName} ${user.lastName} has been created successfully.`,
           });
         } catch (error) {
-          console.error("Error creating agent:", error);
-          setOtpError("Failed to create agent. Please try again.");
+          console.error("Error creating user:", error);
+          setOtpError("Failed to create user. Please try again.");
         }
       } else {
         setOtpError("Invalid OTP. Please try again.");
@@ -179,106 +185,114 @@ function AgentManagementInner() {
     });
   };
 
-  const handleUpdateAgent = (updatedAgent: Agent) => {
-    setAgents(
-      agents.map((agent) =>
-        agent.id === updatedAgent.id ? updatedAgent : agent
-      )
+  const handleUpdateUser = (updatedUser: User) => {
+    setUsers(
+      users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
     );
-    setEditingAgent(null);
+    setEditingUser(null);
   };
 
-  const handleDeleteAgent = async (id: string) => {
-    if (confirm("Are you sure you want to delete this agent?")) {
-      const { updatedAgents, updatedClients, updatedLogs } =
-        await userService.deleteAgent(id, agents, clients, logs);
-      setAgents(updatedAgents);
+  const handleDeleteUser = async (id: string) => {
+    if (confirm("Are you sure you want to delete this user?")) {
+      const { updatedUsers, updatedClients, updatedLogs } =
+        await userService.deleteUser(id, users, clients, logs);
+      setUsers(updatedUsers);
       setClients(updatedClients);
       setLogs(updatedLogs);
     }
   };
 
   const handleToggleStatus = (id: string) => {
-    setAgents(
-      agents.map((agent) =>
-        agent.id === id
+    setUsers(
+      users.map((user) =>
+        user.id === id
           ? {
-              ...agent,
-              status: agent.status === "active" ? "disabled" : "active",
+              ...user,
+              status: user.status === "active" ? "disabled" : "active",
             }
-          : agent
+          : user
       )
     );
   };
 
   const handleResetPassword = async (id: string) => {
-    console.log(`Password reset requested for agent ${id}`);
+    console.log(`Password reset requested for user ${id}`);
     const updatedLogs = await userService.resetPassword(id, logs);
     setLogs(updatedLogs);
   };
 
-  // Update the getAgentClients function to work with the new Client interface
-  const getAgentClients = (agentId: string) => {
-    return clients[agentId] || [];
+  const getUserClients = (userId: string) => {
+    return clients[userId] || [];
   };
 
-  const toggleAgentExpand = (agentId: string) => {
-    if (expandedAgent === agentId) {
-      setExpandedAgent(null);
+  const toggleUserExpand = (userId: string) => {
+    if (expandedUser === userId) {
+      setExpandedUser(null);
     } else {
-      setExpandedAgent(agentId);
+      setExpandedUser(userId);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent, agentId: string) => {
+  const handleKeyDown = (e: React.KeyboardEvent, userId: string) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      toggleAgentExpand(agentId);
+      toggleUserExpand(userId);
     }
+  };
+
+  // Count users by role and status
+  const userCounts = {
+    total: users.length,
+    active: users.filter((user) => user.status === "active").length,
+    disabled: users.filter((user) => user.status === "disabled").length,
+    agents: users.filter((user) => user.role === "agent").length,
+    admins: users.filter((user) => user.role === "admin").length,
   };
 
   return (
     <div className="flex flex-col space-y-6 p-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Agent Management</h1>
-        <p className="text-slate-500">Create and manage your agent profiles</p>
+        <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
+        <p className="text-slate-500">Create and manage your user profiles</p>
       </div>
 
       <div className="grid gap-6">
         <DashboardCard
-          title="Agent Overview"
+          title="User Overview"
           className="col-span-2 border-l-4 border-l-slate-700"
         >
           <div className="space-y-4">
             <div className="rounded-md border p-4">
-              <h3 className="mb-2 text-sm font-medium">Agent Summary</h3>
-              <div className="grid gap-4 md:grid-cols-3">
+              <h3 className="mb-2 text-sm font-medium">User Summary</h3>
+              <div className="grid gap-4 md:grid-cols-5">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span>Total Agents:</span>
-                    <span className="font-medium">{agents.length}</span>
+                    <span>Total Users:</span>
+                    <span className="font-medium">{userCounts.total}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span>Active Agents:</span>
-                    <span className="font-medium">
-                      {
-                        agents.filter((agent) => agent.status === "active")
-                          .length
-                      }
-                    </span>
+                    <span>Active Users:</span>
+                    <span className="font-medium">{userCounts.active}</span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span>Disabled Agents:</span>
-                    <span className="font-medium">
-                      {
-                        agents.filter((agent) => agent.status === "disabled")
-                          .length
-                      }
-                    </span>
+                    <span>Disabled Users:</span>
+                    <span className="font-medium">{userCounts.disabled}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Agents:</span>
+                    <span className="font-medium">{userCounts.agents}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Admins:</span>
+                    <span className="font-medium">{userCounts.admins}</span>
                   </div>
                 </div>
               </div>
@@ -287,26 +301,40 @@ function AgentManagementInner() {
         </DashboardCard>
 
         <DashboardCard
-          title="Agent List"
+          title="User List"
           className="border-l-4 border-l-slate-700 col-span-2"
         >
           <div className="flex flex-col space-y-4">
-            <div className="flex flex-wrap gap-2 mb-4">
-              <Button size="sm" onClick={() => setIsAddAgentOpen(true)}>
+            <div className="flex flex-wrap gap-2 mb-4 justify-between">
+              <Button size="sm" onClick={() => setIsAddUserOpen(true)}>
                 <UserPlus className="mr-2 h-4 w-4" />
-                Add New Agent
+                Add New User
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => refreshData()}
-                disabled={loading}
-              >
-                <RefreshCw
-                  className={`mr-1 h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                />
-                Refresh Data
-              </Button>
+              <div className="flex gap-2">
+                <Tabs
+                  value={roleFilter}
+                  onValueChange={(value) =>
+                    setRoleFilter(value as "all" | "agent" | "admin")
+                  }
+                >
+                  <TabsList>
+                    <TabsTrigger value="all">All Users</TabsTrigger>
+                    <TabsTrigger value="agent">Agents</TabsTrigger>
+                    <TabsTrigger value="admin">Admins</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => refreshData()}
+                  disabled={loading}
+                >
+                  <RefreshCw
+                    className={`mr-1 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                  />
+                  Refresh Data
+                </Button>
+              </div>
             </div>
 
             {error && (
@@ -318,7 +346,7 @@ function AgentManagementInner() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <Input
-                  placeholder="Search agents..."
+                  placeholder="Search users..."
                   className="pl-10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -332,52 +360,55 @@ function AgentManagementInner() {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-8">
                 <RefreshCw className="h-8 w-8 text-slate-400 animate-spin mb-4" />
-                <p className="text-sm text-slate-500">Loading agents...</p>
+                <p className="text-sm text-slate-500">Loading users...</p>
               </div>
             ) : (
               <div className="max-h-[400px] overflow-y-auto pr-2">
-                {filteredAgents.length > 0 ? (
+                {filteredUsers.length > 0 ? (
                   <div className="space-y-3">
-                    {filteredAgents.map((agent) => (
+                    {filteredUsers.map((user) => (
                       <div
-                        key={agent.id}
+                        key={user.id}
                         className="rounded-md border p-3 hover:bg-slate-50"
                       >
                         <div
                           role="button"
                           tabIndex={0}
                           className="flex items-center justify-between cursor-pointer"
-                          onClick={() => toggleAgentExpand(agent.id)}
-                          onKeyDown={(e) => handleKeyDown(e, agent.id)}
-                          aria-expanded={expandedAgent === agent.id}
-                          aria-controls={`agent-details-${agent.id}`}
+                          onClick={() => toggleUserExpand(user.id)}
+                          onKeyDown={(e) => handleKeyDown(e, user.id)}
+                          aria-expanded={expandedUser === user.id}
+                          aria-controls={`user-details-${user.id}`}
                         >
                           <div>
                             <div className="flex items-center">
                               <p className="text-sm font-medium">
-                                {agent.firstName} {agent.lastName}
+                                {user.firstName} {user.lastName}
                               </p>
+                              <Badge variant="outline" className="ml-2">
+                                {user.role === "admin" ? "Admin" : "Agent"}
+                              </Badge>
                               <span
                                 className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                                  agent.status === "active"
+                                  user.status === "active"
                                     ? "bg-green-100 text-green-800"
                                     : "bg-red-100 text-red-800"
                                 }`}
                               >
-                                {agent.status === "active"
+                                {user.status === "active"
                                   ? "Active"
                                   : "Disabled"}
                               </span>
                             </div>
                             <p className="text-xs text-slate-500">
-                              {agent.email}
+                              {user.email}
                             </p>
                             <p className="text-xs text-slate-500">
-                              ID: {agent.id}
+                              ID: {user.id}
                             </p>
                           </div>
                           <div className="flex items-center">
-                            {expandedAgent === agent.id ? (
+                            {expandedUser === user.id ? (
                               <ChevronUp className="h-4 w-4 text-slate-400" />
                             ) : (
                               <ChevronDown className="h-4 w-4 text-slate-400" />
@@ -385,9 +416,9 @@ function AgentManagementInner() {
                           </div>
                         </div>
 
-                        {expandedAgent === agent.id && (
+                        {expandedUser === user.id && user.role === "agent" && (
                           <div
-                            id={`agent-details-${agent.id}`}
+                            id={`user-details-${user.id}`}
                             className="mt-3 border-t pt-3"
                           >
                             <div className="mb-2">
@@ -396,9 +427,9 @@ function AgentManagementInner() {
                               </h4>
                             </div>
 
-                            {getAgentClients(agent.id).length > 0 ? (
+                            {getUserClients(user.id).length > 0 ? (
                               <div className="space-y-2">
-                                {getAgentClients(agent.id).map((client) => (
+                                {getUserClients(user.id).map((client) => (
                                   <div
                                     key={client.clientId}
                                     className="rounded-md bg-slate-50 p-2 text-xs"
@@ -439,23 +470,25 @@ function AgentManagementInner() {
                         )}
 
                         <div className="mt-2 flex justify-end space-x-2">
+                          {user.role === "agent" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewingClientsUser(user);
+                              }}
+                            >
+                              <Users className="mr-1 h-3 w-3" />
+                              View Clients
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setViewingClientsAgent(agent);
-                            }}
-                          >
-                            <Users className="mr-1 h-3 w-3" />
-                            View Clients
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setViewingLogsAgent(agent);
+                              setViewingLogsUser(user);
                             }}
                           >
                             <FileText className="mr-1 h-3 w-3" />
@@ -466,7 +499,7 @@ function AgentManagementInner() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setEditingAgent(agent);
+                              setEditingUser(user);
                             }}
                           >
                             <Edit className="mr-1 h-3 w-3" />
@@ -477,10 +510,10 @@ function AgentManagementInner() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleToggleStatus(agent.id);
+                              handleToggleStatus(user.id);
                             }}
                           >
-                            {agent.status === "active" ? (
+                            {user.status === "active" ? (
                               <>
                                 <ToggleRight className="mr-1 h-3 w-3" />
                                 Disable
@@ -498,7 +531,7 @@ function AgentManagementInner() {
                             className="text-red-500 hover:bg-red-50 hover:text-red-600"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteAgent(agent.id);
+                              handleDeleteUser(user.id);
                             }}
                           >
                             <Trash2 className="mr-1 h-3 w-3" />
@@ -511,10 +544,10 @@ function AgentManagementInner() {
                 ) : (
                   <div className="flex flex-col items-center justify-center space-y-3 py-8">
                     <Users className="h-12 w-12 text-slate-300" />
-                    <p className="text-sm text-slate-500">No agents found</p>
-                    <Button onClick={() => setIsAddAgentOpen(true)}>
+                    <p className="text-sm text-slate-500">No users found</p>
+                    <Button onClick={() => setIsAddUserOpen(true)}>
                       <UserPlus className="mr-2 h-4 w-4" />
-                      Add New Agent
+                      Add New User
                     </Button>
                   </div>
                 )}
@@ -524,11 +557,11 @@ function AgentManagementInner() {
         </DashboardCard>
       </div>
 
-      {/* Add Agent Modal */}
-      <AddAgentModal
-        open={isAddAgentOpen}
-        onOpenChange={setIsAddAgentOpen}
-        onAddAgent={handleAddAgent}
+      {/* Add User Modal */}
+      <AddUserModal
+        open={isAddUserOpen}
+        onOpenChange={setIsAddUserOpen}
+        onAddUser={handleAddUser}
       />
 
       {/* OTP Verification Modal */}
@@ -537,7 +570,7 @@ function AgentManagementInner() {
         onOpenChange={(open) => {
           setIsOtpModalOpen(open);
           if (!open) {
-            setPendingAgent(null);
+            setPendingUser(null);
             setOtpError(null);
           }
         }}
@@ -547,41 +580,41 @@ function AgentManagementInner() {
         error={otpError}
       />
 
-      {editingAgent && (
-        <EditAgentModal
-          agent={editingAgent}
-          open={!!editingAgent}
-          onOpenChange={(open) => !open && setEditingAgent(null)}
-          onUpdateAgent={handleUpdateAgent}
+      {editingUser && (
+        <EditUserModal
+          user={editingUser}
+          open={!!editingUser}
+          onOpenChange={(open) => !open && setEditingUser(null)}
+          onUpdateUser={handleUpdateUser}
           onResetPassword={handleResetPassword}
         />
       )}
 
-      {viewingClientsAgent && (
+      {viewingClientsUser && (
         <ViewClientsModal
-          agent={viewingClientsAgent}
-          clients={clients[viewingClientsAgent.id] || []}
-          open={!!viewingClientsAgent}
-          onOpenChange={(open) => !open && setViewingClientsAgent(null)}
+          agent={viewingClientsUser}
+          clients={clients[viewingClientsUser.id] || []}
+          open={!!viewingClientsUser}
+          onOpenChange={(open) => !open && setViewingClientsUser(null)}
         />
       )}
 
-      {viewingLogsAgent && (
+      {viewingLogsUser && (
         <ViewLogsModal
-          agent={viewingLogsAgent}
-          logs={logs[viewingLogsAgent.id] || []}
-          open={!!viewingLogsAgent}
-          onOpenChange={(open) => !open && setViewingLogsAgent(null)}
+          agent={viewingLogsUser}
+          logs={logs[viewingLogsUser.id] || []}
+          open={!!viewingLogsUser}
+          onOpenChange={(open) => !open && setViewingLogsUser(null)}
         />
       )}
     </div>
   );
 }
 
-export default function AgentManagementPage() {
+export default function UserManagementPage() {
   return (
-    <Suspense fallback={<div>Loading Agent Management Page...</div>}>
-      <AgentManagementInner />
+    <Suspense fallback={<div>Loading User Management Page...</div>}>
+      <UserManagementInner />
     </Suspense>
   );
 }

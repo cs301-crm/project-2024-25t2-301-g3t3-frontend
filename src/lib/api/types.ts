@@ -82,14 +82,17 @@ export enum Gender {
 }
 
 // For agent-management page
-export interface Agent {
+export interface User {
   id: string
   firstName: string
   lastName: string
   email: string
   status: "active" | "disabled"
+  role?: "agent" | "admin" // Make role optional for backward compatibility
 }
 
+// Alias Agent to User for backward compatibility
+export type Agent = User
 
 export interface LogEntry {
   id: string;
@@ -119,7 +122,8 @@ export interface CreateUserRequestDTO {
   firstName: string;
   lastName: string;
   email: string;
-  userRole:string;
+  // userRole:string;
+  role: "agent" | "admin"
 }
 
 export interface DisableEnableRequestDTO {

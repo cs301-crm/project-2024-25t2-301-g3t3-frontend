@@ -1,9 +1,8 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
-import type { Agent } from "@/lib/api/types";
+import type { User } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,37 +16,38 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
-interface EditAgentModalProps {
-  agent: Agent;
+interface EditUserModalProps {
+  user: User;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdateAgent: (agent: Agent) => void;
+  onUpdateUser: (user: User) => void;
   onResetPassword: (id: string) => void;
 }
 
-export function EditAgentModal({
-  agent,
+export function EditUserModal({
+  user,
   open,
   onOpenChange,
-  onUpdateAgent,
+  onUpdateUser,
   onResetPassword,
-}: EditAgentModalProps) {
-  const [formData, setFormData] = useState<Agent>({ ...agent });
+}: EditUserModalProps) {
+  const [formData, setFormData] = useState<User>({ ...user });
   const [passwordResetRequested, setPasswordResetRequested] = useState(false);
 
-  const handleChange = (field: keyof Agent, value: string) => {
+  const handleChange = (field: keyof User, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdateAgent(formData);
+    onUpdateUser(formData);
     setPasswordResetRequested(false);
   };
 
   const handleResetPassword = () => {
-    onResetPassword(agent.id);
+    onResetPassword(user.id);
     setPasswordResetRequested(true);
   };
 
@@ -56,12 +56,24 @@ export function EditAgentModal({
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Edit Agent</DialogTitle>
+            <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Update agent information. Click save when you are done.
+              Update user information. Click save when you are done.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="role">User Role</Label>
+              <div className="flex items-center h-10 px-3 rounded-md border border-input bg-muted text-sm">
+                <Badge variant={user.role === "admin" ? "default" : "outline"}>
+                  {user.role === "admin" ? "Admin" : "Agent"}
+                </Badge>
+                <span className="ml-2 text-xs text-muted-foreground">
+                  (Role cannot be changed)
+                </span>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
@@ -93,9 +105,9 @@ export function EditAgentModal({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="agentId">Agent ID</Label>
+              <Label htmlFor="userId">User ID</Label>
               <Input
-                id="agentId"
+                id="userId"
                 value={formData.id}
                 disabled
                 className="bg-muted"
@@ -107,7 +119,7 @@ export function EditAgentModal({
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Password Reset Requested</AlertTitle>
                 <AlertDescription>
-                  A password reset email has been sent to the agent.
+                  A password reset email has been sent to the user.
                 </AlertDescription>
               </Alert>
             )}

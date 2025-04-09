@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  BarChart3,
-  Settings,
-  TrendingUp,
-  BellRing,
-  HelpCircle,
+  // BarChart3,
+  // Settings,
+  // TrendingUp,
+  // BellRing,
+  // HelpCircle,
   CreditCard,
   UserCog,
   BadgeDollarSign,
@@ -74,41 +74,41 @@ export function MainSidebar() {
     },
     {
       href: "/agent/manage",
-      label: "Agent Management",
+      label: "User Management",
       icon: <UserCog className="h-4 w-4" />,
     },
   ];
 
-  const reportingNavItems: NavItem[] = [
-    {
-      href: "/analytics",
-      label: "Analytics",
-      icon: <BarChart3 className="h-4 w-4" />,
-    },
-    {
-      href: "/performance",
-      label: "Performance",
-      icon: <TrendingUp className="h-4 w-4" />,
-    },
-  ];
+  // const reportingNavItems: NavItem[] = [
+  //   {
+  //     href: "/analytics",
+  //     label: "Analytics",
+  //     icon: <BarChart3 className="h-4 w-4" />,
+  //   },
+  //   {
+  //     href: "/performance",
+  //     label: "Performance",
+  //     icon: <TrendingUp className="h-4 w-4" />,
+  //   },
+  // ];
 
-  const systemNavItems: NavItem[] = [
-    {
-      href: "/notifications",
-      label: "Notifications",
-      icon: <BellRing className="h-4 w-4" />,
-    },
-    {
-      href: "/settings",
-      label: "Settings",
-      icon: <Settings className="h-4 w-4" />,
-    },
-    {
-      href: "/help",
-      label: "Help & Support",
-      icon: <HelpCircle className="h-4 w-4" />,
-    },
-  ];
+  // const systemNavItems: NavItem[] = [
+  //   {
+  //     href: "/notifications",
+  //     label: "Notifications",
+  //     icon: <BellRing className="h-4 w-4" />,
+  //   },
+  //   {
+  //     href: "/settings",
+  //     label: "Settings",
+  //     icon: <Settings className="h-4 w-4" />,
+  //   },
+  //   {
+  //     href: "/help",
+  //     label: "Help & Support",
+  //     icon: <HelpCircle className="h-4 w-4" />,
+  //   },
+  // ];
 
   const renderNavItems = (items: NavItem[]) => {
     return items.map((item) => {
@@ -139,7 +139,7 @@ export function MainSidebar() {
             : renderNavItems(mainNavItems)}
         </div>
 
-        {role !== "agent" && (
+        {/* {role !== "agent" && (
           <>
             <div>
               <h3 className="mb-1 px-3 text-xs font-semibold uppercase text-slate-500">
@@ -157,7 +157,7 @@ export function MainSidebar() {
               <div className="space-y-1">{renderNavItems(systemNavItems)}</div>
             </div>
           </>
-        )}
+        )} */}
       </div>
     </aside>
   );

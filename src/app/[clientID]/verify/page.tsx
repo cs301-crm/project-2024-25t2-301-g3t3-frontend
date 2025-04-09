@@ -67,39 +67,43 @@ export default function VerifyPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <Alert className="bg-blue-50 border-blue-200">
-            <InfoIcon className="h-4 w-4 text-blue-500" />
-            <AlertDescription className="text-blue-700 text-sm">
-              Please upload a clear, legible copy of your identification
-              document. We accept PDF, JPG, or PNG files.
-            </AlertDescription>
-          </Alert>
+          {!verificationComplete && (
+            <>
+              <Alert className="bg-blue-50 border-blue-200">
+                <InfoIcon className="h-4 w-4 text-blue-500" />
+                <AlertDescription className="text-blue-700 text-sm">
+                  Please upload a clear, legible copy of your identification
+                  document. We accept PDF, JPG, or PNG files.
+                </AlertDescription>
+              </Alert>
 
-          <FileUploader
-            onFileChange={handleFileChange}
-            isUploading={isUploading}
-            setIsUploading={setIsUploading}
-          />
+              <FileUploader
+                onFileChange={handleFileChange}
+                isUploading={isUploading}
+                setIsUploading={setIsUploading}
+              />
 
-          {file && (
-            <div className="flex items-center gap-2 p-3 border rounded-md bg-slate-50">
-              <FileIcon className="h-5 w-5 text-slate-500" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{file.name}</p>
-                <p className="text-xs text-slate-500">
-                  {(file.size / 1024).toFixed(2)} KB
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleFileChange(null)}
-                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Remove file</span>
-              </Button>
-            </div>
+              {file && (
+                <div className="flex items-center gap-2 p-3 border rounded-md bg-slate-50">
+                  <FileIcon className="h-5 w-5 text-slate-500" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{file.name}</p>
+                    <p className="text-xs text-slate-500">
+                      {(file.size / 1024).toFixed(2)} KB
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleFileChange(null)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Remove file</span>
+                  </Button>
+                </div>
+              )}
+            </>
           )}
 
           {verificationComplete && (
@@ -112,18 +116,17 @@ export default function VerifyPage() {
             </Alert>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline" asChild>
-            <a href="/dashboard">Go to Dashboard</a>
-          </Button>
-          <Button
-            onClick={handleVerify}
-            disabled={
-              !file || isUploading || isVerifying || verificationComplete
-            }
-          >
-            {isVerifying ? "Verifying..." : "Verify Document"}
-          </Button>
+        <CardFooter className="flex justify-end">
+          {!verificationComplete && (
+            <Button
+              onClick={handleVerify}
+              disabled={
+                !file || isUploading || isVerifying || verificationComplete
+              }
+            >
+              {isVerifying ? "Verifying..." : "Verify Document"}
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </div>

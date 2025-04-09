@@ -142,8 +142,7 @@ export function OtpVerificationModal({
         <DialogHeader>
           <DialogTitle>Verify OTP</DialogTitle>
           <DialogDescription>
-            Enter the 6-digit verification code sent to your email to complete
-            agent creation.
+            Enter the 6-digit verification code sent to your email.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6 py-4">

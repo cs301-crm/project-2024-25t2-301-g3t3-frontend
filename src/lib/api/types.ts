@@ -82,14 +82,17 @@ export enum Gender {
 }
 
 // For agent-management page
-export interface Agent {
+export interface User {
   id: string
   firstName: string
   lastName: string
   email: string
   status: "active" | "disabled"
+  role?: "agent" | "admin" // Make role optional for backward compatibility
 }
 
+// Alias Agent to User for backward compatibility
+export type Agent = User
 
 export interface LogEntry {
   id: string;
@@ -112,6 +115,60 @@ export interface Transaction {
   description?: string;
   clientFirstName: string;
   clientLastName: string;
+}
+
+
+// User Types
+export interface CreateUserRequestDTO {
+  firstName: string;
+  lastName: string;
+  email: string;
+  // userRole:string;
+  role: "agent" | "admin"
+}
+
+export interface DisableEnableRequestDTO {
+  email: string;
+}
+
+export interface DangerousActionOtpVerificationDTO {
+  email: string;
+  oneTimePassword: string;
+  otpContext: string;
+}
+
+export interface UpdateUserRequestDTO {
+  firstName: string;
+  lastName: string;
+  email: string;
+  userRole:string;
+}
+
+export interface ResetPasswordRequestDTO {
+  email: string;
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface GenericResponseDTO {
+  success: boolean;
+  message: string;
+  timestamp: string;
+}
+
+// Auth
+export interface LoginRequestDTO {
+  email: string;
+  password: string;
+}
+
+export interface OtpVerificationDTO {
+  email: string;
+  oneTimePassword: string;
+}
+
+export interface ResendOtpRequestDTO {
+  email: string;
 }
 
 export interface CommunicationsEntry {

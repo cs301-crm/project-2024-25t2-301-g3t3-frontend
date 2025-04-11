@@ -14,72 +14,72 @@ import type {
 // Mock admin logs data
 const mockAdminLogs: AdminLogEntry[] = [
   {
-    log_id: "log-001",
+    logId: "log-001",
     actor: "admin001",
-    transaction_type: "POST",
+    transactionType: "POST",
     action: "Created new client record",
     timestamp: "2024-03-01T10:00:00Z",
   },
   {
-    log_id: "log-002",
+    logId: "log-002",
     actor: "admin002",
-    transaction_type: "PUT",
+    transactionType: "PUT",
     action: "Updated client profile",
     timestamp: "2024-03-02T12:30:00Z",
   },
   {
-    log_id: "log-003",
+    logId: "log-003",
     actor: "admin001",
-    transaction_type: "DELETE",
+    transactionType: "DELETE",
     action: "Removed account",
     timestamp: "2024-03-03T09:15:00Z",
   },
   {
-    log_id: "log-004",
+    logId: "log-004",
     actor: "admin003",
-    transaction_type: "GET",
+    transactionType: "GET",
     action: "Fetched transaction list",
     timestamp: "2024-03-04T16:20:00Z",
   },
   {
-    log_id: "log-005",
+    logId: "log-005",
     actor: "admin001",
-    transaction_type: "POST",
+    transactionType: "POST",
     action: "Created admin user",
     timestamp: "2024-03-05T11:00:00Z",
   },
   {
-    log_id: "log-006",
+    logId: "log-006",
     actor: "admin002",
-    transaction_type: "PUT",
+    transactionType: "PUT",
     action: "Updated password policy",
     timestamp: "2024-03-06T14:45:00Z",
   },
   {
-    log_id: "log-007",
+    logId: "log-007",
     actor: "admin001",
-    transaction_type: "DELETE",
+    transactionType: "DELETE",
     action: "Deleted inactive users",
     timestamp: "2024-03-07T08:10:00Z",
   },
   {
-    log_id: "log-008",
+    logId: "log-008",
     actor: "admin003",
-    transaction_type: "POST",
+    transactionType: "POST",
     action: "Created new role",
     timestamp: "2024-03-08T15:00:00Z",
   },
   {
-    log_id: "log-009",
+    logId: "log-009",
     actor: "admin001",
-    transaction_type: "PUT",
+    transactionType: "PUT",
     action: "Modified system settings",
     timestamp: "2024-03-09T13:25:00Z",
   },
   {
-    log_id: "log-010",
+    logId: "log-010",
     actor: "admin002",
-    transaction_type: "GET",
+    transactionType: "GET",
     action: "Viewed audit logs",
     timestamp: "2024-03-10T17:55:00Z",
   },
@@ -102,7 +102,7 @@ export const getAdminLogs = async (
   const filtered = mockAdminLogs.filter(
     (log) =>
       log.actor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.transaction_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.transactionType.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.action.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

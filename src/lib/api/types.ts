@@ -185,9 +185,9 @@ export interface CommunicationsEntry {
 }
 
 export interface AdminLogEntry {
-  log_id: string;
+  logId: string;
   actor: string;
-  transaction_type: string;
+  transactionType: string;
   action: string;
   timestamp: string;
 }
@@ -203,4 +203,16 @@ export interface UserContextDTO {
   userId: string,
   role: string,
   fullName: string
+}
+
+export interface AdminLogsResponse {
+  success: boolean;
+  message: AdminLogEntry[];
+  timestamp: string;
+}
+
+export interface AgentListResponse {
+  success: boolean;
+  message: Partial<Agent>[];
+  timestamp: string;
 }

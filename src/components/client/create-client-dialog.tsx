@@ -27,7 +27,7 @@ import { clientFormSchema, ClientFormValues, defaultClientValues } from "@/lib/s
 import clientService from "@/lib/api/clientService";
 import { toast } from "../ui/use-toast";
 import { useDebounce } from "@/hooks/use-debounce";
-import userService from "@/lib/api/mockUserService";
+import { userService } from "@/lib/api/userService";
 
 
 interface CreateClientDialogProps {
@@ -42,6 +42,7 @@ export function CreateClientDialog({ compact = false }: CreateClientDialogProps)
   const [agents, setAgents] = useState<Partial<Agent>[]>([]);
   const [loadingAgents, setLoadingAgents] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loadAgentError, setLoadAgentError] = useState<string>("");
   const debouncedSearch = useDebounce(searchTerm, 200);
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),
@@ -51,25 +52,22 @@ export function CreateClientDialog({ compact = false }: CreateClientDialogProps)
   useEffect(() => {
     const fetchAgents = async () => {
       try {
+        setLoadAgentError("");
         setLoadingAgents(true);
         const result = await userService.getAgentList();
-        setAgents(result);
+        setAgents(result.message);
       } catch (err) {
-        toast({
-          title: "Failed to load agents",
-          description: "Please try again later.",
-          variant: "destructive",
-        });
+        setLoadAgentError("Failed to load Agents.")
         console.log(err);
       } finally {
         setLoadingAgents(false);
       }
     };
 
-    if (isAdmin) {
+    if (isAdmin && open) {
       fetchAgents();
     }
-  }, [isAdmin]);
+  }, [isAdmin, open]);
 
   const filteredAgents = agents.filter((agent) => {
     const fullName = `${agent.firstName ?? ""} ${agent.lastName ?? ""}`.toLowerCase();
@@ -200,7 +198,13 @@ export function CreateClientDialog({ compact = false }: CreateClientDialogProps)
                         ))}
                       </CommandGroup>
                     ) : (
-                      <CommandEmpty>No agents found</CommandEmpty>
+                      <>
+                      {loadAgentError ? (
+                        <CommandEmpty>{loadAgentError}</CommandEmpty>
+                      ):(
+                        <CommandEmpty>No agents found</CommandEmpty>
+                      )}
+                      </>
                     )}
                   </CommandList>
                 </Command>

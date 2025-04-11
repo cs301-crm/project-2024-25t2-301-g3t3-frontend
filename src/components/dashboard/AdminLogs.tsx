@@ -12,15 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
 import { DashboardCard } from "../dashboard/dashboard-card";
-import userService from "@/lib/api/mockUserService"
-
-interface AdminLogEntry {
-  log_id: string;
-  actor: string;
-  transaction_type: string;
-  action: string;
-  timestamp: string;
-}
+import { userService } from "@/lib/api/userService"
+import { AdminLogEntry } from "@/lib/api/types";
 
 export default function AdminLogs() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,14 +44,14 @@ export default function AdminLogs() {
     queryKey: ["adminLogs", debouncedSearch],
     queryFn: fetchLogs,
     getNextPageParam: (lastPage, allPages) =>
-      lastPage.length === 10 ? allPages.length + 1 : undefined,
+      lastPage.message.length === 10 ? allPages.length + 1 : undefined,
     initialPageParam: 1,
     refetchOnWindowFocus: false,
     staleTime: 60000,
   });
 
-  const logs: AdminLogEntry[] = data?.pages.flat() || [];
-
+  const logs: AdminLogEntry[] = data?.pages.flatMap((page) => page.message) || [];
+  
   useEffect(() => {
     const last = lastRef.current;
     if (!last || !hasNextPage || isFetchingNextPage) return;
@@ -142,14 +135,14 @@ export default function AdminLogs() {
               const isLast = index === logs.length - 1;
               return (
                 <div
-                  key={log.log_id}
+                  key={log.logId}
                   ref={isLast ? lastRef : null}
                   className="rounded-md border p-3 hover:bg-slate-50"
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">
-                        [{log.transaction_type}] {log.action} by{" "}
+                        [{log.transactionType}] {log.action} by{" "}
                         <span className="text-blue-600 font-semibold">
                           {log.actor}
                         </span>

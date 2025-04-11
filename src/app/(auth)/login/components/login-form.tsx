@@ -80,13 +80,22 @@ export function LoginForm() {
   
         const { userId, fullName, role } = result.message;
         const user: UserContextDTO = { userId, fullName, role };
+        
         // Update state
         setUser(user);
         toast({
           title: "Login Success",
           description: `Welcome back, ${fullName}`,
         });
-        router.push("/dashboard");
+
+        const redirectAfterLogin = sessionStorage.getItem("redirectAfterLogin");
+        if (redirectAfterLogin) {
+          sessionStorage.removeItem("redirectAfterLogin"); 
+          router.push(redirectAfterLogin);
+        } else {
+          router.push('/dashboard'); 
+        }
+
       } else {
         throw new Error("Failed to verify OTP");
       }

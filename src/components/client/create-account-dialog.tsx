@@ -6,10 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, ChevronsUpDown, Check, Loader2 } from "lucide-react";
 import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 import { useClient } from "@/contexts/client-context";
-import { useUser } from "@/contexts/user-context";
 import { Button } from "@/components/ui/button";
 import { FormDialog } from "@/components/forms/form-dialog";
-import clientService from "@/lib/api/mockClientService";
+import clientService from "@/lib/api/clientService";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Command, CommandInput, CommandList, CommandItem, CommandEmpty } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
@@ -25,7 +24,6 @@ interface CreateAccountDialogProps {
 }
 
 export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialogProps = {}) {
-  const { user } = useUser();
   const { addAccount, loadingAction } = useClient();
   const [selectedClient, setSelectedClient] = useState<{ clientId: string; name: string } | null>(
     clientId && clientName ? { clientId: clientId, name: clientName } : null
@@ -45,7 +43,7 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
       clientId: clientId ?? "",
     },
   });
-
+  const pageSize = 10;
   const {
     data,
     fetchNextPage,
@@ -55,18 +53,18 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
   } = useInfiniteQuery({
     queryKey: ['create-account-clients', debouncedSearch],
     queryFn: async ({ pageParam = 1 }) => {
-      const result = await clientService.getClientsByAgentId(
-        user.userId,
-        debouncedSearch,
-        pageParam
-      );
+      const result = await clientService.getAllClients(
+          debouncedSearch,
+          pageParam,
+          pageSize
+        );
       return result.map(c => ({
         clientId: c.clientId || '',
         name: `${c.firstName} ${c.lastName}`,
       }));
     },
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.length === 10 ? allPages.length + 1 : undefined;
+      return lastPage.length === pageSize ? allPages.length + 1 : undefined;
     },
     initialPageParam: 1,
     placeholderData: keepPreviousData,
@@ -120,6 +118,11 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
      // setSelectedClient(null);
     } catch (error) {
       console.error("Failed to create account:", error);
+      toast({
+        title: "Error",
+        description: `${error}`,
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }

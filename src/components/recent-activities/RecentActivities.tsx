@@ -18,7 +18,7 @@ interface RecentActivitiesProps {
   }
 
   export default function RecentActivities({ clientId }: RecentActivitiesProps) {
-    const { user, isAdmin } = useUser();
+    const { user } = useUser();
     const [error, setError] = useState("");
     const [activitySearchQuery, setActivitySearchQuery] = useState("");
     const debouncedSearchQuery = useDebounce(activitySearchQuery, 300);
@@ -134,7 +134,7 @@ interface RecentActivitiesProps {
     };
   
     return (
-      <DashboardCard title={clientId ? "Recent Activities" : (isAdmin ? "All Recent Activities" : "My Recent Activities")} className="border-l-4 border-l-slate-700">
+      <DashboardCard title={clientId ? "Recent Activities" : "My Recent Activities"} className="border-l-4 border-l-slate-700">
         <div className="flex flex-col space-y-4">
           <div className="flex flex-wrap gap-2 mb-4">
             <Button size="sm" variant="outline" onClick={handleRefresh} disabled={isFetching}>

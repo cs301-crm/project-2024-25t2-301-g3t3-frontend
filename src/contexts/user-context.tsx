@@ -1,7 +1,10 @@
 "use client";
 
+import { userService } from "@/lib/api/userService";
 import { UserContextDTO } from "@/lib/api/types";
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from "react";
+import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 
 // Define the context type
@@ -10,6 +13,7 @@ interface UserContextType {
   loading: boolean;
   isAdmin: boolean;
   setUser: (user: UserContextDTO) => void;
+  logoutUser: () => void;
 }
 
 // Create the context with a default value
@@ -21,7 +25,7 @@ export function UserProvider({
   children: ReactNode;
 }) {
   // const defaultUser = {
-  //   userid: "",
+  //   userId: "",
   //   role: "",
   //   fullName: ""
   // }
@@ -31,23 +35,45 @@ export function UserProvider({
     role: "ROLE_ADMIN",
     fullName: "John Champion"
   }
-
+  const router = useRouter();
   const [user, setUser] = useState<UserContextDTO>(testUser);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true); 
-  // Load user from localStorage on first render
 
+
+  // Load user from localStorage on first render
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  
+    try {
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+  
+        const isValid =
+          typeof parsedUser.userId === "string" &&
+          parsedUser.userId.trim() !== "" &&
+          typeof parsedUser.role === "string" &&
+          parsedUser.role.trim() !== "" &&
+          typeof parsedUser.fullName === "string" &&
+          parsedUser.fullName.trim() !== "";
+  
+        if (isValid) {
+          setUser(parsedUser);
+        } else {
+          console.warn("Invalid or empty user data in localStorage. Clearing it.");
+          localStorage.removeItem("user");
+        }
+      }
+    } catch (err) {
+      console.error("Error parsing stored user:", err);
+      localStorage.removeItem("user");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
-    if (user) {
-      console.log(user);
+    if (user && user.userId && user.role && user.fullName) {
       localStorage.setItem("user", JSON.stringify(user));
     } else {
       localStorage.removeItem("user");
@@ -58,9 +84,37 @@ export function UserProvider({
     setIsAdmin(user?.role === "ROLE_ADMIN");
   }, [user]);
 
+  const logoutUser = async () => {
+    try {
+      await userService.logout();
+      toast({
+        title: "Success",
+        description: `Logged out successfully`,
+      });
+      router.push("/login");
+      setUser({ userId: "", role: "", fullName: "" });
+      localStorage.removeItem("user");
+      setIsAdmin(false);
+    } catch (err) {
+      console.error("Logout failed", err);
+      toast({
+        title: "Error",
+        description: `Failed to logout, please try again`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const contextValue = useMemo(() => ({
+    user,
+    loading,
+    isAdmin,
+    setUser,
+    logoutUser
+  }), [user, loading, isAdmin]);
   
   return (
-    <UserContext.Provider value={{ user, loading, isAdmin, setUser }}>
+    <UserContext.Provider value={contextValue}>
       {children}
     </UserContext.Provider>
   );

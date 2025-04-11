@@ -158,7 +158,7 @@ export default function ClientsPageInner({ agentId }: ClientsPageInnerProps){
               </Button>
             </div>
   
-            {error && (
+            {error && !isFetching && (
               <div className="rounded-md bg-red-50 p-4 border border-red-200">
                 <p className="text-sm text-red-600">{error}</p>
               </div>

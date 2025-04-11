@@ -12,7 +12,9 @@ import {
   OtpVerificationDTO,
   ResendOtpRequestDTO,
   OtpSuccessResponse,
-  User
+  User,
+  AdminLogsResponse,
+  AgentListResponse
 } from './types';
 
 export const userService = {
@@ -93,7 +95,7 @@ export const userService = {
       const response = await axiosClient.post('/auth/login', data);
       return response.data;
     } catch (error) {
-      let errorMessage = 'Login failed';
+      let errorMessage = 'Internal server error';
   
       if (error instanceof AxiosError) {
         errorMessage = error.response?.data?.message || errorMessage;
@@ -141,5 +143,39 @@ export const userService = {
       handleApiError(error);
       throw new Error('Token refresh failed');
     }
-  }
+  },
+
+  getAdminLogs: async (
+    searchQuery: string = "",
+    page: number = 1,
+    limit: number = 10
+  ): Promise<AdminLogsResponse> => {
+    try {
+      const params = new URLSearchParams();
+
+  
+      if (searchQuery.trim() !== "") {
+        params.append('searchQuery', searchQuery);
+      }
+  
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+  
+      const response = await axiosClient.get(`/user-logs?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to fetch logs');
+    }
+  },
+
+  getAgentList: async (): Promise<AgentListResponse> => {
+    try {
+      const response = await axiosClient.get('/users/agents');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to fetch agents');
+    }
+  },
 };

@@ -1,6 +1,7 @@
 import axiosClient from './axiosClient';
 import { Account, AccountDTO, Transaction } from './types';
 import { handleApiError } from './error-handler';
+import { AxiosError } from 'axios';
 
 /**
  * Account API Service
@@ -36,7 +37,12 @@ export const accountService = {
 
     } catch (error) {
       handleApiError(error, 'Failed to create account');
-      throw new Error('Failed to create account');
+      let errorMessage = 'Internal server error';
+  
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
   },
 
@@ -86,7 +92,7 @@ export const accountService = {
       // Create URLSearchParams object
       const params = new URLSearchParams();
       params.append('agentId', agentId);
-      
+    
       // Add optional parameters only if they have values
       if (searchQuery.trim() !== "") {
         params.append('searchQuery', searchQuery);
@@ -101,7 +107,46 @@ export const accountService = {
       // Add pagination parameters
       params.append('page', page.toString());
       params.append('limit', limit.toString());
+      console.log(params.toString());
+      const response = await axiosClient.get(`/accounts?${params.toString()}`);
       
+      if (!response) {
+        throw new Error('Error fetching accounts');
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+      throw error;
+    }
+  },
+
+  getAllAccounts: async (
+    searchQuery: string = "",
+    type: string | null = null,
+    status: string | null = null,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<Account[]> => {
+    try {
+      // Create URLSearchParams object
+      const params = new URLSearchParams();
+    
+      // Add optional parameters only if they have values
+      if (searchQuery.trim() !== "") {
+        params.append('searchQuery', searchQuery);
+      }
+      if (type) {
+        params.append('type', type);
+      }
+      if (status) {
+        params.append('status', status);
+      }
+      
+      // Add pagination parameters
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+      console.log(params.toString());
       const response = await axiosClient.get(`/accounts?${params.toString()}`);
       
       if (!response) {

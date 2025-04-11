@@ -18,7 +18,7 @@ import {
 import { Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Agent } from "@/lib/api/types";
-import userService from "@/lib/api/mockUserService";
+import { userService } from "@/lib/api/userService";
 import { toast } from "@/components/ui/use-toast";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useClient } from "@/contexts/client-context";
@@ -41,32 +41,31 @@ export function ReassignAgent({
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentAgent, setCurrentAgent] =  useState<Partial<Agent> | null>(null);
+  const [loadAgentError, setLoadAgentError] = useState<string>("");
   const debouncedSearch = useDebounce(searchTerm, 200);
   const { reassignAgent } = useClient();
 
   useEffect(() => {
     const fetchAgents = async () => {
       try {
+        setLoadAgentError("");
         setLoadingAgents(true);
         const result = await userService.getAgentList();
-        setAgents(result);
-        const current = result.find((a) => a.id === agentId) || null;
+        setAgents(result.message);
+        const current = result.message.find((a) => a.id === agentId) || null;
         setCurrentAgent(current);
         setSelectedAgent(current);
       } catch (err) {
-        toast({
-          title: "Failed to load agents",
-          description: "Please try again later.",
-          variant: "destructive",
-        });
+        setLoadAgentError("Failed to load Agents.");
         console.log(err);
       } finally {
         setLoadingAgents(false);
       }
     };
-
-    fetchAgents();
-  }, [agentId]);
+    if (open) {
+      fetchAgents();
+    }
+  }, [agentId, open]);
 
   const filteredAgents = agents.filter((agent) => {
     const fullName = `${agent.firstName ?? ""} ${agent.lastName ?? ""}`.toLowerCase();
@@ -151,7 +150,13 @@ export function ReassignAgent({
                 ))}
               </CommandGroup>
             ) : (
-              <CommandEmpty>No agents found</CommandEmpty>
+              <>
+              {loadAgentError ? (
+                <CommandEmpty>{loadAgentError}</CommandEmpty>
+              ):(
+                <CommandEmpty>No agents found</CommandEmpty>
+              )}
+              </>
             )}
           </CommandList>
           <div className="p-2 border-t flex justify-end">

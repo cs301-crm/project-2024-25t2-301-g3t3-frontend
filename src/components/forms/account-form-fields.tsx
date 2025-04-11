@@ -24,6 +24,7 @@ export function AccountFormFields({
   form,
   showClientSelection = false,
 }: AccountFormFieldsProps) {
+  const today = new Date().toISOString().split("T")[0];
   return (
     <div className="space-y-4">
       {showClientSelection && (
@@ -101,7 +102,7 @@ export function AccountFormFields({
               <FormItem>
                 <FormLabel>Opening Date</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                 <Input type="date" {...field} max={today} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

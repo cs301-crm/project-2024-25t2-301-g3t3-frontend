@@ -165,8 +165,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
            }
           return createdAccount;
       } catch (err) {
-        console.log(err);
-        throw new Error("Failed to add account");
+        throw err;
       } finally {
         setLoadingAction(false);
       }

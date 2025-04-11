@@ -20,7 +20,7 @@ interface ClientFormFieldsProps {
 
 export function ClientFormFields({ form }: ClientFormFieldsProps) {
   const { countryCode, handleCountryCodeChange } = useCountryCode(form);
-
+  const today = new Date().toISOString().split("T")[0];
   return (
     <div className="space-y-4">
       <div className="rounded-md border p-4">
@@ -59,7 +59,7 @@ export function ClientFormFields({ form }: ClientFormFieldsProps) {
               <FormItem>
                 <FormLabel>Date of Birth</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <Input type="date" {...field} max={today} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

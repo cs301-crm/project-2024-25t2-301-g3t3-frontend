@@ -17,7 +17,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 
 export default function AccountsPage() {
 
-  const { user } = useUser();
+  const { user, isAdmin } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [accountTypeFilter, setAccountTypeFilter] = useState<string | null>(null);
@@ -47,14 +47,22 @@ export default function AccountsPage() {
       setError("");
 
       try {
-        const response = await accountService.getAccountsByAgentId(
-          user.userId,
-          debouncedSearchQuery,
-          accountTypeFilter,
-          accountStatusFilter,
-          pageParam,
-          10
-        );
+        const response = isAdmin
+          ? await accountService.getAllAccounts(
+              debouncedSearchQuery,
+              accountTypeFilter,
+              accountStatusFilter,
+              pageParam,
+              10
+            )
+          : await accountService.getAccountsByAgentId(
+              user.userId,
+              debouncedSearchQuery,
+              accountTypeFilter,
+              accountStatusFilter,
+              pageParam,
+              10
+            );
         return response;
       } catch (err) {
         handleApiError(err);
@@ -295,11 +303,11 @@ export default function AccountsPage() {
               <div className="space-y-3">
                 <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-slate-100 rounded-md text-xs font-medium">
                   <div className="col-span-3">Client</div>
-                  <div className="col-span-2">Account Type</div>
+                  <div className="col-span-3">Account Type</div>
                   <div className="col-span-1">Branch ID</div>
                   <div className="col-span-1">Status</div>
-                  <div className="col-span-2">Opening Date</div>
-                  <div className="col-span-2">Initial Deposit</div>
+                  <div className="col-span-1">Opening Date</div>
+                  <div className="col-span-2 flex justify-center"><p>Initial Deposit</p></div>
                   <div className="col-span-1">Actions</div>
                 </div>
                 <div className="max-h-[300px] flex flex-col gap-2 overflow-y-auto">
@@ -315,14 +323,21 @@ export default function AccountsPage() {
                           ID: {account.clientId}
                         </p>
                       </div>
-                      <div className="col-span-2">{account.accountType}</div>
+                     <div className="col-span-3">
+                         <p className="font-medium">
+                           {account.accountType} Account 
+                         </p>
+                         <p className="text-xs text-slate-500">
+                           ID: {account.accountId} 
+                         </p>
+                       </div>
                       <div className="col-span-1">{account.branchId}</div>
                       <div className="col-span-1">
                         <span
                           className={`text-xs px-2 py-1 rounded-full ${
                             account.accountStatus === "ACTIVE"
                               ? "bg-green-100 text-green-800"
-                              : account.accountStatus === "INACTIVE"
+                              : account.accountStatus === "PENDING"
                               ? "bg-yellow-100 text-yellow-800"
                               : "bg-red-100 text-red-800"
                           }`}
@@ -330,9 +345,11 @@ export default function AccountsPage() {
                           {account.accountStatus}
                         </span>
                       </div>
-                      <div className="col-span-2">{account.openingDate}</div>
-                      <div className="col-span-2">
+                      <div className="col-span-1">{account.openingDate}</div>
+                      <div className="col-span-2 flex justify-center">
+                        <p>
                         {account.initialDeposit} {account.currency}
+                        </p>
                       </div>
                       <div className="col-span-1 flex space-x-1">
                       <DeleteAccountButton 

@@ -88,7 +88,7 @@ export interface User {
   lastName: string
   email: string
   status: "active" | "disabled"
-  role?: "agent" | "admin" // Make role optional for backward compatibility
+  userRole: string
 }
 
 // Alias Agent to User for backward compatibility
@@ -124,8 +124,8 @@ export interface CreateUserRequestDTO {
   firstName: string;
   lastName: string;
   email: string;
-  // userRole:string;
-  role: "agent" | "admin"
+  userRole:string;
+  // role: "agent" | "admin"
 }
 
 export interface DisableEnableRequestDTO {

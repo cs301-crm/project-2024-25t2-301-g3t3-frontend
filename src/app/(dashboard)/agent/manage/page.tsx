@@ -8,8 +8,6 @@ import {
   Search,
   Trash2,
   RefreshCw,
-  // ChevronDown,
-  // ChevronUp,
   UserPlus,
   FileText,
   Edit,
@@ -25,9 +23,11 @@ import { ViewClientsModal } from "@/components/user-management/view-clients-moda
 import { ViewLogsModal } from "@/components/user-management/view-logs-modal";
 import { useToast } from "@/components/ui/use-toast";
 import type { User, Client, LogEntry } from "@/lib/api/types";
-import { userService } from "@/lib/api/mockUserService";
+// import { userService } from "@/lib/api/userService";
+import { mockUserService } from "@/lib/api/mockUserService";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { clientService } from "@/lib/api";
 
 function UserManagementInner() {
   const { toast } = useToast();
@@ -72,10 +72,10 @@ function UserManagementInner() {
     try {
       // Fetch data from the mock service
       const [fetchedUsers, fetchedClients, fetchedLogs] = await Promise.all([
-        userService.getAgents(),
-        // userService.getUsers(),
-        userService.getClients(),
-        userService.getLogs(),
+        // userService.getAgents(),
+        mockUserService.getUsers(),
+        mockUserService.getClients(),
+        mockUserService.getLogs(),
       ]);
 
       setUsers(fetchedUsers);
@@ -102,7 +102,7 @@ function UserManagementInner() {
       user.email.toLowerCase().includes(searchLower) ||
       user.id.toLowerCase().includes(searchLower);
 
-    const matchesRole = roleFilter === "all" || user.role === roleFilter;
+    const matchesRole = roleFilter === "all" || user.userRole === roleFilter;
 
     return matchesSearch && matchesRole;
   });
@@ -124,11 +124,11 @@ function UserManagementInner() {
       });
     } else {
       // Direct creation without OTP (not used in current flow)
-      const user = await userService.addUser(newUser, users);
+      const user = await mockUserService.addUser(newUser, users);
       setUsers([...users, user]);
 
       // Only initialize clients for agents
-      if (newUser.role === "agent") {
+      if (newUser.userRole === "agent") {
         setClients({ ...clients, [user.id]: [] });
       }
 
@@ -148,7 +148,7 @@ function UserManagementInner() {
       if (otp === "123456") {
         try {
           const { user, updatedUsers, updatedClients, updatedLogs } =
-            await userService.completeUserCreation(
+            await mockUserService.completeUserCreation(
               pendingUser,
               users,
               clients,
@@ -195,7 +195,7 @@ function UserManagementInner() {
   const handleDeleteUser = async (id: string) => {
     if (confirm("Are you sure you want to delete this user?")) {
       const { updatedUsers, updatedClients, updatedLogs } =
-        await userService.deleteUser(id, users, clients, logs);
+        await mockUserService.deleteUser(id, users, clients, logs);
       setUsers(updatedUsers);
       setClients(updatedClients);
       setLogs(updatedLogs);
@@ -215,9 +215,34 @@ function UserManagementInner() {
     );
   };
 
+  // const handleToggleStatus = async (id: string) => {
+  //   const user = users.find((u) => u.id === id);
+  //   if (!user) return;
+
+  //   const newStatus = user.status === "active" ? "disabled" : "active";
+
+  //   try {
+  //     if (newStatus === "disabled") {
+  //       await mockUserService.disableUser({ userId: id });
+  //     } else {
+  //       await mockUserService.enableUser({ userId: id });
+  //     }
+
+  //     setUsers(
+  //       users.map((u) => (u.id === id ? { ...u, status: newStatus } : u))
+  //     );
+  //   } catch (err) {
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to update user status.",
+  //     });
+  //     console.error(err);
+  //   }
+  // };
+
   const handleResetPassword = async (id: string) => {
     console.log(`Password reset requested for user ${id}`);
-    const updatedLogs = await userService.resetPassword(id, logs);
+    const updatedLogs = await mockUserService.resetPassword(id, logs);
     setLogs(updatedLogs);
   };
 
@@ -245,8 +270,8 @@ function UserManagementInner() {
     total: users.length,
     active: users.filter((user) => user.status === "active").length,
     disabled: users.filter((user) => user.status === "disabled").length,
-    agents: users.filter((user) => user.role === "agent").length,
-    admins: users.filter((user) => user.role === "admin").length,
+    agents: users.filter((user) => user.userRole === "agent").length,
+    admins: users.filter((user) => user.userRole === "admin").length,
   };
 
   return (
@@ -386,7 +411,7 @@ function UserManagementInner() {
                                 {user.firstName} {user.lastName}
                               </p>
                               <Badge variant="outline" className="ml-2">
-                                {user.role === "admin" ? "Admin" : "Agent"}
+                                {user.userRole === "admin" ? "Admin" : "Agent"}
                               </Badge>
                               <span
                                 className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
@@ -407,70 +432,10 @@ function UserManagementInner() {
                               ID: {user.id}
                             </p>
                           </div>
-                          {/* <div className="flex items-center">
-                            {expandedUser === user.id ? (
-                              <ChevronUp className="h-4 w-4 text-slate-400" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4 text-slate-400" />
-                            )}
-                          </div> */}
                         </div>
 
-                        {/* {expandedUser === user.id && user.role === "agent" && (
-                          <div
-                            id={`user-details-${user.id}`}
-                            className="mt-3 border-t pt-3"
-                          >
-                            <div className="mb-2">
-                              <h4 className="text-sm font-medium">
-                                Client Management
-                              </h4>
-                            </div>
-
-                            {getUserClients(user.id).length > 0 ? (
-                              <div className="space-y-2">
-                                {getUserClients(user.id).map((client) => (
-                                  <div
-                                    key={client.clientId}
-                                    className="rounded-md bg-slate-50 p-2 text-xs"
-                                  >
-                                    <div className="flex justify-between items-center">
-                                      <span className="font-medium">
-                                        {client.firstName} {client.lastName}
-                                      </span>
-                                      <div className="flex items-center space-x-1">
-                                        <span
-                                          className={`${
-                                            client.verificationStatus ===
-                                            "verified"
-                                              ? "text-green-600"
-                                              : client.verificationStatus ===
-                                                "pending"
-                                              ? "text-amber-600"
-                                              : "text-red-600"
-                                          }`}
-                                        >
-                                          {client.verificationStatus ||
-                                            "Unknown"}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <div className="mt-1">
-                                      <span>{client.emailAddress}</span>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="text-xs text-slate-500 italic">
-                                No clients assigned to this agent
-                              </p>
-                            )}
-                          </div>
-                        )} */}
-
                         <div className="mt-2 flex justify-end space-x-2">
-                          {user.role === "agent" && (
+                          {user.userRole === "agent" && (
                             <Button
                               variant="outline"
                               size="sm"
@@ -483,7 +448,7 @@ function UserManagementInner() {
                               View Clients
                             </Button>
                           )}
-                          {user.role === "agent" && (
+                          {user.userRole === "agent" && (
                             <Button
                               variant="outline"
                               size="sm"

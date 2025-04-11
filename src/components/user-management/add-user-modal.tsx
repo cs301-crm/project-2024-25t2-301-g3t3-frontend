@@ -40,7 +40,7 @@ export function AddUserModal({
     lastName: "",
     email: "",
     status: "active",
-    role: "agent",
+    userRole: "agent",
   });
 
   const handleChange = (
@@ -62,7 +62,7 @@ export function AddUserModal({
       lastName: "",
       email: "",
       status: "active",
-      role: "agent",
+      userRole: "agent",
     });
   };
 
@@ -89,9 +89,9 @@ export function AddUserModal({
             <div className="space-y-2">
               <Label htmlFor="role">User Role</Label>
               <Select
-                value={formData.role}
+                value={formData.userRole}
                 onValueChange={(value: "agent" | "admin") =>
-                  handleChange("role", value)
+                  handleChange("userRole", value)
                 }
               >
                 <SelectTrigger id="role">

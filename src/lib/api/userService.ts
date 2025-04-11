@@ -11,11 +11,22 @@ import {
   LoginRequestDTO,
   OtpVerificationDTO,
   ResendOtpRequestDTO,
-  OtpSuccessResponse
+  OtpSuccessResponse,
+  User
 } from './types';
 
 export const userService = {
   // --- USER CONTROLLER ---
+  getUsers: async (): Promise<User[]> => {
+    try {
+      const response = await axiosClient.get('/users'); // Replace with your backend endpoint
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error('Failed to fetch users');
+    }
+  },
+
   createUser: async (userData: CreateUserRequestDTO): Promise<GenericResponseDTO> => {
     try {
       const response = await axiosClient.post('/users', userData);

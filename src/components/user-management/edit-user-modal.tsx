@@ -65,8 +65,10 @@ export function EditUserModal({
             <div className="space-y-2">
               <Label htmlFor="role">User Role</Label>
               <div className="flex items-center h-10 px-3 rounded-md border border-input bg-muted text-sm">
-                <Badge variant={user.role === "admin" ? "default" : "outline"}>
-                  {user.role === "admin" ? "Admin" : "Agent"}
+                <Badge
+                  variant={user.userRole === "admin" ? "default" : "outline"}
+                >
+                  {user.userRole === "admin" ? "Admin" : "Agent"}
                 </Badge>
                 <span className="ml-2 text-xs text-muted-foreground">
                   (Role cannot be changed)

@@ -122,7 +122,7 @@ const users: User[] = [
     lastName: "Smith",
     email: "john.smith@example.com",
     status: "active",
-    role: "agent",
+    userRole: "agent",
   },
   {
     id: "AG002",
@@ -130,7 +130,7 @@ const users: User[] = [
     lastName: "Johnson",
     email: "sarah.johnson@example.com",
     status: "active",
-    role: "agent",
+    userRole: "agent",
   },
   {
     id: "AG003",
@@ -138,7 +138,7 @@ const users: User[] = [
     lastName: "Chen",
     email: "michael.chen@example.com",
     status: "disabled",
-    role: "agent",
+    userRole: "agent",
   },
   {
     id: "AG004",
@@ -146,7 +146,7 @@ const users: User[] = [
     lastName: "Rodriguez",
     email: "emily.rodriguez@example.com",
     status: "active",
-    role: "agent",
+    userRole: "agent",
   },
   {
     id: "AG005",
@@ -154,7 +154,7 @@ const users: User[] = [
     lastName: "Kim",
     email: "david.kim@example.com",
     status: "active",
-    role: "agent",
+    userRole: "agent",
   },
   // Add some admin users
   {
@@ -163,7 +163,7 @@ const users: User[] = [
     lastName: "User",
     email: "admin@example.com",
     status: "active",
-    role: "admin",
+    userRole: "admin",
   },
   {
     id: "AD002",
@@ -171,7 +171,7 @@ const users: User[] = [
     lastName: "Administrator",
     email: "sysadmin@example.com",
     status: "active",
-    role: "admin",
+    userRole: "admin",
   },
 ];
 
@@ -555,8 +555,8 @@ export const addUser = async (
   newUser: Omit<User, "id">,
   existingUsers: User[]
 ): Promise<User> => {
-  const prefix = newUser.role === "admin" ? "AD" : "AG";
-  const roleUsers = existingUsers.filter((u) => u.role === newUser.role);
+  const prefix = newUser.userRole === "admin" ? "AD" : "AG";
+  const roleUsers = existingUsers.filter((u) => u.userRole === newUser.userRole);
   const userId = `${prefix}${String(roleUsers.length + 1).padStart(3, "0")}`;
 
   const user: User = {
@@ -568,7 +568,7 @@ export const addUser = async (
   users.push(user);
 
   // Only initialize clients for agents
-  if (newUser.role === "agent") {
+  if (newUser.userRole === "agent") {
     clients[userId] = [];
   }
 
@@ -582,7 +582,7 @@ export const addAgent = async (
   newUser: Omit<User, "id">,
   existingUsers: User[]
 ) => {
-  return addUser({ ...newUser, role: "agent" }, existingUsers);
+  return addUser({ ...newUser, userRole: "agent" }, existingUsers);
 };
 
 // Delete a user
@@ -661,7 +661,7 @@ export const completeAgentCreation = async (
   existingClients: Record<string, Client[]>,
   existingLogs: Record<string, LogEntry[]>
 ) => {
-  return completeUserCreation({ ...newUser, role: "agent" }, existingUsers, existingClients, existingLogs);
+  return completeUserCreation({ ...newUser, userRole: "agent" }, existingUsers, existingClients, existingLogs);
 };
 
 // Create a user with the real service DTO format
@@ -673,7 +673,7 @@ export const createUser = async (
     lastName: userData.lastName,
     email: userData.email,
     status: "active",
-    role: userData.role,
+    userRole: userData.userRole,
   };
 
   return addUser(newUser, users);
@@ -682,7 +682,7 @@ export const createUser = async (
 export const getAgentList = async (): Promise<Partial<Agent>[]> => {
   await simulateApiDelay();
   return users
-    .filter((user) => user.role === "agent" && user.status === "active")
+    .filter((user) => user.userRole === "agent" && user.status === "active")
     .map(({ id, firstName, lastName }) => ({
       id,
       firstName,
@@ -694,7 +694,7 @@ export const getAgentList = async (): Promise<Partial<Agent>[]> => {
 // Combined Service
 // -----------------------------------------------------------------------------
 
-export const userService = {
+export const mockUserService = {
   // Admin logs methods
   getAdminLogs,
 
@@ -714,4 +714,4 @@ export const userService = {
   getAgentList
 };
 
-export default userService;
+export default mockUserService;

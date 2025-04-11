@@ -182,6 +182,8 @@ export interface CommunicationsEntry {
   subject: string;
   status: string;
   timestamp: string;
+  clientId: string;
+  clientEmail: string;
 }
 
 export interface AdminLogEntry {

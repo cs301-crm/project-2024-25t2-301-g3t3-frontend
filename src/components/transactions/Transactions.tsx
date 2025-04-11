@@ -33,21 +33,21 @@ interface TransactionsPageProps {
 }
 
 export default function Transactions({ clientId }: TransactionsPageProps) {
-  const { user, isAdmin } = useUser();
-
+  const { user, isAdmin, loading } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [error, setError] = useState("");
-
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastTransactionRef = useRef<HTMLDivElement | null>(null);
-
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   const fetchTransactions = async ({ pageParam = 1 }) => {
     setError("");
     try {
+      if (!user.userId || loading) {
+        return [];
+      }
       if (clientId) {
         return await accountService.getTransactionsByClientId(
           clientId,
@@ -87,7 +87,7 @@ export default function Transactions({ clientId }: TransactionsPageProps) {
     isRefetching,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["transactions", clientId ?? user.userId, debouncedSearchQuery],
+    queryKey: ["transactions", clientId ?? user.userId, debouncedSearchQuery, isAdmin],
     queryFn: fetchTransactions,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length === 10 ? allPages.length + 1 : undefined,

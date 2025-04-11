@@ -105,15 +105,11 @@ export function ClientProvider({ children }: { children: ReactNode }) {
 
   const deleteClient = useCallback(async () => {
     if(!clientId){return}
-    if(accounts && accounts?.length > 0){
-      await fetchClientAccounts();
-      throw new Error("Client has existing account(s)."); 
-    }
     try {
       await clientService.deleteClient(clientId);
     } catch (err) {
       console.log(err);
-      throw new Error("Please try again later"); 
+      throw err;
     } 
   }, [clientId, accounts]); 
 

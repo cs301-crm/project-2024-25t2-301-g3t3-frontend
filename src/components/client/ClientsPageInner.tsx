@@ -51,6 +51,9 @@ export default function ClientsPageInner({ agentId }: ClientsPageInnerProps){
       queryFn: async ({ pageParam = 1 }) => {
         try {
           setError("");
+          if (!user.userId) {
+            return [];
+          }
           const result = agentId
             ? await clientService.getClientsByAgentId(agentId, debouncedSearchQuery, pageParam)
             : await clientService.getAllClients(debouncedSearchQuery, pageParam);

@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { DashboardCard } from "../dashboard/dashboard-card";
 import { useUser } from "@/contexts/user-context";
 import { useDebounce } from "@/hooks/use-debounce";
-import clientService from "@/lib/api/clientService";
+import clientService from "@/lib/api/mockClientService";
+import Link from "next/link";
 
 export default function Communications() {
   const { user } = useUser();
@@ -31,6 +32,9 @@ export default function Communications() {
     queryFn: async ({ pageParam = 1 }) => {
       setCommError("");
       try {
+        if(!user.userId){
+          return [];
+        }
         return await clientService.getCommunicationsByAgentId(
           user.userId,
           debouncedCommQuery,
@@ -128,7 +132,7 @@ export default function Communications() {
             <p className="text-sm text-slate-500">Loading communications...</p>
           </div>
         ) : communications.length > 0 ? (
-            <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+            <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
             {communications.map((log, index) => {
               const isLast = index === communications.length - 1;
               return (
@@ -139,16 +143,21 @@ export default function Communications() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium">{log.subject}</p>
+                    <p className="text-sm font-medium">
+                        {log.subject} sent to{" "}
+                        <Link href={`/client/${log.clientId}`} className="text-blue-600 hover:underline">
+                          {log.clientEmail}
+                        </Link>
+                      </p>
                       <p className="text-xs text-slate-500">
                         {new Date(log.timestamp).toLocaleString()}
                       </p>
                     </div>
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        log.status === "SENT"
+                        (log.status === "SENT" || log.status === "ACKNOWLEDGED")
                           ? "bg-green-100 text-green-800"
-                          : log.status === "SENDING"
+                          : log.status === "PENDING"
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-red-100 text-red-800"
                       }`}

@@ -28,6 +28,9 @@ interface RecentActivitiesProps {
     const fetchLogs = async ({ pageParam = 1 }) => {
       setError("");
       try {
+        if(!user.userId){
+          return [];
+        }
         if (clientId) {
           return await clientService.getLogsByClientId(
             clientId,
@@ -36,12 +39,12 @@ interface RecentActivitiesProps {
             10
           );
         } else {
-          return await clientService.getLogsByAgentId(
-            user.userId,
-            debouncedSearchQuery,
-            pageParam,
-            10
-          );
+            return await clientService.getLogsByAgentId(
+              user.userId,
+              debouncedSearchQuery,
+              pageParam,
+              10
+            );
         }
       } catch (err) {
         setError("Error loading recent activities");
@@ -178,7 +181,7 @@ interface RecentActivitiesProps {
               <p className="text-sm text-slate-500">Loading recent activities...</p>
             </div>
           ) : recentActivities.length > 0 ? (
-            <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+            <div className={`space-y-3 ${clientId ? "max-h-70" : "max-h-[50vh]"} overflow-y-auto pr-2`}>
               {recentActivities.map((log, index) => {
                 const { message, clientName, id, actor } = generateSimplifiedMessage(log);
                 const isLast = index === recentActivities.length - 1;

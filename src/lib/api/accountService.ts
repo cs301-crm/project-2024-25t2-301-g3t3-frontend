@@ -107,7 +107,7 @@ export const accountService = {
       // Add pagination parameters
       params.append('page', page.toString());
       params.append('limit', limit.toString());
-      console.log(params.toString());
+
       const response = await axiosClient.get(`/accounts?${params.toString()}`);
       
       if (!response) {

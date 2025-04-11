@@ -8,6 +8,7 @@ import {
   ChartNoAxesGantt,
   Loader2,
 } from "lucide-react";
+import { useUser } from "@/contexts/user-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -16,6 +17,7 @@ import { userService } from "@/lib/api/userService"
 import { AdminLogEntry } from "@/lib/api/types";
 
 export default function AdminLogs() {
+  const { user } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 300);
   const [error, setError] = useState("");
@@ -25,6 +27,13 @@ export default function AdminLogs() {
   const fetchLogs = async ({ pageParam = 1 }) => {
     setError("");
     try {
+      if (!user.userId) {
+        return {
+          success: true,
+          message: [],
+          timestamp: new Date().toISOString(),
+        };
+      }
       return await userService.getAdminLogs(debouncedSearch, pageParam, 10);
     } catch (err) {
       setError("Error loading admin logs");
@@ -130,7 +139,7 @@ export default function AdminLogs() {
             <p className="text-sm text-slate-500">Loading admin logs...</p>
           </div>
         ) : logs.length > 0 ? (
-          <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+          <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
             {logs.map((log, index) => {
               const isLast = index === logs.length - 1;
               return (

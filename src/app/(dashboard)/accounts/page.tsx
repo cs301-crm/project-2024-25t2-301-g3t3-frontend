@@ -42,11 +42,15 @@ export default function AccountsPage() {
       debouncedSearchQuery,
       accountTypeFilter,
       accountStatusFilter,
+      isAdmin
     ],
     queryFn: async ({ pageParam = 1 }) => {
       setError("");
 
       try {
+        if (!user.userId) {
+          return [];
+        }
         const response = isAdmin
           ? await accountService.getAllAccounts(
               debouncedSearchQuery,
@@ -62,7 +66,7 @@ export default function AccountsPage() {
               accountStatusFilter,
               pageParam,
               10
-            );
+            )
         return response;
       } catch (err) {
         handleApiError(err);
@@ -77,7 +81,7 @@ export default function AccountsPage() {
       placeholderData: keepPreviousData,
       refetchOnWindowFocus: false,
       staleTime: 60 * 1000,
-});
+  });
 
   const accounts = data?.pages.flat() || [];
 
@@ -115,11 +119,10 @@ export default function AccountsPage() {
     refetch();
   }, [refetch]);
 
-
   const handleDeleteSuccess = useCallback((deletedAccountId: string) => {
     // Optimistically remove from cache
     queryClient.setQueryData<InfiniteData<Account[]>>(
-      ["accounts", user.userId, debouncedSearchQuery, accountTypeFilter, accountStatusFilter],
+      ["accounts", user.userId, debouncedSearchQuery, accountTypeFilter, accountStatusFilter, isAdmin],
       (old?: InfiniteData<Account[]>) => {
         if (!old) {
           // Return empty infinite data structure if no existing data

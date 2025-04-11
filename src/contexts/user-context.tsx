@@ -24,19 +24,19 @@ export function UserProvider({
 }: {
   children: ReactNode;
 }) {
-  // const defaultUser = {
-  //   userId: "",
-  //   role: "",
-  //   fullName: ""
-  // }
-
-  const testUser = {
-    userId: "agent001",
-    role: "ROLE_ADMIN",
-    fullName: "John Champion"
+  const defaultUser = {
+    userId: "",
+    role: "",
+    fullName: ""
   }
+
+  // const testUser = {
+  //   userId: "agent001",
+  //   role: "ROLE_ADMIN",
+  //   fullName: "John Champion"
+  // }
   const router = useRouter();
-  const [user, setUser] = useState<UserContextDTO>(testUser);
+  const [user, setUser] = useState<UserContextDTO>(defaultUser);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true); 
 
@@ -61,11 +61,13 @@ export function UserProvider({
           setUser(parsedUser);
         } else {
           console.warn("Invalid or empty user data in localStorage. Clearing it.");
+          router.push("/login");
           localStorage.removeItem("user");
         }
       }
     } catch (err) {
       console.error("Error parsing stored user:", err);
+      router.push("/login");
       localStorage.removeItem("user");
     } finally {
       setLoading(false);

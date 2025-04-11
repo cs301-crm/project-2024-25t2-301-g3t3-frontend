@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import axiosClient from './axiosClient';
 import { handleApiError } from './error-handler';
 import { Client, ClientDTO, CommunicationsEntry, LogEntry } from './types';
@@ -137,7 +138,12 @@ export const clientService = {
 
     } catch (error) {
       handleApiError(error);
-      throw new Error('Failed to delete client');
+      let errorMessage = 'Internal server error';
+  
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
    
   },

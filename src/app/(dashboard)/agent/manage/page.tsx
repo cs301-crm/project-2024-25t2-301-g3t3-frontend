@@ -29,12 +29,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import { clientService } from "@/lib/api";
 import {
-  // OtpVerificationDTO,
-  // ResendOtpRequestDTO,
-  // UserContextDTO,
   DangerousActionOtpVerificationDTO,
+  ResendOtpRequestDTO,
+  UpdateUserRequestDTO,
 } from "@/lib/api/types";
-// import { useUser } from "@/contexts/user-context";
 
 function UserManagementInner() {
   const { toast } = useToast();
@@ -149,41 +147,6 @@ function UserManagementInner() {
     }
   };
 
-  // const handleAddUser = async (
-  //   newUser: Omit<User, "id">,
-  //   showOtpVerification: boolean
-  // ) => {
-  //   if (showOtpVerification) {
-  //     // Store the user data and show OTP verification modal
-  //     setPendingUser(newUser);
-  //     setIsOtpModalOpen(true);
-  //     setIsAddUserOpen(false);
-
-  //     // In a real app, you would send an OTP to the admin's email or phone here
-  //     toast({
-  //       title: "OTP Sent",
-  //       description: "A verification code has been sent to your email.",
-  //     });
-  //   } else {
-  //     // Direct creation without OTP (not used in current flow)
-  //     const user = await mockUserService.addUser(newUser, users);
-  //     setUsers([...users, user]);
-
-  //     // Only initialize clients for agents
-  //     if (newUser.userRole === "agent") {
-  //       setClients({ ...clients, [user.id]: [] });
-  //     }
-
-  //     setLogs({ ...logs, [user.id]: [] });
-  //   }
-  // };
-
-  // const handleVerifyOtp = async (otp: string) => {
-  //   if (!pendingUser) return;
-
-  //   setIsVerifyingOtp(true);
-  //   setOtpError(null);
-
   const handleVerifyOtp = async (otp: string) => {
     if (!pendingUser) return;
 
@@ -225,54 +188,77 @@ function UserManagementInner() {
     }
   };
 
-  //   // Simulate OTP verification with a delay
-  //   setTimeout(async () => {
-  //     // For demo purposes, we'll consider "123456" as the correct OTP
-  //     if (otp === "123456") {
-  //       try {
-  //         const { user, updatedUsers, updatedClients, updatedLogs } =
-  //           await mockUserService.completeUserCreation(
-  //             pendingUser,
-  //             users,
-  //             clients,
-  //             logs
-  //           );
+  const handleResendOtp = async () => {
+    const userEmail = localStorage.getItem("userEmail"); // or "adminEmail" if that's what you used
+    if (!userEmail) {
+      toast({
+        title: "Error",
+        description: "Missing admin email to resend OTP.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  //         setUsers(updatedUsers);
-  //         setClients(updatedClients);
-  //         setLogs(updatedLogs);
+    try {
+      const dto: ResendOtpRequestDTO = {
+        email: userEmail,
+      };
 
-  //         setIsOtpModalOpen(false);
-  //         setPendingUser(null);
-
-  //         toast({
-  //           title: "User Created",
-  //           description: `The user ${user.firstName} ${user.lastName} has been created successfully.`,
-  //         });
-  //       } catch (error) {
-  //         console.error("Error creating user:", error);
-  //         setOtpError("Failed to create user. Please try again.");
-  //       }
-  //     } else {
-  //       setOtpError("Invalid OTP. Please try again.");
-  //     }
-  //     setIsVerifyingOtp(false);
-  //   }, 1500);
-  // };
-
-  const handleResendOtp = () => {
-    // In a real app, you would resend the OTP here
-    toast({
-      title: "OTP Resent",
-      description: "A new verification code has been sent to your email.",
-    });
+      const result = await userService.resendAuthOtp(dto);
+      if (result.success) {
+        toast({
+          title: "OTP Resent",
+          description: "A new verification code has been sent to your email.",
+        });
+      } else {
+        toast({
+          title: "Failed to resend OTP",
+          description: "Try again or contact support.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error("Resend OTP error:", err);
+      toast({
+        title: "Error",
+        description: "Something went wrong while resending OTP.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleUpdateUser = (updatedUser: User) => {
-    setUsers(
-      users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
-    );
-    setEditingUser(null);
+  const handleUpdateUser = async (updatedUser: Omit<User, "id" | "status">) => {
+    try {
+      const payload: UpdateUserRequestDTO = {
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        userRole: updatedUser.userRole.toUpperCase(),
+      };
+
+      const result = await userService.updateUser(payload);
+
+      if (result.success) {
+        toast({
+          title: "User updated",
+          description: `${updatedUser.firstName} ${updatedUser.lastName} was successfully updated.`,
+        });
+        await refreshData(); // Refresh UI
+      } else {
+        toast({
+          title: "Update failed",
+          description: "Unexpected backend response.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Update user error:", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong while updating the user.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteUser = async (id: string) => {
@@ -285,17 +271,52 @@ function UserManagementInner() {
     }
   };
 
-  const handleToggleStatus = (id: string) => {
-    setUsers(
-      users.map((user) =>
-        user.id === id
-          ? {
-              ...user,
-              status: user.status === "active" ? "disabled" : "active",
-            }
-          : user
-      )
-    );
+  const handleToggleStatus = async (id: string) => {
+    const userToToggle = users.find((u) => u.id === id);
+    if (!userToToggle) return;
+
+    try {
+      const endpoint =
+        userToToggle.status === "active"
+          ? userService.disableUser
+          : userService.enableUser;
+
+      const payload = { email: userToToggle.email }; // 🔑 based on your backend
+
+      const result = await endpoint(payload);
+
+      if (result.success) {
+        setUsers(
+          users.map((user) =>
+            user.id === id
+              ? {
+                  ...user,
+                  status: user.status === "active" ? "disabled" : "active",
+                }
+              : user
+          )
+        );
+
+        toast({
+          title: `${userToToggle.firstName} ${userToToggle.lastName} ${
+            userToToggle.status === "active" ? "disabled" : "enabled"
+          }`,
+        });
+      } else {
+        toast({
+          title: "Failed to update status",
+          description: "Unexpected backend response.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error("Status toggle error:", err);
+      toast({
+        title: "Error",
+        description: "Could not toggle user status.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleResetPassword = async (id: string) => {

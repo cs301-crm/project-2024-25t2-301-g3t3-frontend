@@ -219,7 +219,6 @@ export function ClientProvider({ children }: { children: ReactNode }) {
       }
        
       fetchClient();
-      fetchClientAccounts();
     }, [clientId, fetchClient]);
     // Memoize the context value to prevent unnecessary re-renders
     const contextValue = useMemo(

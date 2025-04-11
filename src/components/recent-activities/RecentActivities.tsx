@@ -96,41 +96,42 @@ interface RecentActivitiesProps {
       const entity = isAccount ? "account" : "profile";
       let message = "";
         
-      if(clientId){
+      if (clientId) {
         switch (log.crudType) {
-            case "CREATE": message = `Created ${entity}`; break;
-            case "READ": message = `Retrieved ${entity}`; break;
-            case "UPDATE":
-              if (log.attributeName?.includes("verificationStatus")) {
-                message = `Verified ${entity}`;
-              } else if (log.attributeName) {
-                message = `Updated ${log.attributeName}`;
-              } else {
-                message = `Updated ${entity}`;
-              }
-              break;
-            case "DELETE": message = `Deleted ${entity}`; break;
-            default: message = `Operation on ${entity}`;
-          }
+          case "CREATE": message = `Created ${entity}`; break;
+          case "READ": message = `Retrieved ${entity}`; break;
+          case "UPDATE":
+            if (log.attributeName?.includes("verificationStatus")) {
+              message = `Verified ${entity}`;
+            } else if (log.attributeName) {
+              message = `Updated ${log.attributeName}`;
+            } else {
+              message = `Updated ${entity}`;
+            }
+            break;
+          case "DELETE": message = `Deleted ${entity}`; break;
+          default: message = `Operation on ${entity}`;
+        }
       } else {
-          switch (log.crudType) {
-            case "CREATE": message = `Created ${entity} for `; break;
-            case "READ": message = `Retrieved ${entity} for `; break;
-            case "UPDATE":
-              if (log.attributeName?.includes("verificationStatus")) {
-                message = `Verified ${entity} for `;
-              } else if (log.attributeName) {
-                message = `Updated ${log.attributeName} for `;
-              } else {
-                message = `Updated ${entity} for `;
-              }
-              break;
-            case "DELETE": message = `Deleted ${entity} for `; break;
-            default: message = `Operation on ${entity} for `;
-          }
+        switch (log.crudType) {
+          case "CREATE": message = `Created ${entity} for `; break;
+          case "READ": message = `Retrieved ${entity} for `; break;
+          case "UPDATE":
+            if (log.attributeName?.includes("verificationStatus")) {
+              message = `Verified ${entity} for `;
+            } else if (log.attributeName) {
+              message = `Updated ${log.attributeName} for `;
+            } else {
+              message = `Updated ${entity} for `;
+            }
+            break;
+          case "DELETE": message = `Deleted ${entity} for `; break;
+          default: message = `Operation on ${entity} for `;
+        }
       }
-  
-      return { message, clientName: log.clientName, id: log.clientId };
+
+      const actor = ` by ${user.userId === log.agentId ? "you" : log.agentId}`;
+      return { message: message, clientName: log.clientName, id: log.clientId, actor };
     };
   
     return (
@@ -179,7 +180,7 @@ interface RecentActivitiesProps {
           ) : recentActivities.length > 0 ? (
             <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
               {recentActivities.map((log, index) => {
-                const { message, clientName, id } = generateSimplifiedMessage(log);
+                const { message, clientName, id, actor } = generateSimplifiedMessage(log);
                 const isLast = index === recentActivities.length - 1;
                 return (
                   <div
@@ -195,6 +196,11 @@ interface RecentActivitiesProps {
                             <Link href={`/client/${id}`} className="text-blue-600 hover:underline">
                                 {clientName}
                             </Link>
+                          )}
+                          {clientId && (
+                            <>
+                             {actor}
+                            </>
                           )}
                         </p>
                         <p className="text-xs text-slate-500">

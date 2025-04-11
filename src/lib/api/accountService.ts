@@ -208,6 +208,29 @@ export const accountService = {
       throw new Error("Failed to fetch transactions by agent");
     }
   },
+
+  getAllTransactions: async (
+    searchQuery: string = "",
+    page: number = 1,
+    limit: number = 10
+  ): Promise<Transaction[]> => {
+    try {
+      const params = new URLSearchParams();
+  
+      if (searchQuery.trim() !== "") {
+        params.append("searchQuery", searchQuery);
+      }
+  
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+  
+      const response = await axiosClient.get(`/transactions?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      throw new Error("Failed to fetch all Transactions");
+    }
+  },
   
 
   

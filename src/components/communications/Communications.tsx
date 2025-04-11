@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { DashboardCard } from "../dashboard/dashboard-card";
 import { useUser } from "@/contexts/user-context";
 import { useDebounce } from "@/hooks/use-debounce";
-import clientService from "@/lib/api/mockClientService";
+import clientService from "@/lib/api/clientService";
 
 export default function Communications() {
   const { user } = useUser();

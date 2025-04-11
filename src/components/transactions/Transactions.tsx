@@ -33,7 +33,7 @@ interface TransactionsPageProps {
 }
 
 export default function Transactions({ clientId }: TransactionsPageProps) {
-  const { user } = useUser();
+  const { user, isAdmin } = useUser();
 
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -56,12 +56,21 @@ export default function Transactions({ clientId }: TransactionsPageProps) {
           10
         );
       } else {
-        return await accountService.getTransactionsByAgentId(
-          user.userId,
-          debouncedSearchQuery,
-          pageParam,
-          10
-        );
+        if(isAdmin){
+          return await accountService.getAllTransactions(
+            debouncedSearchQuery,
+            pageParam,
+            10
+          );
+        } else {
+          return await accountService.getTransactionsByAgentId(
+            user.userId,
+            debouncedSearchQuery,
+            pageParam,
+            10
+          );
+        }
+       
       }
     } catch (err) {
       setError("Failed to load transactions");

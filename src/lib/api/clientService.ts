@@ -193,6 +193,7 @@ export const clientService = {
     }
   },
 
+
   getCommunicationsByAgentId: async (
     agentId: string,
     searchQuery: string = "",

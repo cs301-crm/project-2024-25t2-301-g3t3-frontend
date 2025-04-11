@@ -94,6 +94,15 @@ export interface User {
 // Alias Agent to User for backward compatibility
 export type Agent = User
 
+export interface BackendUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  enabled: boolean; // backend uses boolean
+  role: string; // e.g., "ADMIN", "AGENT"
+}
+
 export interface LogEntry {
   id: string;
   agentId: string;

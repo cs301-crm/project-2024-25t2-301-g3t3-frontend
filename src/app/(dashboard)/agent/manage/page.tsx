@@ -23,11 +23,18 @@ import { ViewClientsModal } from "@/components/user-management/view-clients-moda
 import { ViewLogsModal } from "@/components/user-management/view-logs-modal";
 import { useToast } from "@/components/ui/use-toast";
 import type { User, Client, LogEntry } from "@/lib/api/types";
-// import { userService } from "@/lib/api/userService";
+import { userService } from "@/lib/api/userService";
 import { mockUserService } from "@/lib/api/mockUserService";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import { clientService } from "@/lib/api";
+import {
+  // OtpVerificationDTO,
+  // ResendOtpRequestDTO,
+  // UserContextDTO,
+  DangerousActionOtpVerificationDTO,
+} from "@/lib/api/types";
+// import { useUser } from "@/contexts/user-context";
 
 function UserManagementInner() {
   const { toast } = useToast();
@@ -73,7 +80,7 @@ function UserManagementInner() {
       // Fetch data from the mock service
       const [fetchedUsers, fetchedClients, fetchedLogs] = await Promise.all([
         // userService.getAgents(),
-        mockUserService.getUsers(),
+        userService.getUsers(),
         mockUserService.getClients(),
         mockUserService.getLogs(),
       ]);
@@ -107,75 +114,151 @@ function UserManagementInner() {
     return matchesSearch && matchesRole;
   });
 
-  const handleAddUser = async (
-    newUser: Omit<User, "id">,
-    showOtpVerification: boolean
-  ) => {
-    if (showOtpVerification) {
-      // Store the user data and show OTP verification modal
-      setPendingUser(newUser);
-      setIsOtpModalOpen(true);
-      setIsAddUserOpen(false);
-
-      // In a real app, you would send an OTP to the admin's email or phone here
-      toast({
-        title: "OTP Sent",
-        description: "A verification code has been sent to your email.",
+  const handleAddUser = async (newUser: Omit<User, "id">) => {
+    try {
+      const result = await userService.createUser({
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        userRole: newUser.userRole.toUpperCase(), // "agent" → "AGENT"
       });
-    } else {
-      // Direct creation without OTP (not used in current flow)
-      const user = await mockUserService.addUser(newUser, users);
-      setUsers([...users, user]);
 
-      // Only initialize clients for agents
-      if (newUser.userRole === "agent") {
-        setClients({ ...clients, [user.id]: [] });
+      if (result.success) {
+        // Show OTP modal instead of immediately refreshing
+        setPendingUser(newUser); // for use in OTP verification
+        setIsAddUserOpen(false); // close the modal
+        setIsOtpModalOpen(true); // open the OTP modal
+        toast({
+          title: "OTP Sent",
+          description: "A verification code has been sent to the email.",
+        });
+      } else {
+        toast({
+          title: "Failed to create user",
+          description: "Unexpected response from backend.",
+          variant: "destructive",
+        });
       }
-
-      setLogs({ ...logs, [user.id]: [] });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "User creation failed.",
+        variant: "destructive",
+      });
+      console.error(error);
     }
   };
+
+  // const handleAddUser = async (
+  //   newUser: Omit<User, "id">,
+  //   showOtpVerification: boolean
+  // ) => {
+  //   if (showOtpVerification) {
+  //     // Store the user data and show OTP verification modal
+  //     setPendingUser(newUser);
+  //     setIsOtpModalOpen(true);
+  //     setIsAddUserOpen(false);
+
+  //     // In a real app, you would send an OTP to the admin's email or phone here
+  //     toast({
+  //       title: "OTP Sent",
+  //       description: "A verification code has been sent to your email.",
+  //     });
+  //   } else {
+  //     // Direct creation without OTP (not used in current flow)
+  //     const user = await mockUserService.addUser(newUser, users);
+  //     setUsers([...users, user]);
+
+  //     // Only initialize clients for agents
+  //     if (newUser.userRole === "agent") {
+  //       setClients({ ...clients, [user.id]: [] });
+  //     }
+
+  //     setLogs({ ...logs, [user.id]: [] });
+  //   }
+  // };
+
+  // const handleVerifyOtp = async (otp: string) => {
+  //   if (!pendingUser) return;
+
+  //   setIsVerifyingOtp(true);
+  //   setOtpError(null);
 
   const handleVerifyOtp = async (otp: string) => {
     if (!pendingUser) return;
 
+    const userEmail = localStorage.getItem("userEmail");
+    if (!userEmail) {
+      setOtpError("Missing admin email");
+      return;
+    }
+
     setIsVerifyingOtp(true);
     setOtpError(null);
 
-    // Simulate OTP verification with a delay
-    setTimeout(async () => {
-      // For demo purposes, we'll consider "123456" as the correct OTP
-      if (otp === "123456") {
-        try {
-          const { user, updatedUsers, updatedClients, updatedLogs } =
-            await mockUserService.completeUserCreation(
-              pendingUser,
-              users,
-              clients,
-              logs
-            );
+    try {
+      const dto: DangerousActionOtpVerificationDTO = {
+        email: userEmail,
+        // email: user.email,
+        oneTimePassword: otp,
+        otpContext: "create",
+      };
 
-          setUsers(updatedUsers);
-          setClients(updatedClients);
-          setLogs(updatedLogs);
+      const result = await userService.verifyUserOtp(dto);
 
-          setIsOtpModalOpen(false);
-          setPendingUser(null);
-
-          toast({
-            title: "User Created",
-            description: `The user ${user.firstName} ${user.lastName} has been created successfully.`,
-          });
-        } catch (error) {
-          console.error("Error creating user:", error);
-          setOtpError("Failed to create user. Please try again.");
-        }
+      if (result.success) {
+        setIsOtpModalOpen(false);
+        setPendingUser(null);
+        await refreshData();
+        toast({
+          title: "User Verified",
+          description: "The new user has been verified successfully.",
+        });
       } else {
         setOtpError("Invalid OTP. Please try again.");
       }
+    } catch (err) {
+      console.error("OTP verification error:", err);
+      setOtpError("Failed to verify OTP.");
+    } finally {
       setIsVerifyingOtp(false);
-    }, 1500);
+    }
   };
+
+  //   // Simulate OTP verification with a delay
+  //   setTimeout(async () => {
+  //     // For demo purposes, we'll consider "123456" as the correct OTP
+  //     if (otp === "123456") {
+  //       try {
+  //         const { user, updatedUsers, updatedClients, updatedLogs } =
+  //           await mockUserService.completeUserCreation(
+  //             pendingUser,
+  //             users,
+  //             clients,
+  //             logs
+  //           );
+
+  //         setUsers(updatedUsers);
+  //         setClients(updatedClients);
+  //         setLogs(updatedLogs);
+
+  //         setIsOtpModalOpen(false);
+  //         setPendingUser(null);
+
+  //         toast({
+  //           title: "User Created",
+  //           description: `The user ${user.firstName} ${user.lastName} has been created successfully.`,
+  //         });
+  //       } catch (error) {
+  //         console.error("Error creating user:", error);
+  //         setOtpError("Failed to create user. Please try again.");
+  //       }
+  //     } else {
+  //       setOtpError("Invalid OTP. Please try again.");
+  //     }
+  //     setIsVerifyingOtp(false);
+  //   }, 1500);
+  // };
 
   const handleResendOtp = () => {
     // In a real app, you would resend the OTP here
@@ -214,31 +297,6 @@ function UserManagementInner() {
       )
     );
   };
-
-  // const handleToggleStatus = async (id: string) => {
-  //   const user = users.find((u) => u.id === id);
-  //   if (!user) return;
-
-  //   const newStatus = user.status === "active" ? "disabled" : "active";
-
-  //   try {
-  //     if (newStatus === "disabled") {
-  //       await mockUserService.disableUser({ userId: id });
-  //     } else {
-  //       await mockUserService.enableUser({ userId: id });
-  //     }
-
-  //     setUsers(
-  //       users.map((u) => (u.id === id ? { ...u, status: newStatus } : u))
-  //     );
-  //   } catch (err) {
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to update user status.",
-  //     });
-  //     console.error(err);
-  //   }
-  // };
 
   const handleResetPassword = async (id: string) => {
     console.log(`Password reset requested for user ${id}`);

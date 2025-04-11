@@ -14,15 +14,27 @@ import {
   OtpSuccessResponse,
   User,
   AdminLogsResponse,
-  AgentListResponse
+  AgentListResponse,
+  BackendUser
 } from './types';
 
 export const userService = {
   // --- USER CONTROLLER ---
   getUsers: async (): Promise<User[]> => {
     try {
-      const response = await axiosClient.get('/users'); // Replace with your backend endpoint
-      return response.data;
+      const response = await axiosClient.get('/users');
+      const rawUsers: BackendUser[] = response.data.message;
+  
+      const transformedUsers: User[] = rawUsers.map((u) => ({
+        id: u.id,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        email: u.email,
+        status: u.enabled ? "active" : "disabled",
+        userRole: u.role.toLowerCase(),
+      }));
+  
+      return transformedUsers;
     } catch (error) {
       handleApiError(error);
       throw new Error('Failed to fetch users');

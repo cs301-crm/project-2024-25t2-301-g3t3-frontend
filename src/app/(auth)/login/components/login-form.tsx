@@ -20,7 +20,11 @@ import { PasswordInput } from "@/components/password-input";
 import { loginFormSchema, LoginFormValues } from "@/lib/validations/auth";
 import { userService } from "@/lib/api/userService";
 import { OtpVerificationModal } from "@/components/user-management/otp-verification-modal";
-import { OtpVerificationDTO, ResendOtpRequestDTO, UserContextDTO } from "@/lib/api/types";
+import {
+  OtpVerificationDTO,
+  ResendOtpRequestDTO,
+  UserContextDTO,
+} from "@/lib/api/types";
 import { useUser } from "@/contexts/user-context";
 import { toast } from "@/components/ui/use-toast";
 export function LoginForm() {
@@ -32,7 +36,7 @@ export function LoginForm() {
   const [error, setError] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const { setUser } = useUser();
-  
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -48,14 +52,14 @@ export function LoginForm() {
     try {
       const result = await userService.login(values);
 
-      if(result.success){
+      if (result.success) {
         setIsOtpModalOpen(true);
       } else {
         setError("Invalid email or password");
       }
     } catch (error) {
       if (error instanceof Error) {
-        setError(error.message); 
+        setError(error.message);
       } else {
         setError("An unexpected error occurred");
       }
@@ -66,21 +70,21 @@ export function LoginForm() {
 
   const handleVerifyOtp = async (otp: string) => {
     if (isVerifyingOtp) return;
-    
-   
+
     setOtpError(null);
     try {
       const OtpDTO: OtpVerificationDTO = {
         email,
-        oneTimePassword: otp
-      }
+        oneTimePassword: otp,
+      };
       const result = await userService.verifyAuthOtp(OtpDTO);
-  
-      if(result.success){
-  
+
+      if (result.success) {
         const { userId, fullName, role } = result.message;
         const user: UserContextDTO = { userId, fullName, role };
-        
+
+        localStorage.setItem("userEmail", email);
+
         // Update state
         setUser(user);
         toast({
@@ -90,44 +94,40 @@ export function LoginForm() {
 
         const redirectAfterLogin = sessionStorage.getItem("redirectAfterLogin");
         if (redirectAfterLogin) {
-          sessionStorage.removeItem("redirectAfterLogin"); 
+          sessionStorage.removeItem("redirectAfterLogin");
           router.push(redirectAfterLogin);
         } else {
-          router.push('/dashboard'); 
+          router.push("/dashboard");
         }
-
       } else {
         throw new Error("Failed to verify OTP");
       }
-    } catch (err){
+    } catch (err) {
       setOtpError("Failed to verify OTP");
       console.log(err);
     } finally {
       setIsVerifyingOtp(false);
     }
-
   };
 
   const handleResendOtp = async () => {
-
     try {
-      if(!email) return
-      const resendDTO : ResendOtpRequestDTO = {
-        email
-      }
+      if (!email) return;
+      const resendDTO: ResendOtpRequestDTO = {
+        email,
+      };
       const result = await userService.resendAuthOtp(resendDTO);
-      if(result.success){
+      if (result.success) {
         console.log("OTP resent to the user.");
       }
-    } catch (err){
+    } catch (err) {
       console.log(err);
     }
-   
   };
 
   return (
     <>
-      {error &&(
+      {error && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200">
           <p className="text-sm text-red-600">{error}</p>
         </div>

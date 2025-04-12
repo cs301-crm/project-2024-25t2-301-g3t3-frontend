@@ -14,10 +14,11 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon, CheckCircle, FileIcon, X } from "lucide-react";
+import { getS3PresignedURL } from "@/lib/api/s3Service";
 
 export default function VerifyPage() {
-  const params = useParams();
-  const clientID = params.clientID as string;
+//   const params = useParams();
+//   const clientID = params.clientID as string;
 
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -36,8 +37,23 @@ export default function VerifyPage() {
     setIsVerifying(true);
 
     try {
+        console.log(file.name);
+        const uploadDocumentURL = await getS3PresignedURL(file.name);
+        console.log(uploadDocumentURL);
+        const headers: HeadersInit = {
+            'Content-Type': file.type
+        };
+        const uploadDocumentResponse = await fetch(uploadDocumentURL, {
+            method: 'PUT',
+            headers: headers,
+            body: file,
+        });        
+        if (!uploadDocumentResponse.ok) {
+            throw new Error('Failed to upload file to S3');
+        }
       // Simulate verification process
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+    //   await new Promise((resolve) => setTimeout(resolve, 2000));
+
 
       // In a real app, you would send the file to your API for verification
       // const formData = new FormData()
@@ -63,7 +79,7 @@ export default function VerifyPage() {
           <CardTitle>Document Verification</CardTitle>
           <CardDescription>
             Upload a document to verify your account for client ID:{" "}
-            <span className="font-medium">{clientID}</span>
+            <span className="font-medium">test-client123</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

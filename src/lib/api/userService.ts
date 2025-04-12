@@ -97,7 +97,7 @@ export const userService = {
       return response.data;
     } catch (error) {
       handleApiError(error);
-      throw new Error('Failed to reset password');
+      throw new Error('Failed to reset password, ensure email or old password is correct');
     }
   },
 

@@ -86,7 +86,7 @@ export default function AdminLogs() {
   return (
     <DashboardCard
       title="Admin Logs"
-      className="col-span-1 border-l-4 border-l-slate-700"
+      className="col-span-2 border-l-4 border-l-slate-700"
     >
       <div className="flex flex-col space-y-4">
         {/* Controls */}

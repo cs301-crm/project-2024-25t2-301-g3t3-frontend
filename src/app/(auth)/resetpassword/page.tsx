@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -38,7 +38,15 @@ export default function ResetPasswordPage() {
   const [showPasswords, setShowPasswords] = useState(false); // 🔁 shared toggle
   const router = useRouter();
   const { user } = useUser();
+  const [storedEmail, setStoredEmail] = useState<string | null>(null);
+  const [manualEmail, setManualEmail] = useState("");
+  const [manualEmailError, setManualEmailError] = useState("");
 
+  useEffect(() => {
+    const email = localStorage.getItem("userEmail");
+    setStoredEmail(email);
+  }, []);
+  
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
@@ -50,25 +58,31 @@ export default function ResetPasswordPage() {
 
   async function onSubmit(data: ResetPasswordFormValues) {
     setIsSubmitting(true);
-    const email = localStorage.getItem("userEmail");
-
-    if (!email) {
-      toast({
-        title: "Error",
-        description: "User email not found. Please log in again.",
-        variant: "destructive",
-      });
+    const emailToUse = storedEmail || manualEmail;
+  
+    if (!emailToUse) {
+      setManualEmailError("Please enter your email address.");
       setIsSubmitting(false);
       return;
     }
-
+  
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailToUse);
+    if (!isValidEmail) {
+      setManualEmailError("Please enter a valid email address.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    setManualEmailError(""); 
+  
+  
     try {
       const response = await userService.resetPassword({
-        email,
+        email: emailToUse,
         oldPassword: data.oldPassword,
         newPassword: data.newPassword,
       });
-
+  
       if (response.success) {
         toast({
           title: "Password Reset Successful",
@@ -125,7 +139,27 @@ export default function ResetPasswordPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Old Password */}
+              {/* If no stored email, show email input */}
+              {!storedEmail && (
+               <FormItem>
+               <FormLabel className={manualEmailError ? "text-red-500 font-medium" : ""}>
+                 Email
+               </FormLabel>
+               <FormControl>
+                 <Input
+                   type="email"
+                   placeholder="Enter your email"
+                   value={manualEmail}
+                   onChange={(e) => {
+                     setManualEmail(e.target.value);
+                     if (manualEmailError) setManualEmailError(""); // clear error on input
+                   }}
+                   className={manualEmailError ? "border border-red-500 focus-visible:ring-red-500" : ""}
+                 />
+               </FormControl>
+               {manualEmailError && <FormMessage>{manualEmailError}</FormMessage>}
+             </FormItem>             
+              )}
               <FormField
                 control={form.control}
                 name="oldPassword"

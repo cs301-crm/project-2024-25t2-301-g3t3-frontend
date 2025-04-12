@@ -358,12 +358,14 @@ export default function AccountsPage() {
                         </p>
                       </div>
                       <div className="col-span-1 flex space-x-1">
-                      <DeleteAccountButton 
+                      {(account.accountStatus === "PENDING" || account.accountStatus === "ACTIVE") && (
+                        <DeleteAccountButton 
                           accountId={account.accountId} 
                           clientId={account.clientId} 
                           clientName={account.clientName}
                           onSuccess={() => handleDeleteSuccess(account.accountId)}
                         />
+                      )}
                       </div>
                     </div>
                   ))}

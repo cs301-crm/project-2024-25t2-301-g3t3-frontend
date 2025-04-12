@@ -22,7 +22,7 @@ const DeleteClientButton = () => {
       await deleteClient();
       toast({
         title: "Client deleted",
-        description: `Client ${client.firstName} ${client.lastName} has been deleted successfully.`,
+        description: `Client ${client.firstName} ${client.lastName} profile has been deleted successfully.`,
       });
       setOpen(false);
       router.push(`/client`); 

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useClient } from "@/contexts/client-context";
 import { handleApiError } from "@/lib/api";
-import { Trash2 } from "lucide-react";
+
 
 interface DeleteAccountButtonProps {
   accountId: string;
@@ -54,9 +54,13 @@ const DeleteAccountButton = ({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-7 w-7" disabled={deleting}> 
-          <Trash2 className="h-3.5 w-3.5 text-red-500" />
-        </Button>
+      <Button
+        variant="outline"
+        className="w-[120px] text-red-500 cursor-pointer"
+        disabled={deleting}
+      >
+        Close
+      </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

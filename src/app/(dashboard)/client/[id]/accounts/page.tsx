@@ -294,7 +294,9 @@ export default function AccountsPage() {
                          {account.initialDeposit} {account.currency}
                        </div>
                        <div className="col-span-1 flex space-x-1">
+                       {(account.accountStatus === "PENDING" || account.accountStatus === "ACTIVE") && (
                          <DeleteAccountButton accountId={account.accountId} clientId={account.clientId} clientName={account.clientName}/>
+                       )}
                        </div>
                      </div>
                    ))}

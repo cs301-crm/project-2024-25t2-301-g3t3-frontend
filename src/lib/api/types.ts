@@ -148,10 +148,10 @@ export interface DangerousActionOtpVerificationDTO {
 }
 
 export interface UpdateUserRequestDTO {
+  userId: string;
   firstName: string;
   lastName: string;
   email: string;
-  userRole:string;
 }
 
 export interface ResetPasswordRequestDTO {

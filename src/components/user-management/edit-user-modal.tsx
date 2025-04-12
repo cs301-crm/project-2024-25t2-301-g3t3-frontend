@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+// import { AlertCircle } from "lucide-react";
+// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 
 interface EditUserModalProps {
@@ -31,10 +31,10 @@ export function EditUserModal({
   open,
   onOpenChange,
   onUpdateUser,
-  onResetPassword,
-}: EditUserModalProps) {
+}: // onResetPassword,
+EditUserModalProps) {
   const [formData, setFormData] = useState<User>({ ...user });
-  const [passwordResetRequested, setPasswordResetRequested] = useState(false);
+  // const [passwordResetRequested, setPasswordResetRequested] = useState(false);
 
   const handleChange = (field: keyof User, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -43,13 +43,13 @@ export function EditUserModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdateUser(formData);
-    setPasswordResetRequested(false);
+    // setPasswordResetRequested(false);
   };
 
-  const handleResetPassword = () => {
-    onResetPassword(user.id);
-    setPasswordResetRequested(true);
-  };
+  // const handleResetPassword = () => {
+  //   onResetPassword(user.id);
+  //   setPasswordResetRequested(true);
+  // };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -116,7 +116,7 @@ export function EditUserModal({
               />
             </div>
 
-            {passwordResetRequested && (
+            {/* {passwordResetRequested && (
               <Alert className="mt-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Password Reset Requested</AlertTitle>
@@ -124,16 +124,16 @@ export function EditUserModal({
                   A password reset email has been sent to the user.
                 </AlertDescription>
               </Alert>
-            )}
+            )} */}
           </div>
-          <DialogFooter className="flex items-center justify-between sm:justify-between">
-            <Button
+          <DialogFooter className="flex items-center justify-end">
+            {/* <Button
               type="button"
               variant="outline"
               onClick={handleResetPassword}
             >
               Reset Password
-            </Button>
+            </Button> */}
             <div className="flex gap-2">
               <Button
                 type="button"

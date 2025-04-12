@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default async function Layout({ children, params }: Props) {
-  const resolvedParams = await params; // await it
+  const resolvedParams = await params; 
 
   return (
     <div className="min-h-screen bg-slate-50">

@@ -32,6 +32,7 @@ export interface Client {
   nric?: string;
   agentId: string;
   verificationStatus?: string;
+  verificationDocumentUploaded?: boolean;
 }
 
 // Account Types
@@ -229,6 +230,11 @@ export interface AgentListResponse {
 }
 
 export interface VerifyUploadResponse {
+  verified: boolean;
+  message: string;
+}
+
+export interface VerifyClientResponse {
   verified: boolean;
   message: string;
 }

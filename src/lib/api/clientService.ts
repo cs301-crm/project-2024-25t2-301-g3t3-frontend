@@ -2,7 +2,7 @@
 import { AxiosError } from 'axios';
 import axiosClient from './axiosClient';
 import { handleApiError } from './error-handler';
-import { Client, ClientDTO, CommunicationsEntry, LogEntry, VerifyUploadResponse } from './types';
+import { Client, ClientDTO, CommunicationsEntry, LogEntry, VerifyClientResponse, VerifyUploadResponse } from './types';
 
 /**
  * Client API Service
@@ -228,11 +228,10 @@ export const clientService = {
   /**
    * Verify a client
    * @param clientId - The ID of the client to verify
-   * @param nric - The NRIC to verify against
    * @returns Promise with the verification result
    */
-  verifyClient: async (clientId: string, nric: string): Promise<{ verified: boolean }> => {
-    const response = await axiosClient.post(`/clients/${clientId}/verify`, { nric });
+  verifyClient: async (clientId: string): Promise<VerifyClientResponse> => {
+    const response = await axiosClient.post(`/clients/${clientId}/verify`, {});
     return response.data;
   },
 

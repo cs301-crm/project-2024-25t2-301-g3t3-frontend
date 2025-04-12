@@ -10,7 +10,7 @@ import { ClientLoading } from "@/components/client/clientLoading";
 import { useUser } from "@/contexts/user-context";
 import RecentActivities from "@/components/recent-activities/RecentActivities";
 import { ReassignAgent } from "@/components/client/ReassignAgent";
-
+import { VerifyClientButton } from "@/components/client/VerifyClientButton";
 
 export default function ClientOverviewPage() {
   const { client, setClient, loadingClient, loadClientError } = useClient();
@@ -47,6 +47,13 @@ export default function ClientOverviewPage() {
               }
             />
               }
+               {!isAdmin && (
+                <VerifyClientButton
+                  clientId={client.clientId}
+                  verificationStatus={client.verificationStatus}
+                  verificationDocumentUploaded={client.verificationDocumentUploaded}
+                />
+              )}
               <EditClientDialog
                 client={client}
                 trigger={<Button className="cursor-pointer" size="sm" variant="outline"><Pencil className="h-3 w-3"/>Edit details</Button>}

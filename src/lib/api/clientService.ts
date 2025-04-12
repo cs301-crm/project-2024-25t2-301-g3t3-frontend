@@ -1,4 +1,5 @@
 // import { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import axiosClient from './axiosClient';
 import { handleApiError } from './error-handler';
 import { Client, ClientDTO, CommunicationsEntry, LogEntry } from './types';
@@ -127,26 +128,26 @@ export const clientService = {
     }
   },
 
-  // /**
-  //  * Delete a client
-  //  * @param clientId - The ID of the client to delete
-  //  * @returns Promise with the deletion result
-  //  */
-  // deleteClient: async (clientId: string): Promise<void> => {
-  //   try {
-  //     await axiosClient.delete(`/clients/${clientId}`);
+  /**
+   * Delete a client
+   * @param clientId - The ID of the client to delete
+   * @returns Promise with the deletion result
+   */
+  deleteClient: async (clientId: string): Promise<void> => {
+    try {
+      await axiosClient.delete(`/clients/${clientId}`);
 
-  //   } catch (error) {
-  //     handleApiError(error);
-  //     let errorMessage = 'Internal server error';
+    } catch (error) {
+      handleApiError(error);
+      let errorMessage = 'Internal server error';
   
-  //     if (error instanceof AxiosError) {
-  //       errorMessage = error.response?.data?.message || errorMessage;
-  //     }
-  //     throw new Error(errorMessage);
-  //   }
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.message || errorMessage;
+      }
+      throw new Error(errorMessage);
+    }
    
-  // },
+  },
 
   getLogsByClientId: async (
     clientId: string,

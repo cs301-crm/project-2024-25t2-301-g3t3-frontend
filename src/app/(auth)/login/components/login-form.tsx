@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Loader2, Mail, Lock } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,

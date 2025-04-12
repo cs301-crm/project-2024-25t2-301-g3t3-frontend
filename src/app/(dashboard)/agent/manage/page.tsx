@@ -57,7 +57,8 @@ function UserManagementInner() {
 
   // OTP verification states
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [pendingUser, setPendingUser] = useState<Omit<User, "id"> | null>(null);
+  // const [pendingUser, setPendingUser] = useState<Omit<User, "id"> | null>(null);
+  const [, setPendingUser] = useState<Omit<User, "id"> | null>(null);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
   const [otpContext, setOtpContext] = useState<"create" | "update" | null>(
@@ -200,46 +201,6 @@ function UserManagementInner() {
     }
   };
 
-  // const handleVerifyOtp = async (otp: string) => {
-  //   if (!pendingUser) return;
-
-  //   const userEmail = localStorage.getItem("userEmail");
-  //   if (!userEmail) {
-  //     setOtpError("Missing admin email");
-  //     return;
-  //   }
-
-  //   setIsVerifyingOtp(true);
-  //   setOtpError(null);
-
-  //   try {
-  //     const dto: DangerousActionOtpVerificationDTO = {
-  //       email: userEmail,
-  //       oneTimePassword: otp,
-  //       otpContext: "create",
-  //     };
-
-  //     const result = await userService.verifyUserOtp(dto);
-
-  //     if (result.success) {
-  //       setIsOtpModalOpen(false);
-  //       setPendingUser(null);
-  //       await refreshData();
-  //       toast({
-  //         title: "User Verified",
-  //         description: "The new user has been verified successfully.",
-  //       });
-  //     } else {
-  //       setOtpError("Invalid OTP. Please try again.");
-  //     }
-  //   } catch (err) {
-  //     console.error("OTP verification error:", err);
-  //     setOtpError("Failed to verify OTP.");
-  //   } finally {
-  //     setIsVerifyingOtp(false);
-  //   }
-  // };
-
   const handleResendOtp = async () => {
     const userEmail = localStorage.getItem("userEmail"); // or "adminEmail" if that's what you used
     if (!userEmail) {
@@ -317,55 +278,6 @@ function UserManagementInner() {
     }
   };
 
-  // const handleUpdateUser = async (
-  //   updatedUser: Pick<User, "id" | "firstName" | "lastName" | "email">
-  // ) => {
-  //   try {
-  //     const payload: UpdateUserRequestDTO = {
-  //       userId: updatedUser.id,
-  //       firstName: updatedUser.firstName,
-  //       lastName: updatedUser.lastName,
-  //       email: updatedUser.email,
-  //       // userRole: updatedUser.userRole.toUpperCase(),
-  //     };
-
-  //     const result = await userService.updateUser(payload);
-
-  //     if (result.success) {
-  //       toast({
-  //         title: "User updated",
-  //         description: `${updatedUser.firstName} ${updatedUser.lastName} was successfully updated.`,
-  //       });
-  //       await refreshData(); // Refresh UI
-  //     } else {
-  //       toast({
-  //         title: "Update failed",
-  //         description: "Unexpected backend response.",
-  //         variant: "destructive",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Update user error:", error);
-  //     toast({
-  //       title: "Error",
-  //       description: "Something went wrong while updating the user.",
-  //       variant: "destructive",
-  //     });
-  //   }
-  // };
-
-  // const handleToggleStatus = (id: string) => {
-  //   const userToToggle = users.find((u) => u.id === id);
-  //   if (!userToToggle) return;
-
-  //   const action = userToToggle.status === "active" ? "disable" : "enable";
-
-  //   // Set OTP modal context
-  //   setPendingUser(userToToggle); // this user will be enabled/disabled after OTP
-  //   setOtpContext(action); // "enable" or "disable"
-  //   setIsOtpModalOpen(true); // open OTP modal
-  // };
-
   const handleToggleStatus = async (id: string) => {
     const userToToggle = users.find((u) => u.id === id);
     if (!userToToggle) return;
@@ -403,54 +315,6 @@ function UserManagementInner() {
       });
     }
   };
-
-  // const handleToggleStatus = async (id: string) => {
-  //   const userToToggle = users.find((u) => u.id === id);
-  //   if (!userToToggle) return;
-
-  //   try {
-  //     const endpoint =
-  //       userToToggle.status === "active"
-  //         ? userService.disableUser
-  //         : userService.enableUser;
-
-  //     const payload = { email: userToToggle.email }; //based on your backend
-
-  //     const result = await endpoint(payload);
-
-  //     if (result.success) {
-  //       setUsers(
-  //         users.map((user) =>
-  //           user.id === id
-  //             ? {
-  //                 ...user,
-  //                 status: user.status === "active" ? "disabled" : "active",
-  //               }
-  //             : user
-  //         )
-  //       );
-
-  //       toast({
-  //         title: `${userToToggle.firstName} ${userToToggle.lastName} ${
-  //           userToToggle.status === "active" ? "disabled" : "enabled"
-  //         }`,
-  //       });
-  //     } else {
-  //       toast({
-  //         title: "Failed to update status",
-  //         description: "Unexpected backend response.",
-  //         variant: "destructive",
-  //       });
-  //     }
-  //   } catch (err) {
-  //     console.error("Status toggle error:", err);
-  //     toast({
-  //       title: "Error",
-  //       description: "Could not toggle user status.",
-  //       variant: "destructive",
-  //     });
-  //   }
-  // };
 
   const handleResetPassword = async (id: string) => {
     console.log(`Password reset requested for user ${id}`);

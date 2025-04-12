@@ -227,3 +227,8 @@ export interface AgentListResponse {
   message: Partial<Agent>[];
   timestamp: string;
 }
+
+export interface VerifyUploadResponse {
+  verified: boolean;
+  message: string;
+}

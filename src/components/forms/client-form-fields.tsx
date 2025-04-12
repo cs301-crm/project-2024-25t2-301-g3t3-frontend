@@ -132,9 +132,7 @@ export function ClientFormFields({ form }: ClientFormFieldsProps) {
                       value={countryCode}
                       onChange={(e) => handleCountryCodeChange(e.target.value)}
                     >
-                      <option value="">Code</option>
                       <option value="+65">+65 (SG)</option>
-                      <option value="+1">+1 (US)</option>
                       <option value="+60">+60 (MY)</option>
                     </select>
                     <Input 
@@ -178,7 +176,7 @@ export function ClientFormFields({ form }: ClientFormFieldsProps) {
                 <FormItem>
                   <FormLabel>City</FormLabel>
                   <FormControl>
-                    <Input placeholder="New York" {...field} />
+                    <Input placeholder="Mistvale" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -191,7 +189,7 @@ export function ClientFormFields({ form }: ClientFormFieldsProps) {
                 <FormItem>
                   <FormLabel>State</FormLabel>
                   <FormControl>
-                    <Input placeholder="NY" {...field} />
+                    <Input placeholder="Aetherfall" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -210,7 +208,6 @@ export function ClientFormFields({ form }: ClientFormFieldsProps) {
                     >
                       <option value="">Select country</option>
                       <option value="Singapore">Singapore</option>
-                      <option value="USA">USA</option>
                       <option value="Malaysia">Malaysia</option>
                     </select>
                   </FormControl>

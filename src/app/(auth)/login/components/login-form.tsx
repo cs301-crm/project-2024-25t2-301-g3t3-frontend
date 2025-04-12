@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { Loader2, Mail, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,7 @@ export function LoginForm() {
 
   const handleVerifyOtp = async (otp: string) => {
     if (isVerifyingOtp) return;
-
+    setIsVerifyingOtp(true);
     setOtpError(null);
     try {
       const OtpDTO: OtpVerificationDTO = {
@@ -111,6 +111,7 @@ export function LoginForm() {
   };
 
   const handleResendOtp = async () => {
+    setOtpError("");
     try {
       if (!email) return;
       const resendDTO: ResendOtpRequestDTO = {
@@ -146,7 +147,7 @@ export function LoginForm() {
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <Input
-                      placeholder="your.email@company.com"
+                      placeholder="your.email@scroogebank.com"
                       type="email"
                       autoComplete="email"
                       disabled={isLoading}

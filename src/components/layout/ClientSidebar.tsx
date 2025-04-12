@@ -70,7 +70,7 @@ export function ClientSidebar() {
     initialPageParam: 1,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
-    staleTime: 60 * 1000,
+    staleTime: 15 * 1000,
 });
 
   const clients = data?.pages.flat() || [];

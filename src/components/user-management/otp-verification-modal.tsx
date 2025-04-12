@@ -134,6 +134,12 @@ export function OtpVerificationModal({
     // setResendDisabled(false);
   };
 
+  useEffect(() => {
+    if (isOtpComplete && open) {
+      handleVerify();
+    }
+  }, [otp, open]);
+
   const isOtpComplete = otp.every((digit) => digit !== "");
 
   return (

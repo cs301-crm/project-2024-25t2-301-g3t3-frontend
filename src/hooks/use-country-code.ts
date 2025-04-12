@@ -3,7 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { countryToCode, codeToCountry, ClientFormValues } from "@/lib/schemas/client-schema";
 
 export function useCountryCode(form: UseFormReturn<ClientFormValues>) {
-  const [countryCode, setCountryCode] = useState("");
+  const [countryCode, setCountryCode] = useState("+65"); 
 
   // Initialize country code from phone number or country
   useEffect(() => {

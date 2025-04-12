@@ -84,7 +84,7 @@ export function CreateClientDialog({ compact = false }: CreateClientDialogProps)
       await clientService.createClient(clientWithAgent as ClientDTO);
       toast({
         title: "Client created",
-        description: `Client ${clientData.firstName} ${clientData.lastName} created successfully.`,
+        description: `Client ${clientData.firstName} ${clientData.lastName} profile created successfully.`,
       });
     } catch (err) {
       toast({

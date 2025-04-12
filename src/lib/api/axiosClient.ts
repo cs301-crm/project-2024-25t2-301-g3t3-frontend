@@ -34,6 +34,7 @@ axiosClient.interceptors.response.use(
       error.response?.status === 401 &&
       !request.url.includes("/auth/login") &&
       !request.url.includes("/auth/refresh") &&
+      !request.url.includes("/auth/verify-otp") &&
       !request._retry
     ) {
       request._retry = true;

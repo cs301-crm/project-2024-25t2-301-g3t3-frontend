@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import {
   resetPasswordSchema,
   type ResetPasswordFormValues,
@@ -26,26 +27,29 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff, KeyRound } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
+import { Branding } from "@/components/branding";
 import { userService } from "@/lib/api/userService";
+import { useUser } from "@/contexts/user-context";
 
 export default function ResetPasswordPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showPasswords, setShowPasswords] = useState(false); // 🔁 shared toggle
+  const router = useRouter();
+  const { user } = useUser();
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       oldPassword: "",
       newPassword: "",
+      confirmNewPassword: "",
     },
   });
 
   async function onSubmit(data: ResetPasswordFormValues) {
     setIsSubmitting(true);
-
     const email = localStorage.getItem("userEmail");
 
     if (!email) {
@@ -68,12 +72,12 @@ export default function ResetPasswordPage() {
       if (response.success) {
         toast({
           title: "Password Reset Successful",
-          description: "Your password has been changed successfully.",
+          description: "Your password has been changed successfully",
         });
-
         form.reset();
+        router.push("/dashboard");
       } else {
-        throw new Error("Failed to trigger OTP.");
+        throw new Error(response.message);
       }
     } catch (error) {
       toast({
@@ -88,18 +92,40 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="container max-w-md mx-auto py-10">
-      <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
-          <CardDescription>
-            Enter your old password and a new password to reset your account
-            password
+    <div className="flex flex-col items-center space-y-8 py-10">
+
+    {user && user.userId ? (
+     <div className="flex w-full max-w-md items-center justify-start">
+      <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.back()}
+          className="h-10 w-10 text-lg cursor-pointer"
+        >
+          ←
+        </Button>
+      <Branding size="md" showTagline={true} layout="horizontal" />
+    </div>
+    ) : (
+      <div className="flex w-full max-w-md items-center justify-center">
+      <Branding size="md" showTagline={true} layout="horizontal" />
+      </div>
+    )}
+
+      <Card className="w-full max-w-md border-slate-200 shadow-sm">
+        <CardHeader className="space-y-1 pb-1">
+          <CardTitle className="text-center text-xl font-medium tracking-tight">
+            Reset Password
+          </CardTitle>
+          <CardDescription className="text-center text-slate-500">
+            Enter your old and new passwords to reset your account password
           </CardDescription>
         </CardHeader>
+
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Old Password */}
               <FormField
                 control={form.control}
                 name="oldPassword"
@@ -110,7 +136,7 @@ export default function ResetPasswordPage() {
                       <FormControl>
                         <Input
                           placeholder="Enter your old password"
-                          type={showOldPassword ? "text" : "password"}
+                          type={showPasswords ? "text" : "password"}
                           {...field}
                         />
                       </FormControl>
@@ -119,15 +145,15 @@ export default function ResetPasswordPage() {
                         variant="ghost"
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowOldPassword(!showOldPassword)}
+                        onClick={() => setShowPasswords(!showPasswords)}
                       >
-                        {showOldPassword ? (
+                        {showPasswords ? (
                           <EyeOff className="h-4 w-4" />
                         ) : (
                           <Eye className="h-4 w-4" />
                         )}
                         <span className="sr-only">
-                          {showOldPassword ? "Hide password" : "Show password"}
+                          {showPasswords ? "Hide password" : "Show password"}
                         </span>
                       </Button>
                     </div>
@@ -135,6 +161,8 @@ export default function ResetPasswordPage() {
                   </FormItem>
                 )}
               />
+
+              {/* New Password */}
               <FormField
                 control={form.control}
                 name="newPassword"
@@ -145,7 +173,7 @@ export default function ResetPasswordPage() {
                       <FormControl>
                         <Input
                           placeholder="Enter your new password"
-                          type={showNewPassword ? "text" : "password"}
+                          type={showPasswords ? "text" : "password"}
                           {...field}
                         />
                       </FormControl>
@@ -154,15 +182,15 @@ export default function ResetPasswordPage() {
                         variant="ghost"
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        onClick={() => setShowPasswords(!showPasswords)}
                       >
-                        {showNewPassword ? (
+                        {showPasswords ? (
                           <EyeOff className="h-4 w-4" />
                         ) : (
                           <Eye className="h-4 w-4" />
                         )}
                         <span className="sr-only">
-                          {showNewPassword ? "Hide password" : "Show password"}
+                          {showPasswords ? "Hide password" : "Show password"}
                         </span>
                       </Button>
                     </div>
@@ -170,29 +198,48 @@ export default function ResetPasswordPage() {
                   </FormItem>
                 )}
               />
+
+              {/* Confirm Password */}
+              <FormField
+                control={form.control}
+                name="confirmNewPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm New Password</FormLabel>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          placeholder="Re-enter your new password"
+                          type={showPasswords ? "text" : "password"}
+                          {...field}
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPasswords(!showPasswords)}
+                      >
+                        {showPasswords ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">
+                          {showPasswords ? "Hide password" : "Show password"}
+                        </span>
+                      </Button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Resetting...
                   </>
                 ) : (
@@ -205,6 +252,7 @@ export default function ResetPasswordPage() {
             </form>
           </Form>
         </CardContent>
+
         <CardFooter className="flex justify-center text-sm text-muted-foreground">
           <p>Make sure your new password is secure and easy to remember.</p>
         </CardFooter>

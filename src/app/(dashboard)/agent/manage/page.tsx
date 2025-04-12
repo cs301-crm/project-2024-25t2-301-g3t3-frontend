@@ -180,7 +180,7 @@ function UserManagementInner() {
         setIsOtpModalOpen(false);
         setOtpContext(null);
         setPendingUser(null);
-
+        
         toast({
           title: "OTP Verified",
           description:

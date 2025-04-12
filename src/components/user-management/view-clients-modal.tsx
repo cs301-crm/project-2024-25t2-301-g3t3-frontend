@@ -33,7 +33,9 @@ export function ViewClientsModal({
             Viewing all clients assigned to this agent.
           </DialogDescription>
         </DialogHeader>
-        <ClientsPageInner agentId={agent.id} />
+        <div className="min-h-[300px]">
+          <ClientsPageInner agentId={agent.id} />
+        </div>
       </DialogContent>
     </Dialog>
   );

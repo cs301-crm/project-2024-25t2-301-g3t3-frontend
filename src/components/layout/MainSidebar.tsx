@@ -13,7 +13,6 @@ import {
   CreditCard,
   UserCog,
   BadgeDollarSign,
-  Key,
 } from "lucide-react";
 import { useUser } from "@/contexts/user-context";
 
@@ -49,11 +48,6 @@ export function MainSidebar() {
       label: "View Transactions",
       icon: <BadgeDollarSign className="h-4 w-4" />,
     },
-    {
-      href: "/resetpassword",
-      label: "Reset Password",
-      icon: <Key className="h-4 w-4" />,
-    },
   ];
 
   // Default navigation items for other roles
@@ -82,11 +76,6 @@ export function MainSidebar() {
       href: "/agent/manage",
       label: "User Management",
       icon: <UserCog className="h-4 w-4" />,
-    },
-    {
-      href: "/resetpassword",
-      label: "Reset Password",
-      icon: <Key className="h-4 w-4" />,
     },
   ];
 

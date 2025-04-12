@@ -65,7 +65,7 @@ export const clientService = {
       params.append('page', page.toString());
       params.append('limit', limit.toString());
       
-      const response = await axiosClient.get(`/clients/${agentId}?${params.toString()}`);
+      const response = await axiosClient.get(`/clients/agent/${agentId}?${params.toString()}`);
       
       if (!response) {
         throw new Error('Error fetching clients');

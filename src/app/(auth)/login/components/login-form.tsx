@@ -118,10 +118,24 @@ export function LoginForm() {
       };
       const result = await userService.resendAuthOtp(resendDTO);
       if (result.success) {
-        console.log("OTP resent to the user.");
+        toast({
+          title: "OTP Resent",
+          description: "A new verification code has been sent to your email.",
+        });
+      } else {
+        toast({
+          title: "Failed to resend OTP",
+          description: "Try again or contact support.",
+          variant: "destructive",
+        });
       }
     } catch (err) {
-      console.log(err);
+      console.error("Resend OTP error:", err);
+      toast({
+        title: "Error",
+        description: "Something went wrong while resending OTP.",
+        variant: "destructive",
+      });
     }
   };
 

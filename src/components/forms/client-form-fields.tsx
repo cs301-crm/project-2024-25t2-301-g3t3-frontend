@@ -225,7 +225,7 @@ export function ClientFormFields({ form }: ClientFormFieldsProps) {
                 <FormItem>
                   <FormLabel>Postal Code</FormLabel>
                   <FormControl>
-                    <Input placeholder="10001" {...field} />
+                    <Input placeholder="100101" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

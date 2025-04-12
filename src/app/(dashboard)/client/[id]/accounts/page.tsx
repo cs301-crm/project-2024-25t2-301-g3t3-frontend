@@ -12,7 +12,7 @@ import { ClientNotFound } from "@/components/client/clientNotFound";
 import { ClientLoading } from "@/components/client/clientLoading";
 
 export default function AccountsPage() {
-  const { client, loadingClient, accounts, loadingAccounts, loadClientError, fetchClientAccounts } = useClient();
+  const { client, loadingClient, accounts, loadingAccounts, fetchClientAccounts } = useClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string>("");
   const [accountTypeFilter, setAccountTypeFilter] = useState<string | null>(null);
@@ -39,7 +39,7 @@ export default function AccountsPage() {
     return <ClientLoading />;
   }
     
-  if (!client && !loadClientError) {
+  if (!client) {
     return <ClientNotFound />;
   }
 

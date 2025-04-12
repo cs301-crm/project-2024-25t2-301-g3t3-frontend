@@ -131,11 +131,14 @@ export default function AccountsPage() {
             pageParams: [undefined] // Corresponding page params
           };
         }
-  
         return {
           ...old,
-          pages: old.pages.map(page => 
-            page.filter(account => account.accountId !== deletedAccountId)
+          pages: old.pages.map(page =>
+            page.map(account =>
+              account.accountId === deletedAccountId
+                ? { ...account, accountStatus: "CLOSED" }
+                : account
+            )
           )
         };
       }

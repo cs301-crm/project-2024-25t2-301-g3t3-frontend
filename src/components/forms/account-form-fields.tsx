@@ -86,8 +86,6 @@ export function AccountFormFields({
                     {...field}
                   >
                     <option value={AccountStatus.ACTIVE}>Active</option>
-                    <option value={AccountStatus.INACTIVE}>Inactive</option>
-                    <option value={AccountStatus.CLOSED}>Closed</option>
                     <option value={AccountStatus.PENDING}>Pending</option>
                   </select>
                 </FormControl>

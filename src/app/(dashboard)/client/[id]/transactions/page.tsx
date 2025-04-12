@@ -9,14 +9,13 @@ export default function TransactionsPage() {
   const { 
     client,
     loadingClient,
-    loadClientError
   } = useClient();
 
   if (loadingClient) {
     return <ClientLoading />;
   }
     
-  if (!client && !loadClientError) {
+  if (!client) {
     return <ClientNotFound />;
   }
 

@@ -20,7 +20,7 @@ export default function ClientOverviewPage() {
     return <ClientLoading />;
   }
 
-  if (!client && !loadClientError) {
+  if (!client) {
     return <ClientNotFound />;
   }
 
@@ -146,8 +146,9 @@ export default function ClientOverviewPage() {
           </div>
         </div>
       </DashboardCard>
-
+      {client && 
       <RecentActivities clientId={client?.clientId}/>
+      }
     </div>
   );
 }

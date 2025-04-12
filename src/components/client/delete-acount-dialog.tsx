@@ -33,8 +33,8 @@ const DeleteAccountButton = ({
     try {
       await deleteAccount(accountId, clientId);
       toast({
-        title: "Account deleted",
-        description: `Account for ${clientName} has been deleted successfully.`,
+        title: "Account closed",
+        description: `Account for ${clientName} has been closed successfully.`,
       });
       setOpen(false);
       onSuccess?.(); // Call the success callback
@@ -42,7 +42,7 @@ const DeleteAccountButton = ({
       handleApiError(err);
       toast({
         title: "Error",
-        description: "Failed to delete account. Please try again.",
+        description: "Failed to close account. Please try again.",
         variant: "destructive",
       });
       onError?.(err); // Call the error callback if provided
@@ -60,16 +60,16 @@ const DeleteAccountButton = ({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirm Account Deletion</AlertDialogTitle>
+          <AlertDialogTitle>Confirm Account Closure</AlertDialogTitle>
           <AlertDialogDescription>
-            This will delete account for {clientName}.
-            This action is irreversible. To confirm, type <strong>&quot;delete&quot;</strong> below.
+            This will close account for {clientName}.
+            To confirm, type <strong>&quot;close&quot;</strong> below.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <Input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Type 'delete' to confirm"
+          placeholder="Type 'close' to confirm"
           className="mt-2"
         />
         <AlertDialogFooter>
@@ -77,9 +77,9 @@ const DeleteAccountButton = ({
           <Button
             variant="destructive"
             onClick={handleDelete}
-            disabled={inputValue !== "delete" || deleting}
+            disabled={inputValue !== "close" || deleting}
           >
-            {deleting ? "Deleting..." : "Confirm Delete"}
+            {deleting ? "Closing..." : "Confirm Close"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

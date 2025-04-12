@@ -120,7 +120,7 @@ export interface Transaction {
   clientId: string;
   accountId: string;
   amount: number;
-  status: "completed" | "pending" | "failed";
+  status: "COMPLETED" | "PENDING" | "FAILED";
   date: string;
   description?: string;
   clientFirstName: string;

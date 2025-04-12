@@ -3,9 +3,9 @@ import React, { ReactNode } from "react";
 
 // Transaction status constants
 export const TRANSACTION_STATUS = {
-  COMPLETED: "completed",
-  PENDING: "pending",
-  FAILED: "failed",
+  COMPLETED: "COMPLETED",
+  PENDING: "PENDING",
+  FAILED: "FAILED",
 } as const;
 
 export type TransactionStatus = typeof TRANSACTION_STATUS[keyof typeof TRANSACTION_STATUS];

@@ -200,16 +200,15 @@ export default function Transactions({ clientId }: TransactionsPageProps) {
                         className="rounded-md border p-3 hover:bg-slate-50"
                       >
                         <div className="flex items-center justify-between">
-                          <div>
+                            <div>
                             <div className="flex items-center">
                               {getStatusIcon(transaction.status)}
                               <p className="ml-1 text-sm font-medium">
-                                Transaction #{transaction.id}
+                                Transaction
                               </p>
                             </div>
-                            <p className="text-xs text-slate-500">
-                              Client: {getClientName(transaction)}
-                            </p>
+                            <p className="text-xs text-slate-500">ID: {transaction.id}</p>
+                            <p className="text-xs text-slate-500">Client: {getClientName(transaction)}</p>
                           </div>
                           <div className="text-right">
                             <p className={`text-sm font-medium ${getStatusColor(transaction.status)}`}>
@@ -265,7 +264,7 @@ export default function Transactions({ clientId }: TransactionsPageProps) {
 
       {/* Transaction Details Dialog */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Transaction Details</DialogTitle>
             <DialogDescription>

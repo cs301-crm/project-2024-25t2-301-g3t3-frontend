@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import clientService from "@/lib/api/clientService";
 import accountService from "@/lib/api/accountService";
 import { Client, Account, AccountDTO } from '@/lib/api/types';
+import { AxiosError } from "axios";
 
 
 // Context type definition
@@ -54,11 +55,24 @@ export function ClientProvider({ children }: { children: ReactNode }) {
         setClient(response);
         console.log("Fetched client:", response);
     } catch (err) {
-      setLoadClientError("Failed to load client");
-      console.log(err);
-      throw new Error("Failed to fetch client"); 
+      let errorMessage = "Failed to load client";
+
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 404) {
+          setClient(null);
+          setLoadClientError(errorMessage);
+        } else {
+          errorMessage = err.response?.data?.message || errorMessage;
+          setClient(null);
+          setLoadClientError(errorMessage);
+        }
+      } else {
+        setClient(null);
+        setLoadClientError("Unexpected error");
+      }
+      setAccounts(null);
     } finally {
-        setLoadingClient(false);
+      setLoadingClient(false);
     }
   }, [clientId]);
 
@@ -120,12 +134,16 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     try {
       await accountService.deleteAccount(accountId);
       
-      if(clientId === accountClientId){
-        setAccounts(prevAccounts => {
+      if (clientId === accountClientId) {
+        setAccounts((prevAccounts) => {
           if (!prevAccounts) return prevAccounts;
-          return prevAccounts.filter(account => account.accountId !== accountId);
+          return prevAccounts.map((account) =>
+            account.accountId === accountId
+              ? { ...account, accountStatus: "CLOSED" }
+              : account
+          );
         });
-      }
+      }      
   
     } catch (err) {
       console.log(err);

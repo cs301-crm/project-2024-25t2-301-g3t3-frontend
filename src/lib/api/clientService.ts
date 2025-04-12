@@ -89,7 +89,7 @@ export const clientService = {
 
     } catch (error) {
       handleApiError(error);
-      throw new Error('Failed to fetch client');
+      throw error;
     }
   },
 

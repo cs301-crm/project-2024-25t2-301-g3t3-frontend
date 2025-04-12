@@ -15,8 +15,12 @@ export function TransactionDetails({ transaction, clientName, onClose }: Readonl
   return (
     <div className="space-y-4">
       <div className="rounded-md border p-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-medium">Transaction #{transaction.id}</h3>
+      <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-medium">Transaction</h3>
+            <p className="text-sm text-slate-500">ID: {transaction.id}</p>
+          </div>
+          
           <div className={`flex items-center ${getStatusColor(transaction.status)}`}>
             {getStatusIcon(transaction.status)}
             <span className="ml-1 capitalize">{transaction.status}</span>
@@ -29,8 +33,14 @@ export function TransactionDetails({ transaction, clientName, onClose }: Readonl
             <span className="font-medium">${transaction.amount}</span>
           </div>
           <div className="flex justify-between">
+            <span className="text-sm text-slate-500">Type:</span>
+            <span className="font-medium">
+              {transaction.amount < 0 ? "Withdrawal" : "Deposit"}
+            </span>
+          </div>
+          <div className="flex justify-between">
             <span className="text-sm text-slate-500">Date:</span>
-            <span>{transaction.date}</span>
+            <span>{new Date(transaction.date).toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-slate-500">Client:</span>

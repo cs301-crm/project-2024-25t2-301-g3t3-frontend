@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import Link from "next/link";
-import { Shield } from "lucide-react";
+// import Link from "next/link";
+// import { Shield } from "lucide-react";
 
 import { LoginForm } from "./components/login-form";
 import { Branding } from "@/components/branding";
@@ -8,7 +8,7 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
+  // CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -22,7 +22,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center space-y-8">
       <Branding size="md" showTagline={true} layout="horizontal" />
-      
+
       <Card className="w-full border-slate-200 shadow-sm">
         <CardHeader className="space-y-1 pb-1">
           <CardTitle className="text-center text-xl font-medium tracking-tight">
@@ -35,7 +35,7 @@ export default function LoginPage() {
         <CardContent className="pb-6">
           <LoginForm />
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4 border-t bg-slate-50 px-6 py-4">
+        {/* <CardFooter className="flex flex-col space-y-4 border-t bg-slate-50 px-6 py-4">
           <div className="flex justify-center space-x-4 text-center text-sm">
             <Link
               href="/forgotpassword"
@@ -48,7 +48,7 @@ export default function LoginPage() {
             <Shield className="mr-1 h-3 w-3" />
             Protected by company security policies
           </div>
-        </CardFooter>
+        </CardFooter> */}
       </Card>
     </div>
   );

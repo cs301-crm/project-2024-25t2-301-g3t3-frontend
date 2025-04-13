@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Create an Axios instance with default configuration
 const axiosClient = axios.create({
-  baseURL: 'http://localhost:9000/api/v1',
+  baseURL: "https://api.itsag3t3.com/api/v1",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   withCredentials: true,
 });
@@ -14,14 +14,16 @@ axiosClient.interceptors.request.use(
   (config) => {
     console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, {
       data: config.data,
-      headers: config.headers
+      headers: config.headers,
     });
     return config;
   },
   (error) => {
-    console.error('API Request Error:', error);
-    return Promise.reject(error instanceof Error ? error : new Error(String(error)));
-  }
+    console.error("API Request Error:", error);
+    return Promise.reject(
+      error instanceof Error ? error : new Error(String(error)),
+    );
+  },
 );
 
 axiosClient.interceptors.response.use(
@@ -51,33 +53,36 @@ axiosClient.interceptors.response.use(
         localStorage.removeItem("userEmail");
         window.location.href = "/login";
       }
-
-    } else if (error.response) {  // Catch other errors
+    } else if (error.response) {
+      // Catch other errors
       const status = error.response.status;
       const errorData = error.response.data;
-      const errorMessage = errorData?.message || 'An error occurred';
-      const errorStr = JSON.stringify(errorData || error.message || '');
-      
+      const errorMessage = errorData?.message || "An error occurred";
+      const errorStr = JSON.stringify(errorData || error.message || "");
+
       // Check for method not supported errors
-      if (errorStr.includes('HttpRequestMethodNotSupportedException') || 
-          (errorStr.includes('Request method') && errorStr.includes('is not supported')) ||
-          status === 405) {
+      if (
+        errorStr.includes("HttpRequestMethodNotSupportedException") ||
+        (errorStr.includes("Request method") &&
+          errorStr.includes("is not supported")) ||
+        status === 405
+      ) {
         console.error(`API Method Not Supported Error: ${errorMessage}`, {
           endpoint: error.config?.url,
           method: error.config?.method,
-          supportedMethods: errorData?.supportedMethods || 'unknown'
+          supportedMethods: errorData?.supportedMethods || "unknown",
         });
       } else if (status === 500) {
         console.error(`API Server Error (500): ${errorMessage}`, {
           endpoint: error.config?.url,
           method: error.config?.method,
           data: error.config?.data,
-          response: errorData
+          response: errorData,
         });
       } else {
         console.error(`API Error (${status}): ${errorMessage}`, {
           endpoint: error.config?.url,
-          method: error.config?.method
+          method: error.config?.method,
         });
       }
     } else {
@@ -87,6 +92,5 @@ axiosClient.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
 
 export default axiosClient;

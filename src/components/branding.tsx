@@ -33,11 +33,11 @@ export function Branding({
     <div className={`flex ${isHorizontal ? 'flex-row items-center' : 'flex-col items-center'} ${className}`}>
       <div className={`flex items-center justify-center rounded-full bg-slate-100 ${containerClass}`}>
         <Image
-          src="/globe.svg"
+          src="/assets/images/logo.png"
           alt="CRM Logo"
           width={width}
           height={height}
-          style={{ height: `${width / 4}px`, width: `${height / 4}px` }}
+          style={{ height: `${width}px`, width: `${height}px` }}
         />
       </div>
       

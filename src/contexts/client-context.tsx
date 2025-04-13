@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useMemo, ReactNode, use
 import { usePathname } from "next/navigation";
 import clientService from "@/lib/api/clientService";
 import accountService from "@/lib/api/accountService";
-import { Client, Account, AccountDTO } from '@/lib/api/types';
+import { Client, Account, AccountDTO, VerifyClientResponse } from '@/lib/api/types';
 import { AxiosError } from "axios";
 
 
@@ -24,7 +24,7 @@ interface ClientContextType {
   fetchClientAccounts: () => Promise<void>;
   addAccount: (addAccount: Omit<AccountDTO, "accountId">) => Promise<Account>;
   deleteAccount: (accountId: string, accountClientId: string) => Promise<void>;
-  verifyClient: (accountId: string) => Promise<void>;
+  verifyClient: (accountId: string) => Promise<VerifyClientResponse>;
 }
 
 // Create the context
@@ -227,20 +227,24 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     );
     
     const verifyClient = useCallback(
-      async () => {
-        if (!client || !clientId) return;
+      async (): Promise<VerifyClientResponse> => {
+        if (!client || !clientId) {
+          throw new Error("Missing client or clientId");
+        }
         setLoadingAction(true);
         try {
-          await clientService.verifyClient(clientId);
-          setClient((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  verificationStatus: "VERIFIED"
-                }
-              : prev
-          );
-
+          const result = await clientService.verifyClient(clientId);
+          if(result.verified){
+            setClient((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    verificationStatus: "VERIFIED"
+                  }
+                : prev
+            );
+          } 
+          return result;
         } catch (err) {
           console.error("Verification failed:", err);
           throw new Error("Failed to verify client");

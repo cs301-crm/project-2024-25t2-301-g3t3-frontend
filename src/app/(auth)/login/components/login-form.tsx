@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, Mail, Lock } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -70,7 +69,7 @@ export function LoginForm() {
 
   const handleVerifyOtp = async (otp: string) => {
     if (isVerifyingOtp) return;
-
+    setIsVerifyingOtp(true);
     setOtpError(null);
     try {
       const OtpDTO: OtpVerificationDTO = {
@@ -111,6 +110,7 @@ export function LoginForm() {
   };
 
   const handleResendOtp = async () => {
+    setOtpError("");
     try {
       if (!email) return;
       const resendDTO: ResendOtpRequestDTO = {
@@ -118,10 +118,24 @@ export function LoginForm() {
       };
       const result = await userService.resendAuthOtp(resendDTO);
       if (result.success) {
-        console.log("OTP resent to the user.");
+        toast({
+          title: "OTP Resent",
+          description: "A new verification code has been sent to your email.",
+        });
+      } else {
+        toast({
+          title: "Failed to resend OTP",
+          description: "Try again or contact support.",
+          variant: "destructive",
+        });
       }
     } catch (err) {
-      console.log(err);
+      console.error("Resend OTP error:", err);
+      toast({
+        title: "Error",
+        description: "Something went wrong while resending OTP.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -146,7 +160,7 @@ export function LoginForm() {
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <Input
-                      placeholder="your.email@company.com"
+                      placeholder="your.email@scroogebank.com"
                       type="email"
                       autoComplete="email"
                       disabled={isLoading}

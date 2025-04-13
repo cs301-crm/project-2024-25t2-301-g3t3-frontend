@@ -6,6 +6,14 @@ import { Menu, User, Bell, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Branding } from "@/components/branding";
 import { useUser } from "@/contexts/user-context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function Header() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -47,34 +55,43 @@ export function Header() {
           <Bell className="h-5 w-5" />
         </Button>
 
-        <div className="flex items-center gap-2">
-          <span className="hidden text-sm text-slate-500 md:inline-block">
+        <div className="flex items-center gap-2 flex-row">
+          <span className="text-sm text-slate-500 inline-block">
             {!isAdmin ? `Agent ${user.fullName}` : `Admin ${user.fullName}`}
           </span>
-          <Button variant="ghost" className="cursor-pointer" size="icon" aria-label="User menu">
-            <User className="h-5 w-5" />
-          </Button>
+          <div className="relative">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="cursor-pointer" size="icon" aria-label="User menu">
+                <User className="h-5 w-5" />
+              </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href={`/resetpassword`} className="w-full cursor-pointer text-slate-700">Reset Password</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer text-slate-700"
+                  disabled={isLoggingOut}
+                  onSelect={(e) => {
+                    e.preventDefault(); 
+                    handleLogout();     
+                  }}
+                >
+                  {isLoggingOut ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <LogOut className="mr-2 h-4 w-4" />
+                  )}
+                  Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
-        <div className="relative group">
-          <Button
-            variant="ghost"
-            className="cursor-pointer"
-            size="icon"
-            aria-label="Log out"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-          >
-            {isLoggingOut ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <LogOut className="h-5 w-5" />
-            )}
-          </Button>
-          <span className="absolute top-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-gray-800 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            Logout
-          </span>
-        </div>
       </div>
     </header>
   );

@@ -34,6 +34,8 @@ axiosClient.interceptors.response.use(
       error.response?.status === 401 &&
       !request.url.includes("/auth/login") &&
       !request.url.includes("/auth/refresh") &&
+      !request.url.includes("/auth/verify-otp") &&
+      !request.url.includes("/users/reset-password") &&
       !request._retry
     ) {
       request._retry = true;
@@ -46,6 +48,7 @@ axiosClient.interceptors.response.use(
         console.error("Unable to refresh access token, re-login required");
         //Remove user state
         localStorage.removeItem("user");
+        localStorage.removeItem("userEmail");
         window.location.href = "/login";
       }
 

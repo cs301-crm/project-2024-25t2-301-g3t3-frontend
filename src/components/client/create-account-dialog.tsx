@@ -69,7 +69,7 @@ export function CreateAccountDialog({ clientId, clientName }: CreateAccountDialo
     initialPageParam: 1,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
-    staleTime: 60 * 1000,
+    staleTime: 15 * 1000,
   });
 
   

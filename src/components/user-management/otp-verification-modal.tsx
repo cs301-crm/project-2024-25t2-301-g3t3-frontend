@@ -134,6 +134,27 @@ export function OtpVerificationModal({
     // setResendDisabled(false);
   };
 
+  useEffect(() => {
+    if (isOtpComplete && open) {
+      handleVerify();
+    }
+  }, [otp, open]);
+
+  useEffect(() => {
+    if (open) {
+      setOtp(Array(6).fill(""));
+      setCountdown(0);
+      setResendDisabled(false);
+      setTimeout(() => {
+        if (inputRefs.current[0]) {
+          inputRefs.current[0].focus();
+        }
+      }, 100);
+    } else {
+      setOtp(Array(6).fill(""));
+    }
+  }, [open]);
+
   const isOtpComplete = otp.every((digit) => digit !== "");
 
   return (

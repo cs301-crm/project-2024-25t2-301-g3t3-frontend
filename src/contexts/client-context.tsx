@@ -24,6 +24,7 @@ interface ClientContextType {
   fetchClientAccounts: () => Promise<void>;
   addAccount: (addAccount: Omit<AccountDTO, "accountId">) => Promise<Account>;
   deleteAccount: (accountId: string, accountClientId: string) => Promise<void>;
+  verifyClient: (accountId: string) => Promise<void>;
 }
 
 // Create the context
@@ -225,6 +226,30 @@ export function ClientProvider({ children }: { children: ReactNode }) {
       [clientId, client]
     );
     
+    const verifyClient = useCallback(
+      async () => {
+        if (!client || !clientId) return;
+        setLoadingAction(true);
+        try {
+          await clientService.verifyClient(clientId);
+          setClient((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  verificationStatus: "VERIFIED"
+                }
+              : prev
+          );
+
+        } catch (err) {
+          console.error("Verification failed:", err);
+          throw new Error("Failed to verify client");
+        } finally {
+          setLoadingAction(false);
+        }
+      },
+      [clientId, client]
+    );
 
     useEffect(() => {
       if (!clientId){
@@ -250,9 +275,10 @@ export function ClientProvider({ children }: { children: ReactNode }) {
         fetchClientAccounts,
         addAccount,
         deleteClient,
-        deleteAccount
+        deleteAccount,
+        verifyClient
         }),
-        [client, loadingClient, accounts, loadingAccounts, loadingAction, loadClientError, reassignAgent, setClient, fetchClient, updateClient, fetchClientAccounts, addAccount, deleteAccount, deleteClient]
+        [client, loadingClient, accounts, loadingAccounts, loadingAction, loadClientError, reassignAgent, setClient, fetchClient, updateClient, fetchClientAccounts, addAccount, deleteAccount, deleteClient, verifyClient]
     );
 
   return <ClientContext.Provider value={contextValue}>{children}</ClientContext.Provider>;

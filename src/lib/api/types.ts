@@ -32,6 +32,7 @@ export interface Client {
   nric?: string;
   agentId: string;
   verificationStatus?: string;
+  verificationDocumentUploaded?: boolean;
 }
 
 // Account Types
@@ -148,10 +149,10 @@ export interface DangerousActionOtpVerificationDTO {
 }
 
 export interface UpdateUserRequestDTO {
+  userId: string;
   firstName: string;
   lastName: string;
   email: string;
-  userRole:string;
 }
 
 export interface ResetPasswordRequestDTO {
@@ -226,4 +227,14 @@ export interface AgentListResponse {
   success: boolean;
   message: Partial<Agent>[];
   timestamp: string;
+}
+
+export interface VerifyUploadResponse {
+  verified: boolean;
+  message: string;
+}
+
+export interface VerifyClientResponse {
+  verified: boolean;
+  message: string;
 }

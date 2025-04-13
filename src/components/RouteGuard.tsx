@@ -20,6 +20,7 @@ export default function RouteGuard({ children }: RouteGuardProps) {
 
   useEffect(() => {
     if (mounted && !loading && (!user || !user.userId )) {
+      localStorage.removeItem("userEmail");
       router.push('/login');
     }
   }, [mounted, loading, user, router]);

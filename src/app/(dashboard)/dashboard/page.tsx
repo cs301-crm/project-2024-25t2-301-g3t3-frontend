@@ -48,7 +48,6 @@ function AdminDashboard() {
       </DashboardCard> */}
 
       <AdminLogs />
-      <Communications />
     </div>
   );
 }

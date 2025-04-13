@@ -40,3 +40,23 @@ export const forgotPasswordSchema = z.object({
 });
 
 export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    oldPassword: z.string().min(8, {
+      message: "Old password must be at least 8 characters.",
+    }),
+    newPassword: z.string().min(8, {
+      message: "New password must be at least 8 characters.",
+    }),
+    confirmNewPassword: z.string().min(8, {
+      message: "Please confirm your new password.",
+    }),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    path: ["confirmNewPassword"],
+    message: "Passwords do not match.",
+  });
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
+

@@ -35,12 +35,16 @@ export function VerifyClientButton({
     setError(null);
     setIsLoading(true);
     try {
-      await verifyClient(clientId);
-      setIsOpen(false);
-      toast({
-        title: "Verify Success",
-        description: "Client has been Verified successfully",
-      });
+      const result = await verifyClient(clientId);
+      if(result.verified){
+        setIsOpen(false);
+        toast({
+          title: "Verify Success",
+          description: "Client has been Verified successfully",
+        });
+      } else {
+        setError(result.message);
+      }
     } catch (err) {
       console.error("Verification failed:", err);
       setError("Verification failed. Please try again.");

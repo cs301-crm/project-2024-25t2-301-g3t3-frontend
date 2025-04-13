@@ -17,6 +17,7 @@ import { InfoIcon, CheckCircle, FileIcon, X } from "lucide-react";
 import { getS3PresignedURL } from "@/lib/api/s3Service";
 import clientService from "@/lib/api/clientService";
 import { Branding } from "@/components/branding";
+import { toast } from "@/components/ui/use-toast";
 
 export default function VerifyPage() {
   const params = useParams();
@@ -69,6 +70,10 @@ export default function VerifyPage() {
 
       setVerificationComplete(true);
     } catch (error) {
+      toast({
+        title: "Error",
+        description: `Unable to upload document`,
+      });
       console.error("Verification failed:", error);
     } finally {
       setIsVerifying(false);

@@ -54,7 +54,8 @@ export default function VerifyPage() {
         if (!uploadDocumentResponse.ok) {
             throw new Error('Failed to upload file to S3');
         }
-        clientService.verifyUpload(clientID);
+        const verifyUploadResponse = await clientService.verifyUpload(clientID);
+        console.log(verifyUploadResponse);
       // Simulate verification process
     //   await new Promise((resolve) => setTimeout(resolve, 2000));
 
